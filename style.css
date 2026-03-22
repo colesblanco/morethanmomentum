@@ -53,6 +53,7 @@ nav {
   padding: 1.8rem 5rem;
   z-index: 200;
   transition: background .4s, padding .4s;
+  overflow: hidden;
 }
 nav.scrolled {
   background: rgba(244,244,242,.93);
@@ -98,8 +99,9 @@ nav.scrolled {
 }
 .hero-bg-logo {
   position: absolute; right: -5rem; top: 50%;
-  transform: translateY(-50%); opacity: .04;
+  transform: translateY(-50%); opacity: .15;
   width: 58vw; pointer-events: none;
+  mix-blend-mode: screen;
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: .6rem;
