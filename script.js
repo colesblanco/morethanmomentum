@@ -60,7 +60,13 @@ document.querySelectorAll('a, button, .video-slot, .svc, .plan').forEach(el => {
 
 /* --- NAV SCROLL --- */
 window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', scrollY > 60);
+  const isScrolled = scrollY > 60;
+  document.getElementById('nav').classList.toggle('scrolled', isScrolled);
+  const logoImg = document.getElementById('nav-logo-img');
+if (logoImg) {
+  logoImg.src = isScrolled ? 'images/blackguylogo.png' : 'images/whiteguylogo.png';
+  logoImg.style.opacity = isScrolled ? '1' : '0';
+}
 });
 
 
