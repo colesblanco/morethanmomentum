@@ -163,13 +163,15 @@ nav.scrolled {
   font-size: .7rem; letter-spacing: .16em;
   text-transform: uppercase; color: rgba(255,255,255,.5);
 }
+
 .hero-title {
-  font-family: var(--serif);
+  font-family: var(--speed);
   font-size: clamp(3.8rem, 9vw, 9.5rem);
-  font-weight: 300; line-height: .92;
+  font-weight: 700; line-height: .92;
   letter-spacing: -.025em; color: var(--white);
   opacity: 0; animation: fadeUp .9s .35s forwards;
 }
+
 .hero-title em { font-style: italic; color: #2D6BE4; }
 .hero-bottom {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -233,7 +235,7 @@ nav.scrolled {
 .about-left .section-tag { color: #2D6BE4; }
 .about-left .section-tag::before { background: #2D6BE4; }
 .about-heading {
-  font-family: var(--serif); font-size: clamp(2.4rem,3.5vw,3.8rem);
+  font-family: var(--speed); font-size: clamp(2.4rem,3.5vw,3.8rem);
   font-weight: 300; line-height: 1.08; letter-spacing: -.01em; color: var(--white);
 }
 .about-heading em { font-style: italic; color: #2D6BE4; }
@@ -264,8 +266,8 @@ nav.scrolled {
 /* --- SERVICES --- */
 .services { padding: 7rem 5rem; border-bottom: 1px solid var(--light); }
 .services-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; }
-.services-heading { font-family: var(--serif); font-size: clamp(2.4rem,3.5vw,3.8rem); font-weight: 300; letter-spacing: -.01em; }
-.services-heading em { font-style: italic; }
+.services-heading { font-family: var(--speed); font-size: clamp(2.4rem,3.5vw,3.8rem); font-weight: 300; letter-spacing: -.01em; }
+.services-heading em { font-style: italic; color: #2D6BE4; }
 .services-note { max-width: 260px; font-size: .85rem; color: var(--gray); line-height: 1.7; text-align: right; }
 .services-grid { display: grid; grid-template-columns: repeat(3,1fr); }
 .svc {
@@ -295,7 +297,7 @@ nav.scrolled {
 .pricing .section-tag { color: #2D6BE4; }
 .pricing .section-tag::before { background: #2D6BE4; }
 .pricing-heading {
-  font-family: var(--serif); font-size: clamp(2.4rem,3.5vw,3.8rem);
+  font-family: var(--speed); font-size: clamp(2.4rem,3.5vw,3.8rem);
   font-weight: 300; color: var(--white); letter-spacing: -.01em; margin-bottom: 4rem;
 }
 .pricing-heading em { font-style: italic; color: #2D6BE4; }
@@ -334,8 +336,8 @@ nav.scrolled {
 /* --- PORTFOLIO / VIDEO --- */
 .portfolio { padding: 7rem 5rem; border-bottom: 1px solid var(--light); }
 .portfolio-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; }
-.portfolio-heading { font-family: var(--serif); font-size: clamp(2.4rem,3.5vw,3.8rem); font-weight: 300; letter-spacing: -.01em; }
-.portfolio-heading em { font-style: italic; }
+.portfolio-heading { font-family: var(--speed); font-size: clamp(2.4rem,3.5vw,3.8rem); font-weight: 300; letter-spacing: -.01em; }
+.portfolio-heading em { font-style: italic; color: #2D6BE4 }
 .portfolio-note { font-size: .82rem; color: var(--gray); max-width: 240px; text-align: right; }
 .video-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
 .video-row-2 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
@@ -363,8 +365,8 @@ nav.scrolled {
 .process { padding: 7rem 5rem; border-bottom: 1px solid var(--light); background: #f9f9f7; }
 .process-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 6rem; align-items: start; }
 .process-left { position: sticky; top: 8rem; }
-.process-heading { font-family: var(--serif); font-size: clamp(2.2rem,3vw,3.2rem); font-weight: 300; letter-spacing: -.01em; line-height: 1.1; }
-.process-heading em { font-style: italic; }
+.process-heading { font-family: var(--speed); font-size: clamp(2.2rem,3vw,3.2rem); font-weight: 300; letter-spacing: -.01em; line-height: 1.1; }
+.process-heading em { font-style: italic; color: #2D6BE4; }
 .process-sub { font-size: .9rem; color: var(--gray); line-height: 1.8; margin-top: 1.5rem; }
 .step { display: grid; grid-template-columns: 3rem 1fr; gap: 2rem; padding: 2.5rem 0; border-bottom: 1px solid var(--light); }
 .step:last-child { border-bottom: none; }
@@ -381,7 +383,7 @@ nav.scrolled {
 .contact-left .section-tag { color: #2D6BE4; }
 .contact-left .section-tag::before { background: #2D6BE4; }
 .contact-heading {
-  font-family: var(--serif); font-size: clamp(2.2rem,3.2vw,3.6rem);
+  font-family: var(--speed); font-size: clamp(2.2rem,3.2vw,3.6rem);
   font-weight: 300; line-height: 1.05; letter-spacing: -.02em; color: var(--white);
 }
 .contact-heading em { font-style: italic; color: #2D6BE4; }
