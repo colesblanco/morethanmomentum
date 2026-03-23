@@ -89,7 +89,7 @@ function updateNav() {
  if (logoImg) {
     logoImg.src = isScrolled ? 'images/blackguylogo.png' : 'images/whiteguylogo.png';
     logoImg.style.opacity = '1';
-    logoImg.style.filter = isScrolled ? 'none' : 'invert(100%) brightness(0%) saturate(100%) invert(29%) sepia(98%) saturate(500%) hue-rotate(210deg) brightness(110%)';
+    logoImg.style.filter = isScrolled ? 'none' : 'brightness(0) saturate(100%) invert(25%) sepia(80%) saturate(1200%) hue-rotate(205deg) brightness(110%)';
   }
 
   const navCta = document.querySelector('.nav-cta');

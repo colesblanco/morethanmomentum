@@ -72,7 +72,7 @@ nav.scrolled {
   height: 120px;
   object-fit: contain;
   transition: opacity .3s, filter .3s;
-  filter: invert(100%) brightness(0%) saturate(100%) invert(29%) sepia(98%) saturate(500%) hue-rotate(210deg) brightness(110%);
+ filter: brightness(0) saturate(100%) invert(25%) sepia(80%) saturate(1200%) hue-rotate(205deg) brightness(110%);
   margin: -35px 0;
   overflow: hidden;
 }
@@ -112,9 +112,10 @@ nav.scrolled {
 }
 .hero-bg-logo {
   position: absolute; right: -5rem; top: 50%;
-  transform: translateY(-50%); opacity: .15;
+  transform: translateY(-50%); opacity: .9;
   width: 58vw; pointer-events: none;
   mix-blend-mode: screen;
+  filter: brightness(2) contrast(2) grayscale(1);
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: .6rem;
