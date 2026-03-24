@@ -148,6 +148,7 @@ nav.scrolled {
   display: inline-flex; align-items: center; gap: .6rem;
   border: 1px solid rgba(255,255,255,.15);
   padding: .45rem 1rem; margin-bottom: 2.5rem;
+  margin-top: 6rem;
   width: fit-content; opacity: 0;
   animation: fadeUp .7s .2s forwards;
 }
