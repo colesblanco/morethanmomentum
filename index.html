@@ -28,12 +28,13 @@
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#work">Work</a></li>
   </ul>
-  <a href="#contact" class="nav-cta">Get Started</a>
+  <a href="#contact" class="nav-cta"><span class="scan-light"></span>Get Started</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
+  <canvas class="particle-canvas" id="particles-hero"></canvas>
   <img class="hero-bg-logo" src="images/whiteguylogo.png" alt=""/>
   <div>
     <div class="hero-badge">
@@ -46,7 +47,7 @@
     <div class="hero-bottom">
       <p class="hero-desc">We combine AI-driven strategy with real creative execution — helping businesses build powerful online presences that convert attention into lasting momentum.</p>
       <div class="hero-actions">
-        <a href="#services" class="btn-primary">See What We Do</a>
+        <a href="#services" class="btn-primary btn-blue"><span class="scan-light"></span>See What We Do</a>
         <a href="#work" class="btn-ghost">View Our Work</a>
       </div>
     </div>
@@ -78,6 +79,7 @@
 <!-- ABOUT -->
 <section class="about" id="about">
   <div class="about-left">
+    <canvas class="particle-canvas" id="particles-about"></canvas>
     <div>
       <div class="section-tag reveal">Who We Are</div>
       <h2 class="about-heading reveal">Built for<br/>the <em>new age</em><br/>of business.</h2>
@@ -168,6 +170,7 @@
 
 <!-- PRICING -->
 <section class="pricing" id="pricing">
+  <canvas class="particle-canvas" id="particles-pricing"></canvas>
   <div class="section-tag reveal">Investment</div>
   <h2 class="pricing-heading reveal">Simple, <em>transparent</em> packages.</h2>
   <div class="pricing-grid">
@@ -227,51 +230,9 @@
     </div>
     <p class="portfolio-note reveal">More work dropping soon — we're just getting started.</p>
   </div>
-  <div class="video-grid">
-    <div class="video-slot reveal">
-      <!-- TO ADD VIDEO: replace the placeholder div with: <video src="videos/video1.mp4" autoplay muted loop playsinline></video> -->
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">01</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
-    </div>
-    <div class="video-slot reveal reveal-delay-1">
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">02</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
-    </div>
-    <div class="video-slot reveal reveal-delay-2">
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">03</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
-    </div>
-  </div>
-  <div class="video-row-2">
-    <div class="video-slot reveal">
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">04</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
-    </div>
-    <div class="video-slot reveal reveal-delay-1">
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">05</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
-    </div>
-    <div class="video-slot reveal reveal-delay-2">
-      <div class="video-placeholder">
-        <div class="video-placeholder-num">06</div>
-        <div class="video-placeholder-label">Your video here</div>
-      </div>
-      <div class="video-overlay"><div><div class="video-client">Client · Category</div><div class="video-title">Project Title</div></div></div>
+  <div class="video-carousel">
+    <div class="video-track" id="videoTrack">
+      <!-- Videos are injected by JS -->
     </div>
   </div>
 </section>
@@ -297,6 +258,7 @@
 <!-- CONTACT -->
 <section class="contact" id="contact">
   <div class="contact-left">
+    <canvas class="particle-canvas" id="particles-contact"></canvas>
     <div>
       <div class="section-tag">Let's Talk</div>
       <h2 class="contact-heading">Ready to experience<br/><em>more than</em><br/>momentum?</h2>
