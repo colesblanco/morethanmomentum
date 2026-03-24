@@ -121,6 +121,7 @@ nav.scrolled {
   font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
   text-decoration: none; color: var(--white); background: var(--accent);
   padding: .65rem 1.4rem; font-weight: 400; transition: background .25s;
+  position: relative; overflow: hidden;
 }
 .nav-cta:hover { background: #1a52c4; }
 
@@ -192,9 +193,33 @@ nav.scrolled {
   text-decoration: none; font-size: .75rem;
   letter-spacing: .12em; text-transform: uppercase;
   padding: 1rem 2rem; font-weight: 500; transition: gap .3s;
+  position: relative; overflow: hidden;
 }
 .btn-primary::after { content: '→'; }
 .btn-primary:hover { gap: 1.3rem; }
+
+/* Blue variant for hero */
+.btn-primary.btn-blue {
+  background: var(--accent);
+  color: var(--white);
+}
+.btn-primary.btn-blue:hover { background: #1a52c4; }
+
+/* Scan light effect */
+.scan-light {
+  position: absolute;
+  top: 0; left: -80%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  animation: scan-btn 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scan-btn {
+  0%   { left: -60%; }
+  100% { left: 140%; }
+}
+
+/* Nav cta scan handled in nav section below */
 .btn-ghost {
   font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
   color: rgba(255,255,255,.4); text-decoration: none;
@@ -203,7 +228,54 @@ nav.scrolled {
 }
 .btn-ghost:hover { color: var(--accent-light); border-color: var(--accent-light); }
 
-/* --- TICKER --- */
+/* --- PARTICLE CANVAS --- */
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure content inside dark sections sits above canvas */
+.hero > *:not(.particle-canvas):not(.hero-grid):not(.hero-bg-logo) { position: relative; z-index: 2; }
+.about-left > *:not(.particle-canvas) { position: relative; z-index: 2; }
+.pricing > *:not(.particle-canvas) { position: relative; z-index: 2; }
+.contact-left > *:not(.particle-canvas) { position: relative; z-index: 2; }
+
+/* --- VIDEO CAROUSEL --- */
+.video-carousel {
+  overflow: hidden;
+  width: 100%;
+}
+
+.video-track {
+  display: flex;
+  width: 133.34%;
+  transform: translateX(-25%);
+}
+
+.video-track .video-slot {
+  width: 25%;
+  flex-shrink: 0;
+  padding: 0 .75rem;
+  box-sizing: border-box;
+  aspect-ratio: 9/16;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+}
+
+.video-track .video-slot video {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s cubic-bezier(.25,.46,.45,.94);
+}
+.video-track .video-slot:hover video { transform: scale(1.04); }
 .ticker {
   overflow: hidden;
   border-top: 1px solid var(--light);
@@ -341,8 +413,7 @@ nav.scrolled {
 .portfolio-heading { font-family: var(--speed); font-size: clamp(2.4rem,3.5vw,3.8rem); font-weight: 300; letter-spacing: -.01em; }
 .portfolio-heading em { font-style: italic; color: var(--accent); }
 .portfolio-note { font-size: .82rem; color: var(--gray); max-width: 240px; text-align: right; }
-.video-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
-.video-row-2 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+/* Video carousel styles handled above */
 .video-slot {
   aspect-ratio: 9/16; background: var(--black);
   position: relative; overflow: hidden;
@@ -456,7 +527,7 @@ footer {
   .svc:nth-child(3n) { border-right: 1px solid var(--light); }
   .svc:nth-child(2n) { border-right: none; }
   .pricing-grid { grid-template-columns: 1fr; gap: 1px; }
-  .video-grid, .video-row-2 { grid-template-columns: 1fr 1fr; }
+  .video-grid, .video-row-2, .video-carousel { width: 100%; }
   .process-inner { grid-template-columns: 1fr; gap: 3rem; }
   .process-left { position: static; }
   .contact { grid-template-columns: 1fr; }
