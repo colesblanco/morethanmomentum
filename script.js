@@ -2,82 +2,82 @@
    MORE THAN MOMENTUM — script.js
    ============================================================ */
 
-/* --- CURSOR --- */
-const cursor        = document.getElementById('cursor');
-const ring          = document.getElementById('cursorRing');
-const cursorImg     = document.getElementById('cursor-img');
-const cursorRingImg = document.getElementById('cursor-ring-img');
+/* --- CURSOR (desktop / mouse only) --- */
+const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
-let mx = 0, my = 0;
-let rx = 0, ry = 0;
-let lastX = 0;
-let moveTimeout = null;
+if (!isTouchDevice) {
+  const cursor        = document.getElementById('cursor');
+  const ring          = document.getElementById('cursorRing');
+  const cursorImg     = document.getElementById('cursor-img');
+  const cursorRingImg = document.getElementById('cursor-ring-img');
 
-document.addEventListener('mousemove', e => {
-  mx = e.clientX;
-  my = e.clientY;
+  let mx = 0, my = 0;
+  let rx = 0, ry = 0;
+  let lastX = 0;
+  let moveTimeout = null;
 
-  // Flip direction based on mouse movement
-  if (mx > lastX) {
-    if (cursorImg) cursorImg.style.transform = 'scaleX(1)';
-    if (cursorRingImg) cursorRingImg.style.transform = 'scaleX(1)';
-  } else if (mx < lastX) {
-    if (cursorImg) cursorImg.style.transform = 'scaleX(-1)';
-    if (cursorRingImg) cursorRingImg.style.transform = 'scaleX(-1)';
-  }
-  lastX = mx;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX;
+    my = e.clientY;
 
-  // Show shadow trail when moving, hide when stopped
-  ring.classList.add('moving');
-  clearTimeout(moveTimeout);
-  moveTimeout = setTimeout(() => {
-    ring.classList.remove('moving');
-  }, 150);
-
-  // Detect background brightness and swap logo color
-  const el = document.elementFromPoint(mx, my);
-  let node = el;
-  let isDark = false;
-
-  while (node && node !== document.body) {
-    const bg = window.getComputedStyle(node).backgroundColor;
-    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-      const rgb = bg.match(/\d+/g);
-      if (rgb) {
-        const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-        isDark = brightness < 128;
-      }
-      break;
+    // Flip direction based on mouse movement
+    if (mx > lastX) {
+      if (cursorImg) cursorImg.style.transform = 'scaleX(1)';
+      if (cursorRingImg) cursorRingImg.style.transform = 'scaleX(1)';
+    } else if (mx < lastX) {
+      if (cursorImg) cursorImg.style.transform = 'scaleX(-1)';
+      if (cursorRingImg) cursorRingImg.style.transform = 'scaleX(-1)';
     }
-    node = node.parentElement;
-  }
+    lastX = mx;
 
-  // Swap between white and black logo based on background
-  const logoSrc = isDark ? 'images/whiteguylogo.png' : 'images/blackguylogo.png';
-  if (cursorImg) cursorImg.src = logoSrc;
-  if (cursorRingImg) cursorRingImg.src = logoSrc;
-});
+    // Show shadow trail when moving, hide when stopped
+    ring.classList.add('moving');
+    clearTimeout(moveTimeout);
+    moveTimeout = setTimeout(() => {
+      ring.classList.remove('moving');
+    }, 150);
 
-// Smooth cursor follow animation
-(function animCursor() {
-  cursor.style.left = mx + 'px';
-  cursor.style.top  = my + 'px';
-  rx += (mx - rx) * 0.08;
-  ry += (my - ry) * 0.08;
-  ring.style.left = (rx - 20) + 'px';
-  ring.style.top  = ry + 'px';
-  requestAnimationFrame(animCursor);
-})();
+    // Detect background brightness and swap logo color
+    const el = document.elementFromPoint(mx, my);
+    let node = el;
+    let isDark = false;
 
-// Cursor hide on interactive elements
-document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.opacity = '0';
+    while (node && node !== document.body) {
+      const bg = window.getComputedStyle(node).backgroundColor;
+      if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+        const rgb = bg.match(/\d+/g);
+        if (rgb) {
+          const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+          isDark = brightness < 128;
+        }
+        break;
+      }
+      node = node.parentElement;
+    }
+
+    // Swap between white and black logo based on background
+    const logoSrc = isDark ? 'images/whiteguylogo.png' : 'images/blackguylogo.png';
+    if (cursorImg) cursorImg.src = logoSrc;
+    if (cursorRingImg) cursorRingImg.src = logoSrc;
   });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.opacity = '1';
+
+  // Smooth cursor follow animation
+  (function animCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+    rx += (mx - rx) * 0.08;
+    ry += (my - ry) * 0.08;
+    ring.style.left = (rx - 20) + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animCursor);
+  })();
+
+  // Cursor hide on interactive elements
+  document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.opacity = '0'; });
+    el.addEventListener('mouseleave', () => { cursor.style.opacity = '1'; });
   });
-});
+}
 
 
 /* --- NAV SCROLL --- */
