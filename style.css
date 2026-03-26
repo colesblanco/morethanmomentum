@@ -199,15 +199,15 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
   font-family: var(--speed);
   font-size: clamp(2.2rem, 7vw, 3rem);
   font-weight: 700;
-  color: #2a2a2a;
+  color: var(--white);
   text-decoration: none;
   padding: 0.85rem 0;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid #1e1e1e;
   letter-spacing: -0.02em;
   line-height: 1;
   transition: color 0.2s;
 }
-.nav-mobile-link:hover { color: var(--white); }
+.nav-mobile-link:hover { color: var(--accent-light); }
 .nav-mobile-cta {
   display: inline-flex;
   font-size: .72rem;
@@ -688,12 +688,26 @@ footer {
 
 /* --- RESPONSIVE: TABLET (≤1024px) --- */
 @media (max-width: 1024px) {
-  nav, nav.scrolled { padding: 1rem 2.5rem; }
+  nav, nav.scrolled { padding: .6rem 1.8rem; min-height: 56px; }
 
   /* Show hamburger, hide desktop nav items */
-  .nav-hamburger { display: flex; }
+  .nav-hamburger { display: flex; order: -1; }
   .nav-links { display: none; }
   .nav-cta { display: none; }
+
+  /* Logo moves to the right */
+  .nav-logo { order: 1; }
+  .nav-logo-text {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #nav-logo-img {
+    width: 72px;
+    height: 72px;
+    margin: -20px 0;
+  }
 
   .hero { padding: 0 2.5rem 4rem; }
   .hero-bg-logo { width: 70vw; opacity: .5; right: -2rem; }
@@ -723,7 +737,9 @@ footer {
 
 /* --- RESPONSIVE: MOBILE (≤640px) --- */
 @media (max-width: 640px) {
-  nav, nav.scrolled { padding: .8rem 1.5rem; }
+  nav, nav.scrolled { padding: .5rem 1.2rem; }
+  .nav-logo-text { font-size: .9rem; }
+  #nav-logo-img { width: 60px; height: 60px; margin: -16px 0; }
 
   .hero { padding: 0 1.5rem 3.5rem; min-height: 100svh; }
   .hero-title { font-size: clamp(3rem, 12vw, 5rem); }
@@ -779,4 +795,14 @@ footer {
   .nav-hamburger { display: none !important; }
   .nav-mobile { display: none !important; }
   .nav-mobile-backdrop { display: none !important; }
+}
+
+/* --- HIDE CUSTOM CURSOR ON TOUCH DEVICES --- */
+@media (pointer: coarse) {
+  .cursor,
+  .cursor-ring { display: none !important; }
+  body, * { cursor: auto !important; }
+  a, button, select,
+  .nav-cta, .plan-cta, .btn-primary,
+  .btn-ghost, .social-link { cursor: pointer !important; }
 }
