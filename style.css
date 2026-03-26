@@ -132,8 +132,15 @@ nav.scrolled {
   background: none;
   border: none;
   padding: 8px;
-  z-index: 201;
+  z-index: 301;
   position: relative;
+}
+
+.nav-hamburger.open {
+  position: fixed;
+  left: 1.2rem;
+  top: 0.5rem;
+  z-index: 301;
 }
 .nav-hamburger span {
   display: block;
@@ -209,16 +216,18 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
 }
 .nav-mobile-link:hover { color: var(--accent-light); }
 .nav-mobile-cta {
-  display: inline-flex;
-  font-size: .72rem;
+  display: flex;
+  justify-content: center;
+  font-size: .85rem;
   letter-spacing: .13em;
   text-transform: uppercase;
   color: var(--white);
   background: var(--accent);
-  padding: .9rem 1.8rem;
+  padding: 1.2rem 2rem;
   text-decoration: none;
   transition: background 0.25s;
-  align-self: flex-start;
+  align-self: stretch;
+  margin-top: .5rem;
 }
 .nav-mobile-cta:hover { background: #1a52c4; }
 .nav-mobile-backdrop {
