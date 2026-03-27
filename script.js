@@ -447,7 +447,7 @@ function initVideoCarousel() {
     return div;
   }
 
-  let nextIndex = 0;
+let nextIndex = 0;
   function nextVideo() {
     const v = videos[nextIndex % videos.length];
     nextIndex++;
@@ -463,30 +463,52 @@ function initVideoCarousel() {
 
   let animating = false;
 
-  setInterval(() => {
+  function advance(direction) {
     if (animating) return;
     animating = true;
 
-    const entering = createSlot(nextVideo(), 'entering');
-    track.insertBefore(entering, track.firstChild);
-
-    // Force reflow so no-transition positioning registers
-    entering.offsetHeight;
-
-    const stateOrder = ['left', 'center', 'right', 'exiting'];
-    Array.from(track.children).forEach((slot, i) => {
-      applyState(slot, stateOrder[i], true);
-    });
+    if (direction === 'next') {
+      const entering = createSlot(nextVideo(), 'entering');
+      track.insertBefore(entering, track.firstChild);
+      entering.offsetHeight;
+      const stateOrder = ['left', 'center', 'right', 'exiting'];
+      Array.from(track.children).forEach((slot, i) => applyState(slot, stateOrder[i], true));
+    } else {
+      nextIndex = ((nextIndex - 4) % videos.length + videos.length) % videos.length;
+      const entering = createSlot(nextVideo(), 'entering');
+      entering.style.transition = 'none';
+      entering.style.transform = `translateX(680px) translateZ(-280px) rotateY(-65deg) scale(0.62)`;
+      entering.style.opacity = '0';
+      entering.style.zIndex = '1';
+      entering.dataset.state = 'entering-rev';
+      track.appendChild(entering);
+      entering.offsetHeight;
+      const slots = Array.from(track.children);
+      applyState(slots[0], 'exiting', true);
+      applyState(slots[1], 'left',    true);
+      applyState(slots[2], 'center',  true);
+      applyState(slots[3], 'right',   true);
+    }
 
     setTimeout(() => {
-      const exiting = track.querySelector('[data-state="exiting"]');
-      if (exiting && exiting.parentNode === track) {
-        track.removeChild(exiting);
-      }
+      const dead = direction === 'next'
+        ? track.querySelector('[data-state="exiting"]')
+        : track.children[0];
+      if (dead && dead.parentNode === track) track.removeChild(dead);
       animating = false;
     }, 920);
+  }
 
-  }, 5000);
+  let autoTimer = setInterval(() => advance('next'), 5000);
+
+  function resetTimer() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => advance('next'), 5000);
+  }
+
+  const btnPrev = document.getElementById('carouselPrev');
+  const btnNext = document.getElementById('carouselNext');
+  if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
+  if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
 }
-
 window.addEventListener('load', initVideoCarousel);
