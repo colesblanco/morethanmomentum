@@ -612,6 +612,54 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
 .video-client { font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); }
 .video-title { font-family: var(--serif); font-size: 1.1rem; color: var(--white); margin-top: .2rem; }
 
+
+/* --- CAROUSEL CONTROLS --- */
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  pointer-events: none;
+  z-index: 10;
+}
+.carousel-arrow {
+  background: none;
+ border: 1px solid #ccc;
+ color: var(--black);
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .25s, color .25s, background .25s;
+  overflow: hidden;
+  position: relative;
+  pointer-events: all;
+  border-radius: 50%;
+}
+.carousel-arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--black);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .3s ease;
+  z-index: 0;
+}
+.carousel-arrow:hover::before { transform: scaleX(1); }
+.carousel-arrow:hover { color: var(--white); border-color: var(--black); }
+.carousel-arrow span { position: relative; z-index: 1; }
+@media (max-width: 1024px) {
+  .carousel-controls { display: none; }
+}
+
 /* --- PROCESS --- */
 .process { padding: 7rem 5rem; border-bottom: 1px solid var(--light); background: #f9f9f7; }
 .process-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 6rem; align-items: start; }
