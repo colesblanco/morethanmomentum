@@ -745,6 +745,14 @@ footer {
 
 /* --- RESPONSIVE: TABLET (≤1024px) --- */
 @media (max-width: 1024px) {
+  .ticker {
+    background: var(--white);
+    border-top: none;
+  }
+  .ticker-item { color: var(--black); }
+}
+
+@media (max-width: 1024px) {
   nav, nav.scrolled { padding: .6rem 1.8rem; min-height: 56px; }
 
   /* Show hamburger, hide desktop nav items */
