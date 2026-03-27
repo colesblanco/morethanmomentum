@@ -244,11 +244,22 @@ function initMobileMultipage() {
   // Give process a hookable id if missing
   if (processEl && !processEl.id) processEl.id = 'process';
 
-  const allSections = [heroEl, tickerEl, aboutEl, servicesEl, pricingEl,
+  // Ticker is fixed below nav on mobile hero page only
+  if (tickerEl) {
+    tickerEl.style.position = 'fixed';
+    tickerEl.style.top      = '56px';
+    tickerEl.style.left     = '0';
+    tickerEl.style.right    = '0';
+    tickerEl.style.zIndex   = '199';
+    tickerEl.style.display  = 'none';
+  }
+
+  const allSections = [heroEl, aboutEl, servicesEl, pricingEl,
                        workEl, processEl, contactEl].filter(Boolean);
 
   function hideAll() {
     allSections.forEach(el => { el.style.display = 'none'; });
+    if (tickerEl) tickerEl.style.display = 'none';
     if (footerEl) footerEl.style.display = 'none';
   }
 
@@ -256,21 +267,18 @@ function initMobileMultipage() {
     hideAll();
 
     if (!targetId || targetId === '' || targetId === 'hero') {
-      // Hero page: show hero + ticker
+      // Hero page: show hero + fixed ticker below nav
       if (heroEl)   heroEl.style.display   = '';
       if (tickerEl) tickerEl.style.display = '';
       isInnerPage = false;
     } else {
-      // Inner page: show the target section + footer
+      // Inner page: no ticker, show section + footer
       const target = document.getElementById(targetId);
       if (target) target.style.display = '';
       if (footerEl) footerEl.style.display = '';
       isInnerPage = true;
 
-      // Re-init carousel if switching to work page
       if (targetId === 'work') initVideoCarousel();
-
-      // Re-init particles if switching to a dark section
       if (targetId === 'about')   initParticles('particles-about');
       if (targetId === 'pricing') initParticles('particles-pricing');
       if (targetId === 'contact') initParticles('particles-contact');
@@ -510,5 +518,27 @@ let nextIndex = 0;
   const btnNext = document.getElementById('carouselNext');
   if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
   if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
+
+  // Swipe support for touch devices
+  let touchStartX = 0;
+  let touchEndX   = 0;
+  const SWIPE_THRESHOLD = 50;
+
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  track.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) {
+        advance('next'); // swipe left = next
+      } else {
+        advance('prev'); // swipe right = prev
+      }
+      resetTimer();
+    }
+  }, { passive: true });
 }
 window.addEventListener('load', initVideoCarousel);

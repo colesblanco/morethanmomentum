@@ -766,7 +766,16 @@ footer {
     margin: -20px 0;
   }
 
-  .hero { padding: 0 2.5rem 4rem; }
+  /* Hero fills full screen, no scroll needed */
+  .hero {
+    padding: 0 2.5rem 2rem;
+    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: calc(56px + 40px + 36px); /* nav + ticker + gap */
+  }
+  .hero-badge { margin-top: 0; }
   .hero-bg-logo { width: 70vw; opacity: .5; right: -2rem; }
 
   .about { grid-template-columns: 1fr; }
@@ -798,9 +807,16 @@ footer {
   .nav-logo-text { font-size: .9rem; }
   #nav-logo-img { width: 60px; height: 60px; margin: -16px 0; }
 
-  .hero { padding: 0 1.5rem 3.5rem; min-height: 100svh; }
+  .hero {
+    padding: 0 1.5rem 2rem;
+    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: calc(56px + 40px + 2rem);
+  }
+  .hero-badge { margin-top: 0; }
   .hero-title { font-size: clamp(3rem, 12vw, 5rem); }
-  .hero-badge { margin-top: 5rem; }
   .hero-bottom {
     flex-direction: column;
     align-items: flex-start;
