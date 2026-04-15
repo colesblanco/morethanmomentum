@@ -445,11 +445,7 @@ const videos = [
   { num: '01', client: 'colesblanco · Running Content', title: '900K+ Views — Proven Hook and Script Provided', src: 'videos/Stravarunnames1.mp4' },
   { num: '02', client: 'mattadamsonlive · Magic Content', title: 'Filmed On Site and Edited to Grow Audience Engagement', src: 'videos/FishHook1.mp4' },
   { num: '03', client: 'Outpace · Business Content', title: 'Ai B-Roll Generated For Simplifying Video Creation', src: 'videos/Outpaceskit1.mp4' },
-<<<<<<< HEAD
   { num: '04', client: 'Diplomat Cigar Lounge', title: 'Promotional Video', src: 'videos/diplomat1.mp4' },
-=======
-  { num: '04', client: 'Client · Category', title: 'Project Title', src: '' },
->>>>>>> 39983c540ebc42b219c4ee4c69368cc5be38d5cc
   { num: '05', client: 'Client · Category', title: 'Project Title', src: '' },
   { num: '06', client: 'Client · Category', title: 'Project Title', src: '' },
 ];
