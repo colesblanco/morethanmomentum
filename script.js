@@ -442,12 +442,12 @@ function initVideoCarousel() {
   track.style.transform = '';
 
 const videos = [
-  { num: '01', client: 'colesblanco · Running Content', title: '900K+ Views — Proven Hook and Script Provided', src: 'videos/Stravarunnames1.mp4' },
+  { num: '01', client: 'Quantum · Consulting Content', title: 'Motion Graphics to Engage Viewers', src: 'videos/quantum1.mp4' },
   { num: '02', client: 'mattadamsonlive · Magic Content', title: 'Filmed On Site and Edited to Grow Audience Engagement', src: 'videos/FishHook1.mp4' },
   { num: '03', client: 'Outpace · Business Content', title: 'Ai B-Roll Generated For Simplifying Video Creation', src: 'videos/Outpaceskit1.mp4' },
-  { num: '04', client: 'Diplomat Cigar Lounge', title: 'Promotional Video', src: 'videos/diplomat1.mp4' },
-  { num: '05', client: 'Client · Category', title: 'Project Title', src: '' },
-  { num: '06', client: 'Client · Category', title: 'Project Title', src: '' },
+  { num: '04', client: 'Diplomat Cigar Lounge · Promo Content', title: 'Script Created and Filmed On Site', src: 'videos/diplomat1.mp4' },
+  { num: '05', client: 'colesblanco · Running Content', title: '900K+ Views — Proven Hook and Script Provided', src: 'videos/Stravarunnames1.mp4' },
+  { num: '06', client: 'BaxterGaming · Gaming Content', title: 'Short Form Content Extracted From Long Form Content', src: 'videos/squidgames1.mp4' },
 ];
 
   // 3D transform states
