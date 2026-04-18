@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MTM Tools — Internal Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:        #0c0c0c;
+      --dark:         #111111;
+      --card:         #1a1a1a;
+      --border:       #2a2a2a;
+      --white:        #f4f4f2;
+      --gray:         #888;
+      --mid:          #555;
+      --accent:       #2D6BE4;
+      --accent-light: #5B8FF0;
+      --yellow:       #F5C518;
+      --sans:         'DM Sans', sans-serif;
+      --speed:        'Barlow Condensed', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* ── LOGIN SCREEN ─────────────────────────────── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--black);
+      background-image:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(45,107,228,.12) 0%, transparent 70%);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .login-brand-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+    }
+
+    .login-brand-name {
+      font-family: var(--speed);
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: -.01em;
+      color: var(--white);
+    }
+
+    .login-brand-sub {
+      font-size: 13px;
+      color: var(--gray);
+      margin-top: 2px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .login-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .login-input {
+      width: 100%;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--white);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .login-input::placeholder { color: var(--mid); }
+    .login-input:focus { border-color: var(--accent); }
+
+    .login-btn {
+      width: 100%;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin-top: 4px;
+    }
+    .login-btn:hover { background: #2460cc; }
+    .login-btn:active { transform: scale(.98); }
+    .login-btn:disabled { background: var(--mid); cursor: not-allowed; }
+
+    .login-error {
+      display: none;
+      background: rgba(220,50,50,.12);
+      border: 1px solid rgba(220,50,50,.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #f87171;
+    }
+    .login-error.show { display: block; }
+
+    .login-footer {
+      font-size: 12px;
+      color: var(--mid);
+      text-align: center;
+    }
+
+    /* ── DASHBOARD ────────────────────────────────── */
+    #dashboard {
+      display: none;
+      min-height: 100vh;
+      background: var(--black);
+    }
+    #dashboard.visible { display: block; }
+
+    /* Header */
+    .dash-header {
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .dash-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dash-header-badge {
+      background: rgba(45,107,228,.15);
+      border: 1px solid rgba(45,107,228,.3);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+    }
+
+    .dash-header-title {
+      font-family: var(--speed);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -.01em;
+      color: var(--white);
+    }
+
+    .dash-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .dash-header-site {
+      font-size: 13px;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .dash-header-site:hover { color: var(--white); }
+
+    .dash-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--gray);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .dash-logout:hover { border-color: var(--gray); color: var(--white); }
+
+    /* Main */
+    .dash-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 40px;
+    }
+
+    .dash-intro {
+      margin-bottom: 48px;
+    }
+
+    .dash-intro-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 12px;
+    }
+
+    .dash-intro-heading {
+      font-family: var(--speed);
+      font-weight: 700;
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: -.01em;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .dash-intro-heading em {
+      font-style: italic;
+      opacity: .55;
+    }
+
+    .dash-intro-sub {
+      font-size: 15px;
+      color: var(--gray);
+      max-width: 500px;
+    }
+
+    /* Tool grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card.active {
+      border-color: rgba(45,107,228,.4);
+      cursor: pointer;
+    }
+    .tool-card.active:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .tool-card.active::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,107,228,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .tool-card.coming-soon {
+      opacity: .45;
+    }
+
+    .tool-card-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(45,107,228,.12);
+      border: 1px solid rgba(45,107,228,.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .tool-card.coming-soon .tool-card-icon {
+      background: rgba(255,255,255,.04);
+      border-color: var(--border);
+    }
+
+    .tool-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tool-card-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-live {
+      background: rgba(45,107,228,.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(45,107,228,.25);
+    }
+
+    .badge-soon {
+      background: rgba(255,255,255,.04);
+      color: var(--gray);
+      border: 1px solid var(--border);
+    }
+
+    .tool-card-name {
+      font-family: var(--speed);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -.01em;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .tool-card-desc {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .tool-card-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent-light);
+      margin-top: 4px;
+    }
+
+    .tool-card.coming-soon .tool-card-action {
+      color: var(--mid);
+    }
+
+    .tool-card-action-arrow {
+      transition: transform .2s;
+    }
+
+    .tool-card.active:hover .tool-card-action-arrow {
+      transform: translateX(4px);
+    }
+
+    /* ── TOOL PANEL (Prospect Intelligence) ─────── */
+    #tool-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: flex-end;
+      backdrop-filter: blur(4px);
+    }
+    #tool-panel.open {
+      display: flex;
+    }
+
+    .panel-inner {
+      width: 100%;
+      max-width: 580px;
+      height: 100vh;
+      background: var(--dark);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideIn .25s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to   { transform: translateX(0); }
+    }
+
+    .panel-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .panel-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .panel-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+    }
+
+    .panel-title {
+      font-family: var(--speed);
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: -.01em;
+      color: var(--white);
+    }
+
+    .panel-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      font-size: 18px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .panel-close:hover { border-color: var(--gray); color: var(--white); }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Form inside panel */
+    .panel-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .panel-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .panel-input {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--white);
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .panel-input::placeholder { color: var(--mid); }
+    .panel-input:focus { border-color: var(--accent); }
+
+    .panel-run-btn {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .panel-run-btn:hover { background: #2460cc; }
+    .panel-run-btn:disabled { background: var(--mid); cursor: not-allowed; }
+
+    /* Result area */
+    .panel-result {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .panel-result.show { display: block; }
+
+    .panel-result-placeholder {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .panel-result-placeholder .placeholder-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+      display: block;
+      opacity: .5;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 640px) {
+      .dash-header { padding: 0 20px; }
+      .dash-main { padding: 36px 20px; }
+      .dash-intro-heading { font-size: 36px; }
+      .panel-inner { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+
+    <div class="login-brand">
+      <span class="login-brand-tag">Internal Access</span>
+      <div class="login-brand-name">MTM Tools</div>
+      <div class="login-brand-sub">More Than Momentum · Operations Dashboard</div>
+    </div>
+
+    <div class="login-form">
+      <div>
+        <label class="login-label" for="pwd">Access Password</label>
+        <input
+          type="password"
+          id="pwd"
+          class="login-input"
+          placeholder="Enter password"
+          autocomplete="current-password"
+        />
+      </div>
+      <div class="login-error" id="loginError">
+        Incorrect password. Try again.
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">
+        Enter Dashboard →
+      </button>
+    </div>
+
+    <div class="login-footer">
+      For access, contact the MTM team.
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════════════ -->
+<div id="dashboard">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <span class="dash-header-badge">Internal</span>
+      <span class="dash-header-title">MTM Tools</span>
+    </div>
+    <div class="dash-header-right">
+      <a href="https://morethanmomentum.com" class="dash-header-site" target="_blank">← Back to Site</a>
+      <button class="dash-logout" onclick="handleLogout()">Log Out</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dash-main">
+
+    <div class="dash-intro">
+      <div class="dash-intro-tag">Operations Hub</div>
+      <h1 class="dash-intro-heading">MTM <em>Tools</em></h1>
+      <p class="dash-intro-sub">AI-powered internal tools for the MTM team. Run prospect research, generate reports, and build onboarding workflows — all in one place.</p>
+    </div>
+
+    <div class="tools-grid">
+
+      <!-- Tool 1: Prospect Intelligence (ACTIVE) -->
+      <div class="tool-card active" onclick="openPanel()">
+        <div class="tool-card-icon">🔍</div>
+        <div class="tool-card-header">
+          <div class="tool-card-name">Prospect Intelligence</div>
+          <span class="tool-card-badge badge-live">Live</span>
+        </div>
+        <p class="tool-card-desc">Enter a business name and city. Get a full digital audit, gap analysis, tailored discovery questions, and the right MTM package to pitch — ready to download as a PDF.</p>
+        <div class="tool-card-action">
+          Launch Tool <span class="tool-card-action-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Tool 2: Client Report Generator (COMING SOON) -->
+      <div class="tool-card coming-soon">
+        <div class="tool-card-icon">📊</div>
+        <div class="tool-card-header">
+          <div class="tool-card-name">Client Report Generator</div>
+          <span class="tool-card-badge badge-soon">Soon</span>
+        </div>
+        <p class="tool-card-desc">Pull live GHL data for any client and generate a full monthly performance report — leads, pipeline, revenue, and social — as a branded PDF in seconds.</p>
+        <div class="tool-card-action">
+          Coming Soon <span class="tool-card-action-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Tool 3: Onboarding Checklist Generator (COMING SOON) -->
+      <div class="tool-card coming-soon">
+        <div class="tool-card-icon">📋</div>
+        <div class="tool-card-header">
+          <div class="tool-card-name">Onboarding Checklist</div>
+          <span class="tool-card-badge badge-soon">Soon</span>
+        </div>
+        <p class="tool-card-desc">Input a new client's business type and services purchased. Get a complete, scoped onboarding SOP — step by step, ready to execute without reinventing the wheel.</p>
+        <div class="tool-card-action">
+          Coming Soon <span class="tool-card-action-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Tool 4: Content Brief Generator (COMING SOON) -->
+      <div class="tool-card coming-soon">
+        <div class="tool-card-icon">✍️</div>
+        <div class="tool-card-header">
+          <div class="tool-card-name">Content Brief Generator</div>
+          <span class="tool-card-badge badge-soon">Soon</span>
+        </div>
+        <p class="tool-card-desc">Generate a full monthly content brief for any client — post ideas, captions, hooks, and platform strategy — built from their brand voice and content pillars.</p>
+        <div class="tool-card-action">
+          Coming Soon <span class="tool-card-action-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     PROSPECT INTELLIGENCE PANEL
+════════════════════════════════════════════════ -->
+<div id="tool-panel" onclick="handlePanelBackdrop(event)">
+  <div class="panel-inner" id="panelInner">
+
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <span class="panel-tag">Tool 01</span>
+        <div class="panel-title">Prospect Intelligence</div>
+      </div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="panel-form">
+        <div class="panel-field">
+          <label class="panel-label" for="bizName">Business Name</label>
+          <input
+            type="text"
+            id="bizName"
+            class="panel-input"
+            placeholder="e.g. Riverside HVAC"
+          />
+        </div>
+        <div class="panel-field">
+          <label class="panel-label" for="bizCity">City & State</label>
+          <input
+            type="text"
+            id="bizCity"
+            class="panel-input"
+            placeholder="e.g. Manchester, NH"
+          />
+        </div>
+        <div class="panel-field">
+          <label class="panel-label" for="bizUrl">Website URL <span style="opacity:.5;font-size:11px;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input
+            type="text"
+            id="bizUrl"
+            class="panel-input"
+            placeholder="e.g. https://riversidehvac.com"
+          />
+        </div>
+        <button class="panel-run-btn" id="runBtn" onclick="runProspect()">
+          Run Prospect Research →
+        </button>
+      </div>
+
+      <!-- Result placeholder — will be wired up in Step 5 -->
+      <div class="panel-result show" id="prospectResult">
+        <div class="panel-result-placeholder">
+          <span class="placeholder-icon">🔍</span>
+          Enter a business above and hit <strong style="color:var(--white)">Run Prospect Research</strong> to generate a tailored discovery brief — gap analysis, questions to ask, and the right MTM package to pitch.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // ── SESSION ──────────────────────────────────────
+  const SESSION_KEY = 'mtm_tools_token';
+
+  async function checkSession() {
+    const token = sessionStorage.getItem(SESSION_KEY);
+    if (!token) return showLogin();
+
+    try {
+      const res = await fetch('/api/verify-tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showDashboard();
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+        showLogin();
+      }
+    } catch {
+      // If the function isn't deployed yet (local dev), fall through to login
+      showLogin();
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').classList.remove('visible');
+    // Focus the password field
+    setTimeout(() => document.getElementById('pwd').focus(), 100);
+  }
+
+  function showDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+  }
+
+  // ── LOGIN ────────────────────────────────────────
+  async function handleLogin() {
+    const pwd = document.getElementById('pwd').value.trim();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+
+    if (!pwd) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    err.classList.remove('show');
+
+    try {
+      const res = await fetch('/api/verify-tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      });
+      const data = await res.json();
+
+      if (data.success && data.token) {
+        sessionStorage.setItem(SESSION_KEY, data.token);
+        showDashboard();
+      } else {
+        err.classList.add('show');
+        document.getElementById('pwd').value = '';
+        document.getElementById('pwd').focus();
+      }
+    } catch {
+      err.textContent = 'Connection error. Try again.';
+      err.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enter Dashboard →';
+    }
+  }
+
+  function handleLogout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    showLogin();
+  }
+
+  // Allow Enter key on password field
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwd').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleLogin();
+    });
+    checkSession();
+  });
+
+  // ── PANEL ────────────────────────────────────────
+  function openPanel() {
+    document.getElementById('tool-panel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('bizName').focus(), 300);
+  }
+
+  function closePanel() {
+    document.getElementById('tool-panel').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handlePanelBackdrop(e) {
+    if (e.target === document.getElementById('tool-panel')) closePanel();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  // ── PROSPECT TOOL (wired up in Step 5) ──────────
+  async function runProspect() {
+    const bizName = document.getElementById('bizName').value.trim();
+    const bizCity = document.getElementById('bizCity').value.trim();
+
+    if (!bizName || !bizCity) {
+      alert('Please enter a business name and city.');
+      return;
+    }
+
+    // Placeholder — full implementation added in Step 5
+    document.getElementById('prospectResult').innerHTML = `
+      <div class="panel-result-placeholder">
+        <span class="placeholder-icon">⚙️</span>
+        <strong style="color:var(--white);">Research engine coming in Step 5.</strong><br/>
+        The form and panel are live — the Claude API connection gets wired up next.
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>
