@@ -48,7 +48,7 @@ export async function onRequestPost(context) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2000,
         system: `You are a digital marketing analyst for More Than Momentum (MTM), an AI-native digital growth agency serving small and mid-size local businesses — primarily trades and local service providers.
 
@@ -121,7 +121,7 @@ Return ONLY a valid raw JSON object. No markdown. No backticks. No explanation b
       const errText = await apiResponse.text();
       console.error('Anthropic API error:', apiResponse.status, errText);
       return new Response(
-        JSON.stringify({ error: 'Research engine failed. Please try again.' }),
+        JSON.stringify({ error: `API error ${apiResponse.status} — check your ANTHROPIC_API_KEY in Cloudflare env vars.` }),
         { status: 500, headers }
       );
     }
