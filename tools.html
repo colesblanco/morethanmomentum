@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --black:        #0c0c0c;
       --dark:         #111111;
@@ -22,868 +21,580 @@
       --sans:         'DM Sans', sans-serif;
       --speed:        'Barlow Condensed', sans-serif;
     }
+    html, body { height: 100%; background: var(--black); color: var(--white); font-family: var(--sans); font-weight: 400; line-height: 1.6; }
 
-    html, body {
-      height: 100%;
-      background: var(--black);
-      color: var(--white);
-      font-family: var(--sans);
-      font-weight: 400;
-      line-height: 1.6;
-    }
-
-    /* ── LOGIN SCREEN ─────────────────────────────── */
-    #login-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: var(--black);
-      background-image:
-        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(45,107,228,.12) 0%, transparent 70%);
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    .login-brand {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .login-brand-tag {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--accent-light);
-    }
-
-    .login-brand-name {
-      font-family: var(--speed);
-      font-weight: 700;
-      font-size: 32px;
-      letter-spacing: -.01em;
-      color: var(--white);
-    }
-
-    .login-brand-sub {
-      font-size: 13px;
-      color: var(--gray);
-      margin-top: 2px;
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .login-label {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .login-input {
-      width: 100%;
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-family: var(--sans);
-      font-size: 15px;
-      color: var(--white);
-      outline: none;
-      transition: border-color .2s;
-    }
+    /* LOGIN */
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--black); background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(45,107,228,.12) 0%, transparent 70%); }
+    .login-card { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 48px 40px; display: flex; flex-direction: column; gap: 32px; }
+    .login-brand-tag { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); }
+    .login-brand-name { font-family: var(--speed); font-weight: 700; font-size: 32px; letter-spacing: -.01em; margin-top: 4px; }
+    .login-brand-sub { font-size: 13px; color: var(--gray); margin-top: 2px; }
+    .login-form { display: flex; flex-direction: column; gap: 16px; }
+    .login-label { font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; display: block; }
+    .login-input { width: 100%; background: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: var(--sans); font-size: 15px; color: var(--white); outline: none; transition: border-color .2s; }
     .login-input::placeholder { color: var(--mid); }
     .login-input:focus { border-color: var(--accent); }
-
-    .login-btn {
-      width: 100%;
-      background: var(--accent);
-      color: var(--white);
-      border: none;
-      border-radius: 8px;
-      padding: 15px;
-      font-family: var(--sans);
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background .2s, transform .1s;
-      margin-top: 4px;
-    }
+    .login-btn { width: 100%; background: var(--accent); color: var(--white); border: none; border-radius: 8px; padding: 15px; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; transition: background .2s; margin-top: 4px; }
     .login-btn:hover { background: #2460cc; }
-    .login-btn:active { transform: scale(.98); }
     .login-btn:disabled { background: var(--mid); cursor: not-allowed; }
-
-    .login-error {
-      display: none;
-      background: rgba(220,50,50,.12);
-      border: 1px solid rgba(220,50,50,.3);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: #f87171;
-    }
+    .login-error { display: none; background: rgba(220,50,50,.12); border: 1px solid rgba(220,50,50,.3); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #f87171; }
     .login-error.show { display: block; }
+    .login-footer { font-size: 12px; color: var(--mid); text-align: center; }
 
-    .login-footer {
-      font-size: 12px;
-      color: var(--mid);
-      text-align: center;
-    }
-
-    /* ── DASHBOARD ────────────────────────────────── */
-    #dashboard {
-      display: none;
-      min-height: 100vh;
-      background: var(--black);
-    }
+    /* DASHBOARD */
+    #dashboard { display: none; min-height: 100vh; }
     #dashboard.visible { display: block; }
-
-    /* Header */
-    .dash-header {
-      background: var(--dark);
-      border-bottom: 1px solid var(--border);
-      padding: 0 40px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .dash-header-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .dash-header-badge {
-      background: rgba(45,107,228,.15);
-      border: 1px solid rgba(45,107,228,.3);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--accent-light);
-    }
-
-    .dash-header-title {
-      font-family: var(--speed);
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: -.01em;
-      color: var(--white);
-    }
-
-    .dash-header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .dash-header-site {
-      font-size: 13px;
-      color: var(--gray);
-      text-decoration: none;
-      transition: color .2s;
-    }
+    .dash-header { background: var(--dark); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .dash-header-left { display: flex; align-items: center; gap: 14px; }
+    .dash-header-badge { background: rgba(45,107,228,.15); border: 1px solid rgba(45,107,228,.3); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-light); }
+    .dash-header-title { font-family: var(--speed); font-weight: 700; font-size: 20px; }
+    .dash-header-right { display: flex; align-items: center; gap: 16px; }
+    .dash-header-site { font-size: 13px; color: var(--gray); text-decoration: none; transition: color .2s; }
     .dash-header-site:hover { color: var(--white); }
-
-    .dash-logout {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 14px;
-      font-family: var(--sans);
-      font-size: 13px;
-      color: var(--gray);
-      cursor: pointer;
-      transition: border-color .2s, color .2s;
-    }
+    .dash-logout { background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 7px 14px; font-family: var(--sans); font-size: 13px; color: var(--gray); cursor: pointer; transition: border-color .2s, color .2s; }
     .dash-logout:hover { border-color: var(--gray); color: var(--white); }
+    .dash-main { max-width: 1100px; margin: 0 auto; padding: 56px 40px; }
+    .dash-intro { margin-bottom: 48px; }
+    .dash-intro-tag { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); margin-bottom: 12px; }
+    .dash-intro-heading { font-family: var(--speed); font-weight: 700; font-size: 48px; line-height: 1; margin-bottom: 12px; }
+    .dash-intro-heading em { font-style: italic; opacity: .55; }
+    .dash-intro-sub { font-size: 15px; color: var(--gray); max-width: 500px; }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 32px 28px; display: flex; flex-direction: column; gap: 16px; transition: border-color .2s, transform .2s; position: relative; overflow: hidden; }
+    .tool-card.active { border-color: rgba(45,107,228,.4); cursor: pointer; }
+    .tool-card.active:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .tool-card.active::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,107,228,.07) 0%, transparent 70%); pointer-events: none; }
+    .tool-card.coming-soon { opacity: .45; }
+    .tool-card-icon { width: 44px; height: 44px; background: rgba(45,107,228,.12); border: 1px solid rgba(45,107,228,.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .tool-card.coming-soon .tool-card-icon { background: rgba(255,255,255,.04); border-color: var(--border); }
+    .tool-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .tool-card-badge { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+    .badge-live { background: rgba(45,107,228,.15); color: var(--accent-light); border: 1px solid rgba(45,107,228,.25); }
+    .badge-soon { background: rgba(255,255,255,.04); color: var(--gray); border: 1px solid var(--border); }
+    .tool-card-name { font-family: var(--speed); font-weight: 700; font-size: 22px; line-height: 1.1; }
+    .tool-card-desc { font-size: 13px; color: var(--gray); line-height: 1.55; flex: 1; }
+    .tool-card-action { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent-light); margin-top: 4px; }
+    .tool-card.coming-soon .tool-card-action { color: var(--mid); }
+    .tool-card-action-arrow { transition: transform .2s; }
+    .tool-card.active:hover .tool-card-action-arrow { transform: translateX(4px); }
 
-    /* Main */
-    .dash-main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 56px 40px;
-    }
-
-    .dash-intro {
-      margin-bottom: 48px;
-    }
-
-    .dash-intro-tag {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--accent-light);
-      margin-bottom: 12px;
-    }
-
-    .dash-intro-heading {
-      font-family: var(--speed);
-      font-weight: 700;
-      font-size: 48px;
-      line-height: 1;
-      letter-spacing: -.01em;
-      color: var(--white);
-      margin-bottom: 12px;
-    }
-
-    .dash-intro-heading em {
-      font-style: italic;
-      opacity: .55;
-    }
-
-    .dash-intro-sub {
-      font-size: 15px;
-      color: var(--gray);
-      max-width: 500px;
-    }
-
-    /* Tool grid */
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .tool-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      transition: border-color .2s, transform .2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .tool-card.active {
-      border-color: rgba(45,107,228,.4);
-      cursor: pointer;
-    }
-    .tool-card.active:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .tool-card.active::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,107,228,.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .tool-card.coming-soon {
-      opacity: .45;
-    }
-
-    .tool-card-icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(45,107,228,.12);
-      border: 1px solid rgba(45,107,228,.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .tool-card.coming-soon .tool-card-icon {
-      background: rgba(255,255,255,.04);
-      border-color: var(--border);
-    }
-
-    .tool-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .tool-card-badge {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .badge-live {
-      background: rgba(45,107,228,.15);
-      color: var(--accent-light);
-      border: 1px solid rgba(45,107,228,.25);
-    }
-
-    .badge-soon {
-      background: rgba(255,255,255,.04);
-      color: var(--gray);
-      border: 1px solid var(--border);
-    }
-
-    .tool-card-name {
-      font-family: var(--speed);
-      font-weight: 700;
-      font-size: 22px;
-      letter-spacing: -.01em;
-      color: var(--white);
-      line-height: 1.1;
-    }
-
-    .tool-card-desc {
-      font-size: 13px;
-      color: var(--gray);
-      line-height: 1.55;
-      flex: 1;
-    }
-
-    .tool-card-action {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--accent-light);
-      margin-top: 4px;
-    }
-
-    .tool-card.coming-soon .tool-card-action {
-      color: var(--mid);
-    }
-
-    .tool-card-action-arrow {
-      transition: transform .2s;
-    }
-
-    .tool-card.active:hover .tool-card-action-arrow {
-      transform: translateX(4px);
-    }
-
-    /* ── TOOL PANEL (Prospect Intelligence) ─────── */
-    #tool-panel {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-      z-index: 200;
-      align-items: flex-start;
-      justify-content: flex-end;
-      backdrop-filter: blur(4px);
-    }
-    #tool-panel.open {
-      display: flex;
-    }
-
-    .panel-inner {
-      width: 100%;
-      max-width: 580px;
-      height: 100vh;
-      background: var(--dark);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      animation: slideIn .25s ease;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); }
-      to   { transform: translateX(0); }
-    }
-
-    .panel-header {
-      padding: 24px 28px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-
-    .panel-header-left {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .panel-tag {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--accent-light);
-    }
-
-    .panel-title {
-      font-family: var(--speed);
-      font-weight: 700;
-      font-size: 24px;
-      letter-spacing: -.01em;
-      color: var(--white);
-    }
-
-    .panel-close {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gray);
-      font-size: 18px;
-      cursor: pointer;
-      transition: border-color .2s, color .2s;
-      flex-shrink: 0;
-    }
+    /* PANEL */
+    #tool-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: flex-start; justify-content: flex-end; backdrop-filter: blur(4px); }
+    #tool-panel.open { display: flex; }
+    .panel-inner { width: 100%; max-width: 600px; height: 100vh; background: var(--dark); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; animation: slideIn .25s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .panel-header { padding: 24px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .panel-tag { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-light); }
+    .panel-title { font-family: var(--speed); font-weight: 700; font-size: 24px; }
+    .panel-close { background: transparent; border: 1px solid var(--border); border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--gray); font-size: 18px; cursor: pointer; transition: border-color .2s, color .2s; flex-shrink: 0; }
     .panel-close:hover { border-color: var(--gray); color: var(--white); }
+    .panel-body { flex: 1; overflow-y: auto; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
 
-    .panel-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Form inside panel */
-    .panel-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .panel-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .panel-label {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--gray);
-    }
-
-    .panel-input {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: var(--sans);
-      font-size: 14px;
-      color: var(--white);
-      outline: none;
-      transition: border-color .2s;
-      width: 100%;
-    }
+    /* Form */
+    .panel-form { display: flex; flex-direction: column; gap: 14px; }
+    .panel-field { display: flex; flex-direction: column; gap: 6px; }
+    .panel-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); }
+    .panel-label span { color: var(--mid); font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+    .panel-input { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; font-family: var(--sans); font-size: 14px; color: var(--white); outline: none; transition: border-color .2s; width: 100%; }
     .panel-input::placeholder { color: var(--mid); }
     .panel-input:focus { border-color: var(--accent); }
-
-    .panel-run-btn {
-      background: var(--accent);
-      color: var(--white);
-      border: none;
-      border-radius: 8px;
-      padding: 14px 20px;
-      font-family: var(--sans);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background .2s;
-      width: 100%;
-      margin-top: 4px;
-    }
+    .panel-run-btn { background: var(--accent); color: var(--white); border: none; border-radius: 8px; padding: 13px 20px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: background .2s; width: 100%; margin-top: 4px; }
     .panel-run-btn:hover { background: #2460cc; }
     .panel-run-btn:disabled { background: var(--mid); cursor: not-allowed; }
+    .panel-inline-error { display: none; background: rgba(220,50,50,.1); border: 1px solid rgba(220,50,50,.25); border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #f87171; }
+    .panel-inline-error.show { display: block; }
 
-    /* Result area */
-    .panel-result {
-      display: none;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 24px;
-    }
-    .panel-result.show { display: block; }
+    /* Loading */
+    .panel-loading { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 32px 24px; text-align: center; }
+    .panel-loading.show { display: block; }
+    .loading-spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label strong { display: block; font-size: 15px; color: var(--white); margin-bottom: 4px; }
+    .loading-label span { font-size: 13px; color: var(--gray); }
 
-    .panel-result-placeholder {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--gray);
-      font-size: 14px;
-      line-height: 1.7;
-    }
+    /* Brief */
+    .brief-wrap { display: none; flex-direction: column; gap: 14px; }
+    .brief-wrap.show { display: flex; }
+    .brief-header { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .brief-biz-name { font-family: var(--speed); font-weight: 700; font-size: 22px; }
+    .brief-biz-city { font-size: 13px; color: var(--gray); margin-top: 2px; }
+    .brief-grade-summary { font-size: 12px; color: var(--gray); font-style: italic; margin-top: 6px; }
+    .brief-grade { flex-shrink: 0; width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--speed); font-weight: 700; font-size: 28px; }
+    .grade-a { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.3); color: #4ade80; }
+    .grade-b { background: rgba(45,107,228,.15); border: 1px solid rgba(45,107,228,.3); color: var(--accent-light); }
+    .grade-c { background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.3); color: var(--yellow); }
+    .grade-d { background: rgba(249,115,22,.15); border: 1px solid rgba(249,115,22,.3); color: #fb923c; }
+    .grade-f { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #f87171; }
+    .brief-section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .brief-sec-head { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .brief-sec-icon { font-size: 13px; }
+    .brief-sec-title { font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); }
+    .brief-sec-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .profile-row { display: flex; align-items: flex-start; gap: 10px; }
+    .profile-key { font-size: 11px; color: var(--gray); min-width: 68px; padding-top: 1px; flex-shrink: 0; }
+    .profile-val { font-size: 13px; color: var(--white); flex: 1; line-height: 1.5; }
+    .profile-val small { color: var(--gray); font-size: 11px; display: block; margin-top: 2px; }
+    .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .social-item { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+    .s-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot-active { background: #4ade80; } .dot-inactive { background: var(--yellow); } .dot-none { background: var(--mid); }
+    .s-name { font-size: 11px; color: var(--gray); min-width: 56px; }
+    .s-status { font-size: 11px; font-weight: 500; }
+    .status-active { color: #4ade80; } .status-inactive { color: var(--yellow); } .status-none { color: var(--mid); }
+    .brief-list { display: flex; flex-direction: column; gap: 9px; }
+    .brief-item { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.55; }
+    .brief-item::before { content: '→'; color: var(--accent-light); flex-shrink: 0; font-size: 11px; margin-top: 2px; }
+    .brief-item-num { color: var(--accent-light); font-size: 12px; font-weight: 600; min-width: 16px; flex-shrink: 0; margin-top: 1px; }
+    .pkg-box { background: rgba(45,107,228,.08); border: 1px solid rgba(45,107,228,.2); border-radius: 8px; padding: 14px 16px; }
+    .pkg-name { font-family: var(--speed); font-weight: 700; font-size: 20px; color: var(--white); margin-bottom: 6px; }
+    .pkg-rationale { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.6; }
+    .brief-actions { display: flex; gap: 10px; }
+    .btn-pdf { flex: 1; background: var(--accent); color: var(--white); border: none; border-radius: 8px; padding: 13px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: background .2s; }
+    .btn-pdf:hover { background: #2460cc; }
+    .btn-new { background: transparent; border: 1px solid var(--border); color: var(--gray); border-radius: 8px; padding: 13px 16px; font-family: var(--sans); font-size: 13px; cursor: pointer; transition: border-color .2s, color .2s; }
+    .btn-new:hover { border-color: var(--gray); color: var(--white); }
 
-    .panel-result-placeholder .placeholder-icon {
-      font-size: 36px;
-      margin-bottom: 16px;
-      display: block;
-      opacity: .5;
-    }
-
-    /* ── RESPONSIVE ──────────────────────────────── */
     @media (max-width: 640px) {
-      .dash-header { padding: 0 20px; }
-      .dash-main { padding: 36px 20px; }
-      .dash-intro-heading { font-size: 36px; }
-      .panel-inner { max-width: 100%; }
+      .dash-header { padding: 0 20px; } .dash-main { padding: 36px 20px; }
+      .dash-intro-heading { font-size: 36px; } .panel-inner { max-width: 100%; }
+      .social-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     LOGIN SCREEN
-════════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
-
-    <div class="login-brand">
-      <span class="login-brand-tag">Internal Access</span>
+    <div>
+      <div class="login-brand-tag">Internal Access</div>
       <div class="login-brand-name">MTM Tools</div>
       <div class="login-brand-sub">More Than Momentum · Operations Dashboard</div>
     </div>
-
     <div class="login-form">
       <div>
         <label class="login-label" for="pwd">Access Password</label>
-        <input
-          type="password"
-          id="pwd"
-          class="login-input"
-          placeholder="Enter password"
-          autocomplete="current-password"
-        />
+        <input type="password" id="pwd" class="login-input" placeholder="Enter password" autocomplete="current-password"/>
       </div>
-      <div class="login-error" id="loginError">
-        Incorrect password. Try again.
-      </div>
-      <button class="login-btn" id="loginBtn" onclick="handleLogin()">
-        Enter Dashboard →
-      </button>
+      <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">Enter Dashboard →</button>
     </div>
-
-    <div class="login-footer">
-      For access, contact the MTM team.
-    </div>
-
+    <div class="login-footer">For access contact the MTM team.</div>
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════
-     DASHBOARD
-════════════════════════════════════════════════ -->
+<!-- DASHBOARD -->
 <div id="dashboard">
-
-  <!-- Header -->
   <header class="dash-header">
     <div class="dash-header-left">
       <span class="dash-header-badge">Internal</span>
       <span class="dash-header-title">MTM Tools</span>
     </div>
     <div class="dash-header-right">
-      <a href="https://morethanmomentum.com" class="dash-header-site" target="_blank">← Back to Site</a>
+      <a href="index.html" class="dash-header-site">← Back to Site</a>
       <button class="dash-logout" onclick="handleLogout()">Log Out</button>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main class="dash-main">
-
     <div class="dash-intro">
       <div class="dash-intro-tag">Operations Hub</div>
       <h1 class="dash-intro-heading">MTM <em>Tools</em></h1>
       <p class="dash-intro-sub">AI-powered internal tools for the MTM team. Run prospect research, generate reports, and build onboarding workflows — all in one place.</p>
     </div>
-
     <div class="tools-grid">
-
-      <!-- Tool 1: Prospect Intelligence (ACTIVE) -->
       <div class="tool-card active" onclick="openPanel()">
         <div class="tool-card-icon">🔍</div>
-        <div class="tool-card-header">
-          <div class="tool-card-name">Prospect Intelligence</div>
-          <span class="tool-card-badge badge-live">Live</span>
-        </div>
+        <div class="tool-card-header"><div class="tool-card-name">Prospect Intelligence</div><span class="tool-card-badge badge-live">Live</span></div>
         <p class="tool-card-desc">Enter a business name and city. Get a full digital audit, gap analysis, tailored discovery questions, and the right MTM package to pitch — ready to download as a PDF.</p>
-        <div class="tool-card-action">
-          Launch Tool <span class="tool-card-action-arrow">→</span>
-        </div>
+        <div class="tool-card-action">Launch Tool <span class="tool-card-action-arrow">→</span></div>
       </div>
-
-      <!-- Tool 2: Client Report Generator (COMING SOON) -->
       <div class="tool-card coming-soon">
         <div class="tool-card-icon">📊</div>
-        <div class="tool-card-header">
-          <div class="tool-card-name">Client Report Generator</div>
-          <span class="tool-card-badge badge-soon">Soon</span>
-        </div>
+        <div class="tool-card-header"><div class="tool-card-name">Client Report Generator</div><span class="tool-card-badge badge-soon">Soon</span></div>
         <p class="tool-card-desc">Pull live GHL data for any client and generate a full monthly performance report — leads, pipeline, revenue, and social — as a branded PDF in seconds.</p>
-        <div class="tool-card-action">
-          Coming Soon <span class="tool-card-action-arrow">→</span>
-        </div>
+        <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
-
-      <!-- Tool 3: Onboarding Checklist Generator (COMING SOON) -->
       <div class="tool-card coming-soon">
         <div class="tool-card-icon">📋</div>
-        <div class="tool-card-header">
-          <div class="tool-card-name">Onboarding Checklist</div>
-          <span class="tool-card-badge badge-soon">Soon</span>
-        </div>
+        <div class="tool-card-header"><div class="tool-card-name">Onboarding Checklist</div><span class="tool-card-badge badge-soon">Soon</span></div>
         <p class="tool-card-desc">Input a new client's business type and services purchased. Get a complete, scoped onboarding SOP — step by step, ready to execute without reinventing the wheel.</p>
-        <div class="tool-card-action">
-          Coming Soon <span class="tool-card-action-arrow">→</span>
-        </div>
+        <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
-
-      <!-- Tool 4: Content Brief Generator (COMING SOON) -->
       <div class="tool-card coming-soon">
         <div class="tool-card-icon">✍️</div>
-        <div class="tool-card-header">
-          <div class="tool-card-name">Content Brief Generator</div>
-          <span class="tool-card-badge badge-soon">Soon</span>
-        </div>
+        <div class="tool-card-header"><div class="tool-card-name">Content Brief Generator</div><span class="tool-card-badge badge-soon">Soon</span></div>
         <p class="tool-card-desc">Generate a full monthly content brief for any client — post ideas, captions, hooks, and platform strategy — built from their brand voice and content pillars.</p>
-        <div class="tool-card-action">
-          Coming Soon <span class="tool-card-action-arrow">→</span>
-        </div>
+        <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
-
     </div>
   </main>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════
-     PROSPECT INTELLIGENCE PANEL
-════════════════════════════════════════════════ -->
+<!-- PROSPECT PANEL -->
 <div id="tool-panel" onclick="handlePanelBackdrop(event)">
-  <div class="panel-inner" id="panelInner">
-
+  <div class="panel-inner">
     <div class="panel-header">
-      <div class="panel-header-left">
-        <span class="panel-tag">Tool 01</span>
-        <div class="panel-title">Prospect Intelligence</div>
-      </div>
+      <div><div class="panel-tag">Tool 01</div><div class="panel-title">Prospect Intelligence</div></div>
       <button class="panel-close" onclick="closePanel()">✕</button>
     </div>
+    <div class="panel-body" id="panelBody">
 
-    <div class="panel-body">
-
-      <div class="panel-form">
+      <!-- Form -->
+      <div class="panel-form" id="prospectForm">
         <div class="panel-field">
           <label class="panel-label" for="bizName">Business Name</label>
-          <input
-            type="text"
-            id="bizName"
-            class="panel-input"
-            placeholder="e.g. Riverside HVAC"
-          />
+          <input type="text" id="bizName" class="panel-input" placeholder="e.g. Riverside HVAC"/>
         </div>
         <div class="panel-field">
-          <label class="panel-label" for="bizCity">City & State</label>
-          <input
-            type="text"
-            id="bizCity"
-            class="panel-input"
-            placeholder="e.g. Manchester, NH"
-          />
+          <label class="panel-label" for="bizCity">City &amp; State</label>
+          <input type="text" id="bizCity" class="panel-input" placeholder="e.g. Manchester, NH"/>
         </div>
         <div class="panel-field">
-          <label class="panel-label" for="bizUrl">Website URL <span style="opacity:.5;font-size:11px;text-transform:none;letter-spacing:0;">(optional)</span></label>
-          <input
-            type="text"
-            id="bizUrl"
-            class="panel-input"
-            placeholder="e.g. https://riversidehvac.com"
-          />
+          <label class="panel-label" for="bizUrl">Website URL <span>(optional — helps accuracy)</span></label>
+          <input type="text" id="bizUrl" class="panel-input" placeholder="e.g. https://riversidehvac.com"/>
         </div>
-        <button class="panel-run-btn" id="runBtn" onclick="runProspect()">
-          Run Prospect Research →
-        </button>
+        <div class="panel-inline-error" id="formErr"></div>
+        <button class="panel-run-btn" id="runBtn" onclick="runProspect()">Run Prospect Research →</button>
       </div>
 
-      <!-- Result placeholder — will be wired up in Step 5 -->
-      <div class="panel-result show" id="prospectResult">
-        <div class="panel-result-placeholder">
-          <span class="placeholder-icon">🔍</span>
-          Enter a business above and hit <strong style="color:var(--white)">Run Prospect Research</strong> to generate a tailored discovery brief — gap analysis, questions to ask, and the right MTM package to pitch.
+      <!-- Loading -->
+      <div class="panel-loading" id="loadingEl">
+        <div class="loading-spinner"></div>
+        <div class="loading-label">
+          <strong id="loadingMsg">Searching the web...</strong>
+          <span>This usually takes 15–25 seconds.</span>
         </div>
       </div>
+
+      <!-- Result -->
+      <div class="brief-wrap" id="briefWrap"></div>
 
     </div>
   </div>
 </div>
 
-
 <script>
-  // ── SESSION ──────────────────────────────────────
-  const SESSION_KEY = 'mtm_tools_token';
+/* ── AUTH ────────────────────────────────── */
+const SK = 'mtm_tools_token';
 
-  async function checkSession() {
-    const token = sessionStorage.getItem(SESSION_KEY);
-    if (!token) return showLogin();
+async function checkSession() {
+  const token = sessionStorage.getItem(SK);
+  if (!token) return showLogin();
+  try {
+    const r = await fetch('/api/verify-tools', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ token }) });
+    const d = await r.json();
+    d.success ? showDashboard() : (() => { sessionStorage.removeItem(SK); showLogin(); })();
+  } catch { showLogin(); }
+}
 
-    try {
-      const res = await fetch('/api/verify-tools', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showDashboard();
-      } else {
-        sessionStorage.removeItem(SESSION_KEY);
-        showLogin();
-      }
-    } catch {
-      // If the function isn't deployed yet (local dev), fall through to login
-      showLogin();
-    }
-  }
+function showLogin() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').classList.remove('visible');
+  setTimeout(() => document.getElementById('pwd').focus(), 100);
+}
 
-  function showLogin() {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('dashboard').classList.remove('visible');
-    // Focus the password field
-    setTimeout(() => document.getElementById('pwd').focus(), 100);
-  }
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('visible');
+}
 
-  function showDashboard() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').classList.add('visible');
-  }
+async function handleLogin() {
+  const pwd = document.getElementById('pwd').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  if (!pwd) return;
+  btn.disabled = true; btn.textContent = 'Checking...'; err.classList.remove('show');
+  try {
+    const r = await fetch('/api/verify-tools', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password: pwd }) });
+    const d = await r.json();
+    if (d.success && d.token) { sessionStorage.setItem(SK, d.token); showDashboard(); }
+    else { err.classList.add('show'); document.getElementById('pwd').value = ''; document.getElementById('pwd').focus(); }
+  } catch { err.textContent = 'Connection error. Try again.'; err.classList.add('show'); }
+  finally { btn.disabled = false; btn.textContent = 'Enter Dashboard →'; }
+}
 
-  // ── LOGIN ────────────────────────────────────────
-  async function handleLogin() {
-    const pwd = document.getElementById('pwd').value.trim();
-    const btn = document.getElementById('loginBtn');
-    const err = document.getElementById('loginError');
+function handleLogout() { sessionStorage.removeItem(SK); showLogin(); }
 
-    if (!pwd) return;
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pwd').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+  document.getElementById('bizName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('bizCity').focus(); });
+  document.getElementById('bizCity').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('bizUrl').focus(); });
+  document.getElementById('bizUrl').addEventListener('keydown', e => { if (e.key === 'Enter') runProspect(); });
+  checkSession();
+});
 
-    btn.disabled = true;
-    btn.textContent = 'Checking...';
-    err.classList.remove('show');
+/* ── PANEL ───────────────────────────────── */
+function openPanel() {
+  document.getElementById('tool-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('bizName').focus(), 300);
+}
+function closePanel() {
+  document.getElementById('tool-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handlePanelBackdrop(e) { if (e.target === document.getElementById('tool-panel')) closePanel(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 
-    try {
-      const res = await fetch('/api/verify-tools', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pwd })
-      });
-      const data = await res.json();
+/* ── PROSPECT RESEARCH ───────────────────── */
+const MSGS = ['Searching the web...','Checking their website...','Scanning social media...','Analyzing the gaps...','Building your brief...'];
+let _brief = null;
 
-      if (data.success && data.token) {
-        sessionStorage.setItem(SESSION_KEY, data.token);
-        showDashboard();
-      } else {
-        err.classList.add('show');
-        document.getElementById('pwd').value = '';
-        document.getElementById('pwd').focus();
-      }
-    } catch {
-      err.textContent = 'Connection error. Try again.';
-      err.classList.add('show');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Enter Dashboard →';
-    }
-  }
+async function runProspect() {
+  const name = document.getElementById('bizName').value.trim();
+  const city = document.getElementById('bizCity').value.trim();
+  const url  = document.getElementById('bizUrl').value.trim();
+  const errEl = document.getElementById('formErr');
 
-  function handleLogout() {
-    sessionStorage.removeItem(SESSION_KEY);
-    showLogin();
-  }
+  errEl.classList.remove('show');
+  if (!name) { errEl.textContent = 'Enter a business name.'; errEl.classList.add('show'); return; }
+  if (!city) { errEl.textContent = 'Enter a city and state.'; errEl.classList.add('show'); return; }
 
-  // Allow Enter key on password field
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('pwd').addEventListener('keydown', e => {
-      if (e.key === 'Enter') handleLogin();
+  // Show loading
+  document.getElementById('prospectForm').style.display = 'none';
+  document.getElementById('loadingEl').classList.add('show');
+  document.getElementById('briefWrap').classList.remove('show');
+
+  let mi = 0;
+  const msgTimer = setInterval(() => {
+    mi = (mi + 1) % MSGS.length;
+    const el = document.getElementById('loadingMsg');
+    if (el) el.textContent = MSGS[mi];
+  }, 4500);
+
+  try {
+    const res = await fetch('/api/prospect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessName: name, city, websiteUrl: url })
     });
-    checkSession();
-  });
+    const data = await res.json();
+    clearInterval(msgTimer);
 
-  // ── PANEL ────────────────────────────────────────
-  function openPanel() {
-    document.getElementById('tool-panel').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('bizName').focus(), 300);
-  }
-
-  function closePanel() {
-    document.getElementById('tool-panel').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function handlePanelBackdrop(e) {
-    if (e.target === document.getElementById('tool-panel')) closePanel();
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePanel();
-  });
-
-  // ── PROSPECT TOOL (wired up in Step 5) ──────────
-  async function runProspect() {
-    const bizName = document.getElementById('bizName').value.trim();
-    const bizCity = document.getElementById('bizCity').value.trim();
-
-    if (!bizName || !bizCity) {
-      alert('Please enter a business name and city.');
+    if (!data.success || !data.brief) {
+      showResearchError(data.error || 'Research failed. Please try again.');
       return;
     }
 
-    // Placeholder — full implementation added in Step 5
-    document.getElementById('prospectResult').innerHTML = `
-      <div class="panel-result-placeholder">
-        <span class="placeholder-icon">⚙️</span>
-        <strong style="color:var(--white);">Research engine coming in Step 5.</strong><br/>
-        The form and panel are live — the Claude API connection gets wired up next.
-      </div>
-    `;
+    _brief = data.brief;
+    renderBrief(data.brief);
+    document.getElementById('loadingEl').classList.remove('show');
+    document.getElementById('briefWrap').classList.add('show');
+
+  } catch {
+    clearInterval(msgTimer);
+    showResearchError('Connection error. Please try again.');
   }
+}
+
+function showResearchError(msg) {
+  document.getElementById('loadingEl').classList.remove('show');
+  document.getElementById('prospectForm').style.display = 'flex';
+  const errEl = document.getElementById('formErr');
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+
+function resetProspect() {
+  _brief = null;
+  document.getElementById('briefWrap').innerHTML = '';
+  document.getElementById('briefWrap').classList.remove('show');
+  document.getElementById('bizName').value = '';
+  document.getElementById('bizCity').value = '';
+  document.getElementById('bizUrl').value = '';
+  document.getElementById('formErr').classList.remove('show');
+  document.getElementById('prospectForm').style.display = 'flex';
+  setTimeout(() => document.getElementById('bizName').focus(), 50);
+}
+
+/* ── RENDER BRIEF ────────────────────────── */
+const GRADE_CLS = { A:'grade-a', B:'grade-b', C:'grade-c', D:'grade-d', F:'grade-f' };
+const sdot = s => s==='Active'?'dot-active':s==='Inactive'?'dot-inactive':'dot-none';
+const sclr = s => s==='Active'?'status-active':s==='Inactive'?'status-inactive':'status-none';
+const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function renderBrief(b) {
+  const p  = b.profile || {};
+  const sm = p.socialMedia || {};
+  const socialHTML = [['Instagram','instagram'],['Facebook','facebook'],['TikTok','tiktok'],['LinkedIn','linkedin']]
+    .map(([n,k]) => { const s = sm[k]||'None'; return `<div class="social-item"><span class="s-dot ${sdot(s)}"></span><span class="s-name">${n}</span><span class="s-status ${sclr(s)}">${s}</span></div>`; }).join('');
+
+  const gaps = (b.gapAnalysis||[]).map(g=>`<div class="brief-item">${esc(g)}</div>`).join('');
+  const qs   = (b.discoveryQuestions||[]).map((q,i)=>`<div class="brief-item"><span class="brief-item-num">${i+1}.</span>${esc(q)}</div>`).join('');
+  const tps  = (b.talkingPoints||[]).map(t=>`<div class="brief-item">${esc(t)}</div>`).join('');
+  const pkg  = b.recommendedPackage || {};
+
+  document.getElementById('briefWrap').innerHTML = `
+    <div class="brief-header">
+      <div>
+        <div class="brief-biz-name">${esc(b.businessName)}</div>
+        <div class="brief-biz-city">${esc(b.city)}</div>
+        <div class="brief-grade-summary">${esc(p.gradeSummary||'')}</div>
+      </div>
+      <div class="brief-grade ${GRADE_CLS[p.overallGrade]||'grade-c'}">${esc(p.overallGrade||'?')}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-sec-head"><span class="brief-sec-icon">🌐</span><span class="brief-sec-title">Digital Profile</span></div>
+      <div class="brief-sec-body">
+        <div class="profile-row"><span class="profile-key">Website</span><span class="profile-val">${esc(p.websitePlatform||'Unknown')} · ${esc(p.websiteQuality||'Unknown')}<small>${esc(p.websiteNotes||'')}</small></span></div>
+        <div class="profile-row"><span class="profile-key">Reviews</span><span class="profile-val">${esc(p.googleReviews||'Not Found')}</span></div>
+        <div class="social-grid">${socialHTML}</div>
+      </div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-sec-head"><span class="brief-sec-icon">⚡</span><span class="brief-sec-title">Gap Analysis</span></div>
+      <div class="brief-sec-body"><div class="brief-list">${gaps}</div></div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-sec-head"><span class="brief-sec-icon">💬</span><span class="brief-sec-title">Discovery Questions</span></div>
+      <div class="brief-sec-body"><div class="brief-list">${qs}</div></div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-sec-head"><span class="brief-sec-icon">🎯</span><span class="brief-sec-title">MTM Talking Points</span></div>
+      <div class="brief-sec-body"><div class="brief-list">${tps}</div></div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-sec-head"><span class="brief-sec-icon">📦</span><span class="brief-sec-title">Recommended Package</span></div>
+      <div class="brief-sec-body">
+        <div class="pkg-box"><div class="pkg-name">${esc(pkg.name||'')}</div><div class="pkg-rationale">${esc(pkg.rationale||'')}</div></div>
+      </div>
+    </div>
+
+    <div class="brief-actions">
+      <button class="btn-pdf" onclick="generatePDF(_brief)">⬇ Download PDF</button>
+      <button class="btn-new" onclick="resetProspect()">New Research</button>
+    </div>
+  `;
+}
+
+/* ── PDF GENERATION ──────────────────────── */
+function generatePDF(b) {
+  if (!window.jspdf) { alert('PDF library still loading. Try again in a moment.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, H = 297, ml = 18, mr = 18, cw = W - ml - mr;
+  let y = 0;
+
+  const BLUE=[45,107,228], WHITE=[244,244,242], GRAY=[130,130,130], LIGHT=[225,225,222], BLACK=[12,12,12];
+  const GREEN=[74,222,128], YELLOW=[245,197,24], ORANGE=[251,146,60], RED=[248,113,113];
+  const gradeRGB = g => ({A:GREEN,B:BLUE,C:YELLOW,D:ORANGE,F:RED}[g]||GRAY);
+
+  const sf = (style, size, rgb) => { doc.setFont('helvetica',style); doc.setFontSize(size); doc.setTextColor(...(rgb||BLACK)); };
+  const rule = yy => { doc.setDrawColor(...LIGHT); doc.line(ml,yy,W-mr,yy); return yy+5; };
+
+  function maybeNewPage(needed) {
+    if (y + needed > H - 16) { doc.addPage(); y = 18; }
+  }
+
+  function secHead(icon, label, yy) {
+    if (yy + 14 > H - 16) { doc.addPage(); yy = 18; }
+    doc.setFillColor(240, 242, 250);
+    doc.rect(ml, yy, cw, 8, 'F');
+    sf('bold', 8, BLUE);
+    doc.text(`${label.toUpperCase()}`, ml + 4, yy + 5.5);
+    return yy + 13;
+  }
+
+  function bulletLine(text, yy, num) {
+    maybeNewPage(12);
+    const prefix = num != null ? `${num}.` : '→';
+    sf('bold', 8, BLUE); doc.text(prefix, ml + 2, yy);
+    sf('normal', 8.5, BLACK);
+    const lines = doc.splitTextToSize(text, cw - 14);
+    doc.text(lines, ml + 11, yy);
+    return yy + lines.length * 5 + 2.5;
+  }
+
+  // Header bar
+  doc.setFillColor(...BLUE); doc.rect(0, 0, W, 20, 'F');
+  sf('bold', 13, WHITE); doc.text('MORE THAN MOMENTUM', ml, 9);
+  sf('normal', 7.5, [180,205,245]); doc.text('Prospect Intelligence Brief  ·  morethanmomentum.com', ml, 15.5);
+  y = 28;
+
+  // Business name + grade
+  const p = b.profile || {};
+  sf('bold', 18, BLACK); doc.text(b.businessName || '', ml, y); y += 5;
+  sf('normal', 10, GRAY); doc.text(b.city || '', ml, y);
+
+  // Grade badge
+  const gc = gradeRGB(p.overallGrade);
+  doc.setFillColor(...gc); doc.roundedRect(W-mr-20, 26, 20, 13, 2.5, 2.5, 'F');
+  sf('bold', 16, WHITE); doc.text(p.overallGrade || '?', W-mr-10, 35.5, { align: 'center' });
+
+  y += 5;
+  sf('italic', 8.5, GRAY);
+  const gsl = doc.splitTextToSize(p.gradeSummary || '', cw - 28);
+  doc.text(gsl, ml, y); y += gsl.length * 4.5 + 2;
+
+  sf('normal', 7.5, GRAY);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}`, ml, y); y += 8;
+  y = rule(y);
+
+  // Digital Profile
+  y = secHead('', 'Digital Profile', y);
+  sf('bold', 8, GRAY); doc.text('WEBSITE', ml, y);
+  sf('normal', 8.5, BLACK); doc.text(`${p.websitePlatform||'Unknown'} · ${p.websiteQuality||'Unknown'}`, ml+22, y); y += 4.5;
+  if (p.websiteNotes) { sf('italic', 8, GRAY); const nl = doc.splitTextToSize(p.websiteNotes, cw-4); doc.text(nl, ml+2, y); y += nl.length*4.3+2; }
+  sf('bold', 8, GRAY); doc.text('REVIEWS', ml, y);
+  sf('normal', 8.5, BLACK); doc.text(p.googleReviews||'Not Found', ml+22, y); y += 7;
+  sf('bold', 8, GRAY); doc.text('SOCIAL MEDIA', ml, y); y += 5;
+  const sm = p.socialMedia || {};
+  [['Instagram','instagram'],['Facebook','facebook'],['TikTok','tiktok'],['LinkedIn','linkedin']].forEach(([n,k],i) => {
+    const s = sm[k]||'None'; const col = i%2; const row = Math.floor(i/2);
+    const px = ml + col*(cw/2); const py = y + row*5.5;
+    const dc = s==='Active'?GREEN:s==='Inactive'?YELLOW:GRAY;
+    doc.setFillColor(...dc); doc.circle(px+1.5,py-1,1.4,'F');
+    sf('normal', 8, GRAY); doc.text(n, px+5, py);
+    sf('bold', 8, BLACK); doc.text(s, px+27, py);
+  }); y += 13;
+  y = rule(y+2);
+
+  // Gap Analysis
+  y = secHead('', 'Gap Analysis', y);
+  (b.gapAnalysis||[]).forEach(g => { y = bulletLine(g, y, null); });
+  y += 3; y = rule(y);
+
+  // Discovery Questions
+  y = secHead('', 'Discovery Questions', y);
+  (b.discoveryQuestions||[]).forEach((q,i) => { y = bulletLine(q, y, i+1); });
+  y += 3; y = rule(y);
+
+  // Talking Points
+  y = secHead('', 'MTM Talking Points', y);
+  (b.talkingPoints||[]).forEach(t => { y = bulletLine(t, y, null); });
+  y += 3; y = rule(y);
+
+  // Recommended Package
+  y = secHead('', 'Recommended Package', y);
+  const pkg = b.recommendedPackage || {};
+  maybeNewPage(30);
+  doc.setFillColor(235,241,252);
+  const rl = doc.splitTextToSize(pkg.rationale||'', cw-10);
+  const bh = 10 + rl.length*4.8 + 4;
+  doc.roundedRect(ml, y, cw, bh, 3, 3, 'F');
+  sf('bold', 13, BLUE); doc.text(pkg.name||'', ml+5, y+8);
+  sf('normal', 8.5, [60,80,120]); doc.text(rl, ml+5, y+15); y += bh+6;
+
+  // Footer on all pages
+  const np = doc.getNumberOfPages();
+  for (let i=1; i<=np; i++) {
+    doc.setPage(i);
+    doc.setFillColor(245,245,243); doc.rect(0,H-11,W,11,'F');
+    sf('normal', 7, GRAY);
+    doc.text('More Than Momentum  ·  morethanmomentum.com  ·  Confidential', ml, H-4);
+    doc.text(`${i} / ${np}`, W-mr, H-4, { align:'right' });
+  }
+
+  const slug = (b.businessName||'prospect').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  doc.save(`MTM-Prospect-${slug}.pdf`);
+}
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
