@@ -141,15 +141,23 @@ Return ONLY a valid raw JSON object. No markdown. No backticks. No explanation b
       );
     }
 
-    // Parse JSON — strip any accidental markdown fences
+    // Parse JSON — handle markdown fences, preamble, and postamble
     let brief;
     try {
-      const cleaned = textContent.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-      brief = JSON.parse(cleaned);
+      // Strategy 1: strip markdown fences and parse directly
+      let cleaned = textContent.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+      try {
+        brief = JSON.parse(cleaned);
+      } catch {
+        // Strategy 2: extract the outermost {...} block from the text
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('No JSON object found in response');
+        brief = JSON.parse(jsonMatch[0]);
+      }
     } catch (parseErr) {
       console.error('JSON parse error. Raw response:', textContent);
       return new Response(
-        JSON.stringify({ error: 'Could not parse research results. Please try again.' }),
+        JSON.stringify({ error: 'Could not parse research results. Raw: ' + textContent.slice(0, 300) }),
         { status: 500, headers }
       );
     }
