@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing — More Than Momentum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div class="cursor" id="cursor">
+  <img src="images/whiteguylogo.png" id="cursor-img" alt=""/>
+</div>
+<div class="cursor-ring" id="cursorRing">
+  <img src="images/whiteguylogo.png" id="cursor-ring-img" alt=""/>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <img src="images/whiteguylogo.png" id="nav-logo-img" alt="More Than Momentum Logo" style="opacity:0;"/>
+    <span class="nav-logo-text">More Than Momentum</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="work.html">Work</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta"><span class="scan-light"></span>Get Started</a>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <canvas class="particle-canvas" id="particles-pricing"></canvas>
+  <div class="section-tag reveal">Investment</div>
+  <h2 class="pricing-heading reveal">Simple, <em>transparent</em> packages.</h2>
+  <p class="pricing-subhead reveal">Every business is different. Reach out and we'll build a package around your goals and scope.</p>
+  <div class="pricing-grid">
+    <div class="plan reveal">
+      <div class="plan-label">For growing brands</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>AI-built content calendar & strategy</li>
+        <li>Social media management (2 platforms)</li>
+        <li>8 posts per month with captions</li>
+        <li>Monthly performance report</li>
+        <li>Email support</li>
+      </ul>
+      <a href="contact.html" class="plan-cta">Get a Quote</a>
+    </div>
+    <div class="plan featured reveal reveal-delay-1">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-label">For scaling businesses</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Everything in Starter</li>
+        <li>Video filming & editing (4 videos/mo)</li>
+        <li>AI automation & scheduling setup</li>
+        <li>Social management (4 platforms)</li>
+        <li>16 posts per month</li>
+        <li>Bi-weekly strategy calls</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="contact.html" class="plan-cta">Get a Quote</a>
+    </div>
+    <div class="plan reveal reveal-delay-2">
+      <div class="plan-label">For established businesses</div>
+      <div class="plan-name">Scale</div>
+      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Everything in Growth</li>
+        <li>Custom AI agents built for your brand</li>
+        <li>AI website design or redesign</li>
+        <li>Unlimited platforms & posts</li>
+        <li>Full creative studio access</li>
+        <li>Weekly strategy & reporting calls</li>
+        <li>Dedicated account manager</li>
+      </ul>
+      <a href="contact.html" class="plan-cta">Get a Quote</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo-text">More Than Momentum</span>
+  <ul class="footer-links">
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="work.html">Work</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 More Than Momentum. All rights reserved.</div>
+</footer>
+
+<!-- MOBILE NAV OVERLAY -->
+<nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">✕</button>
+  <ul class="nav-mobile-links">
+    <li><a href="about.html"    class="nav-mobile-link">About</a></li>
+    <li><a href="services.html" class="nav-mobile-link">Services</a></li>
+    <li><a href="pricing.html"  class="nav-mobile-link">Pricing</a></li>
+    <li><a href="work.html"     class="nav-mobile-link">Work</a></li>
+    <li><a href="contact.html"  class="nav-mobile-link">Contact</a></li>
+  </ul>
+  <a href="contact.html" class="nav-mobile-cta">Get Started →</a>
+</nav>
+<div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

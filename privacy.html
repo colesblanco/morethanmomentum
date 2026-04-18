@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy Policy — More Than Momentum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .privacy-hero {
+      background: var(--black);
+      color: var(--white);
+      padding: 9rem 5rem 5rem;
+      border-bottom: 1px solid #1a1a1a;
+      position: relative;
+    }
+    .privacy-hero-tag {
+      font-size: .7rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      display: inline-flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: 2rem;
+    }
+    .privacy-hero-tag::before {
+      content: '';
+      width: 1.8rem;
+      height: 1px;
+      background: var(--accent-light);
+    }
+    .privacy-hero-title {
+      font-family: var(--speed);
+      font-size: clamp(2.8rem, 5vw, 5rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+    .privacy-hero-title em {
+      font-style: italic;
+      opacity: .55;
+    }
+    .privacy-hero-meta {
+      font-size: .82rem;
+      color: rgba(255,255,255,.4);
+      margin-top: 1rem;
+    }
+
+    .privacy-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 6rem 5rem 7rem;
+    }
+
+    .privacy-section {
+      margin-bottom: 3.5rem;
+      padding-bottom: 3.5rem;
+      border-bottom: 1px solid var(--light);
+    }
+    .privacy-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .privacy-section h2 {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      letter-spacing: -.01em;
+      margin-bottom: 1.2rem;
+      color: var(--black);
+    }
+
+    .privacy-section p {
+      font-size: .92rem;
+      color: var(--mid);
+      line-height: 1.95;
+      margin-bottom: 1rem;
+    }
+    .privacy-section p:last-child { margin-bottom: 0; }
+
+    .privacy-section ul {
+      list-style: none;
+      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+    .privacy-section ul li {
+      font-size: .9rem;
+      color: var(--mid);
+      line-height: 1.7;
+      display: flex;
+      align-items: flex-start;
+      gap: .8rem;
+    }
+    .privacy-section ul li::before {
+      content: '→';
+      color: var(--accent);
+      font-size: .8rem;
+      flex-shrink: 0;
+      margin-top: .1rem;
+    }
+
+    .privacy-section a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color .2s;
+    }
+    .privacy-section a:hover {
+      border-color: var(--accent);
+    }
+
+    .privacy-contact-card {
+      background: var(--black);
+      color: var(--white);
+      padding: 2.5rem 3rem;
+      margin-top: 1.5rem;
+    }
+    .privacy-contact-card p {
+      color: rgba(255,255,255,.6);
+      margin-bottom: .5rem;
+    }
+    .privacy-contact-card a {
+      color: var(--accent-light);
+      border-color: transparent;
+    }
+    .privacy-contact-card a:hover {
+      border-color: var(--accent-light);
+    }
+
+    @media (max-width: 768px) {
+      .privacy-hero { padding: 8rem 1.5rem 3rem; }
+      .privacy-body { padding: 3rem 1.5rem 5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor">
+  <img src="images/whiteguylogo.png" id="cursor-img" alt=""/>
+</div>
+<div class="cursor-ring" id="cursorRing">
+  <img src="images/whiteguylogo.png" id="cursor-ring-img" alt=""/>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <img src="images/whiteguylogo.png" id="nav-logo-img" alt="More Than Momentum Logo" style="opacity:0;"/>
+    <span class="nav-logo-text">More Than Momentum</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="work.html">Work</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta"><span class="scan-light"></span>Get Started</a>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="privacy-hero">
+  <div class="privacy-hero-tag">Legal</div>
+  <h1 class="privacy-hero-title">Privacy <em>Policy</em></h1>
+  <div class="privacy-hero-meta">More Than Momentum LLC &nbsp;·&nbsp; Last updated: April 18, 2026</div>
+</div>
+
+<!-- BODY -->
+<div class="privacy-body">
+
+  <div class="privacy-section">
+    <h2>Overview</h2>
+    <p>More Than Momentum ("we," "us," or "our") operates the website located at <a href="https://morethanmomentum.com">morethanmomentum.com</a>. This Privacy Policy explains how we collect, use, and protect information when you visit our website or contact us about our services.</p>
+    <p>We keep this simple and honest — consistent with how we run our business. We do not sell your personal information. We do not share it with advertisers. We collect only what we need to respond to your inquiries and deliver our services.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Information We Collect</h2>
+    <p>We collect information you voluntarily provide when you contact us through our website's contact form, including:</p>
+    <ul>
+      <li>Your name</li>
+      <li>Your email address</li>
+      <li>Your business name (optional)</li>
+      <li>The service you're interested in (optional)</li>
+      <li>Any message or details you choose to include</li>
+    </ul>
+    <p>We do not collect payment information, social security numbers, or any sensitive personal data through this website. We do not require account creation or login to browse our site.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>How We Use Your Information</h2>
+    <p>Information submitted through our contact form is used solely to:</p>
+    <ul>
+      <li>Respond to your inquiry or service request</li>
+      <li>Provide information about our services that is relevant to your question</li>
+      <li>Follow up on a proposal or ongoing engagement</li>
+    </ul>
+    <p>We do not use your contact information to add you to marketing lists without your explicit consent, and we will never sell or rent your personal information to third parties.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Third-Party Services</h2>
+    <p>Our website uses the following third-party services that may process data as part of their normal operation:</p>
+    <ul>
+      <li><strong>Formspree</strong> — Our contact form submissions are processed by Formspree (formspree.io). Formspree receives and forwards your form data to our email. You can review Formspree's privacy policy at <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener">formspree.io/legal/privacy-policy</a>.</li>
+      <li><strong>Cloudflare</strong> — Our website is hosted on Cloudflare Pages and served through Cloudflare's global network. Cloudflare may process request metadata (such as IP addresses) as part of its security and performance services. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">cloudflare.com/privacypolicy</a>.</li>
+      <li><strong>Google Fonts</strong> — We load web fonts from Google's servers, which may result in Google receiving your IP address as part of the request. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</li>
+      <li><strong>GoHighLevel</strong> — If you become a client, your contact information may be stored in GoHighLevel, our CRM platform. GoHighLevel is used internally to manage client relationships and follow-up communications. See <a href="https://www.gohighlevel.com/privacy-policy" target="_blank" rel="noopener">gohighlevel.com/privacy-policy</a>.</li>
+    </ul>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Cookies &amp; Tracking</h2>
+    <p>Our website does not use first-party tracking cookies or advertising pixels. We do not use Facebook Pixel, Google Ads remarketing tags, or similar ad-network tracking on this site.</p>
+    <p>Third-party services listed above (Cloudflare, Google Fonts) may set technical cookies or log request data as part of their infrastructure operations. These are not used for advertising or behavioral profiling by us.</p>
+    <p>If we add analytics tools in the future, this policy will be updated prior to their use.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Data Retention</h2>
+    <p>Contact form submissions forwarded to our email are retained for as long as necessary to respond to your inquiry and for reasonable business record-keeping purposes. If you would like your information removed from our records, please contact us directly and we will honor the request promptly.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Request access to the personal information we hold about you</li>
+      <li>Request correction of inaccurate information</li>
+      <li>Request deletion of your personal information from our records</li>
+      <li>Withdraw consent for communications at any time</li>
+    </ul>
+    <p>To exercise any of these rights, contact us directly at the email address below. We will respond within 30 days.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Children's Privacy</h2>
+    <p>Our website and services are intended for business owners and professionals. We do not knowingly collect personal information from anyone under the age of 13. If you believe a minor has submitted information through our site, please contact us and we will delete it immediately.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time as our services evolve or legal requirements change. When we do, we will update the "last updated" date at the top of this page. We encourage you to review this page periodically. Continued use of the site after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="privacy-section">
+    <h2>Contact Us</h2>
+    <p>If you have any questions about this Privacy Policy or how your information is handled, please reach out:</p>
+    <div class="privacy-contact-card">
+      <p>More Than Momentum</p>
+      <p><a href="mailto:morethanmomentum@gmail.com">morethanmomentum@gmail.com</a></p>
+      <p>Response time: within 24 hours</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo-text">More Than Momentum</span>
+  <ul class="footer-links">
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="work.html">Work</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 More Than Momentum. All rights reserved.</div>
+</footer>
+
+<!-- MOBILE NAV OVERLAY -->
+<nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">✕</button>
+  <ul class="nav-mobile-links">
+    <li><a href="about.html"    class="nav-mobile-link">About</a></li>
+    <li><a href="services.html" class="nav-mobile-link">Services</a></li>
+    <li><a href="pricing.html"  class="nav-mobile-link">Pricing</a></li>
+    <li><a href="work.html"     class="nav-mobile-link">Work</a></li>
+    <li><a href="contact.html"  class="nav-mobile-link">Contact</a></li>
+  </ul>
+  <a href="contact.html" class="nav-mobile-cta">Get Started →</a>
+</nav>
+<div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
