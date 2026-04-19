@@ -76,10 +76,10 @@ export async function onRequestPost(context) {
       'https://www.googleapis.com/auth/drive',
     ]);
 
-    // Create the presentation
-    const presentationId = await createPresentation(report, accessToken);
+    // Create the presentation (ownership transferred to MTM user during creation)
+    const presentationId = await createPresentation(report, accessToken, env.MTM_GOOGLE_EMAIL);
 
-    // Share with MTM Google account
+    // Share with MTM Google account as writer (in case ownership transfer partially failed)
     await sharePresentation(presentationId, env.MTM_GOOGLE_EMAIL, accessToken);
 
     const url = `https://docs.google.com/presentation/d/${presentationId}/edit`;
@@ -97,7 +97,7 @@ export async function onRequestPost(context) {
 
 // ── PRESENTATION BUILDER ──────────────────────────────────────────────────────
 
-async function createPresentation(report, token) {
+async function createPresentation(report, token, mtmEmail) {
   const ghl = report.ghl || {};
   const ga4 = report.ga4 || {};
 
@@ -117,7 +117,26 @@ async function createPresentation(report, token) {
 
   if (!pid) throw new Error(`Failed to create presentation: ${JSON.stringify(driveFile)}`);
 
-  // Step 1b: Fetch the presentation object to get the default slide ID
+  // Step 1b: Transfer ownership to MTM Google account immediately
+  // This moves the file out of the service account's Drive quota into the MTM user's Drive
+  // Must happen before batchUpdate so the file is accessible
+  if (mtmEmail) {
+    const ownerResp = await fetch(
+      `${DRIVE_BASE}/files/${pid}/permissions?transferOwnership=true&sendNotificationEmail=false`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'owner', type: 'user', emailAddress: mtmEmail }),
+      }
+    );
+    const ownerData = await ownerResp.json();
+    if (ownerData.error) {
+      console.warn('Ownership transfer warning:', JSON.stringify(ownerData.error));
+      // Non-fatal — continue anyway, sharing will be attempted later
+    }
+  }
+
+  // Step 1c: Fetch the presentation object to get the default slide ID
   const presResp = await fetch(`${SLIDES_BASE}/presentations/${pid}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
