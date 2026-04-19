@@ -103,16 +103,25 @@ async function createPresentation(report, token) {
 
   const title = `${report.client.name} — ${report.period.label} Performance Report`;
 
-  // Step 1: Create blank presentation
-  const createResp = await fetch(`${SLIDES_BASE}/presentations`, {
+  // Step 1: Create blank presentation via Drive API (more permissive than Slides API direct creation)
+  const createResp = await fetch(`${DRIVE_BASE}/files`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({
+      name: title,
+      mimeType: 'application/vnd.google-apps.presentation',
+    }),
   });
-  const presentation = await createResp.json();
-  const pid = presentation.presentationId;
+  const driveFile = await createResp.json();
+  const pid = driveFile.id;
 
-  if (!pid) throw new Error(`Failed to create presentation: ${JSON.stringify(presentation)}`);
+  if (!pid) throw new Error(`Failed to create presentation: ${JSON.stringify(driveFile)}`);
+
+  // Step 1b: Fetch the presentation object to get the default slide ID
+  const presResp = await fetch(`${SLIDES_BASE}/presentations/${pid}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  const presentation = await presResp.json();
 
   // Step 2: Delete the default blank slide
   const defaultSlideId = presentation.slides?.[0]?.objectId;
