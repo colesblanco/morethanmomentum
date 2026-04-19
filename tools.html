@@ -9,7 +9,7 @@
     .mobile-block { display: none; }
     @media (max-width: 1024px) {
       .mobile-block { display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 32px; background: var(--black); flex-direction: column; text-align: center; gap: 20px; }
-      #dashboard, #login-screen, #tool-panel { display: none !important; }
+      #dashboard, #login-screen, #tool-panel, #report-panel { display: none !important; }
       .mobile-block-icon { font-size: 40px; }
       .mobile-block-title { font-family: var(--speed); font-weight: 700; font-size: 28px; color: var(--white); }
       .mobile-block-body { font-size: 14px; color: var(--gray); line-height: 1.7; max-width: 320px; }
@@ -28,6 +28,7 @@
       --accent:       #2D6BE4;
       --accent-light: #5B8FF0;
       --yellow:       #F5C518;
+      --green:        #4ade80;
       --sans:         'DM Sans', sans-serif;
       --speed:        'Barlow Condensed', sans-serif;
     }
@@ -90,9 +91,9 @@
     .tool-card-action-arrow { transition: transform .2s; }
     .tool-card.active:hover .tool-card-action-arrow { transform: translateX(4px); }
 
-    /* PANEL */
-    #tool-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: flex-start; justify-content: flex-end; backdrop-filter: blur(4px); }
-    #tool-panel.open { display: flex; }
+    /* PANEL — shared */
+    .panel-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: flex-start; justify-content: flex-end; backdrop-filter: blur(4px); }
+    .panel-overlay.open { display: flex; }
     .panel-inner { width: 100%; max-width: 600px; height: 100vh; background: var(--dark); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; animation: slideIn .25s ease; }
     @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
     .panel-header { padding: 24px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
@@ -110,6 +111,8 @@
     .panel-input { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; font-family: var(--sans); font-size: 14px; color: var(--white); outline: none; transition: border-color .2s; width: 100%; }
     .panel-input::placeholder { color: var(--mid); }
     .panel-input:focus { border-color: var(--accent); }
+    .panel-row { display: flex; gap: 10px; }
+    .panel-row .panel-field { flex: 1; }
     .panel-run-btn { background: var(--accent); color: var(--white); border: none; border-radius: 8px; padding: 13px 20px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: background .2s; width: 100%; margin-top: 4px; }
     .panel-run-btn:hover { background: #2460cc; }
     .panel-run-btn:disabled { background: var(--mid); cursor: not-allowed; }
@@ -124,7 +127,7 @@
     .loading-label strong { display: block; font-size: 15px; color: var(--white); margin-bottom: 4px; }
     .loading-label span { font-size: 13px; color: var(--gray); }
 
-    /* Brief */
+    /* Brief — Prospect Tool */
     .brief-wrap { display: none; flex-direction: column; gap: 14px; }
     .brief-wrap.show { display: flex; }
     .brief-header { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -166,10 +169,54 @@
     .btn-new { background: transparent; border: 1px solid var(--border); color: var(--gray); border-radius: 8px; padding: 13px 16px; font-family: var(--sans); font-size: 13px; cursor: pointer; transition: border-color .2s, color .2s; }
     .btn-new:hover { border-color: var(--gray); color: var(--white); }
 
+    /* ── REPORT TOOL STYLES ────────────────────── */
+    .report-wrap { display: none; flex-direction: column; gap: 14px; }
+    .report-wrap.show { display: flex; }
+    .report-header { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; }
+    .report-client-name { font-family: var(--speed); font-weight: 700; font-size: 22px; }
+    .report-period { font-size: 13px; color: var(--gray); margin-top: 2px; }
+    .report-generated { font-size: 11px; color: var(--mid); margin-top: 6px; }
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    .metric-card.highlight { border-color: rgba(45,107,228,.35); background: rgba(45,107,228,.06); }
+    .metric-label { font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+    .metric-value { font-family: var(--speed); font-weight: 700; font-size: 28px; color: var(--white); line-height: 1; }
+    .metric-value.green { color: var(--green); }
+    .metric-value.blue { color: var(--accent-light); }
+    .metric-sub { font-size: 11px; color: var(--mid); margin-top: 4px; }
+    .report-section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .report-sec-head { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .report-sec-icon { font-size: 13px; }
+    .report-sec-title { font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); }
+    .report-sec-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .source-row { display: flex; align-items: center; gap: 10px; }
+    .source-name { font-size: 12px; color: var(--white); min-width: 110px; flex-shrink: 0; }
+    .source-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 4px; height: 6px; overflow: hidden; }
+    .source-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .4s ease; }
+    .source-pct { font-size: 11px; color: var(--gray); min-width: 36px; text-align: right; }
+    .source-count { font-size: 11px; color: var(--mid); min-width: 28px; text-align: right; }
+    .deal-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+    .deal-row:last-child { border-bottom: none; }
+    .deal-name { font-size: 13px; color: var(--white); flex: 1; }
+    .deal-value { font-size: 13px; font-weight: 500; color: var(--green); flex-shrink: 0; }
+    .deal-source { font-size: 11px; color: var(--mid); flex-shrink: 0; }
+    .takeaway-item { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.55; }
+    .takeaway-item::before { content: '→'; color: var(--accent-light); flex-shrink: 0; font-size: 11px; margin-top: 2px; }
+    .ga4-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ga4-stat { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .ga4-stat-val { font-family: var(--speed); font-weight: 700; font-size: 20px; color: var(--white); }
+    .ga4-stat-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+    .ga4-unavailable { font-size: 13px; color: var(--mid); font-style: italic; padding: 4px 0; }
+    .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-slides { background: transparent; border: 1px solid rgba(45,107,228,.4); color: var(--accent-light); border-radius: 8px; padding: 13px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color .2s, background .2s; }
+    .btn-slides:hover { border-color: var(--accent); background: rgba(45,107,228,.08); }
+    .btn-slides:disabled { opacity: .4; cursor: not-allowed; }
+
     @media (max-width: 640px) {
       .dash-header { padding: 0 20px; } .dash-main { padding: 36px 20px; }
       .dash-intro-heading { font-size: 36px; } .panel-inner { max-width: 100%; }
-      .social-grid { grid-template-columns: 1fr; }
+      .social-grid { grid-template-columns: 1fr; } .metrics-grid { grid-template-columns: 1fr; }
+      .ga4-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -223,36 +270,53 @@
       <p class="dash-intro-sub">AI-powered internal tools for the MTM team. Run prospect research, generate reports, and build onboarding workflows — all in one place.</p>
     </div>
     <div class="tools-grid">
+
+      <!-- Tool 01 — Prospect Intelligence -->
       <div class="tool-card active" onclick="openPanel()">
         <div class="tool-card-icon">🔍</div>
         <div class="tool-card-header"><div class="tool-card-name">Prospect Intelligence</div><span class="tool-card-badge badge-live">Live</span></div>
         <p class="tool-card-desc">Enter a business name and city. Get a full digital audit, gap analysis, tailored discovery questions, and the right MTM package to pitch — ready to download as a PDF.</p>
         <div class="tool-card-action">Launch Tool <span class="tool-card-action-arrow">→</span></div>
       </div>
-      <div class="tool-card coming-soon">
+
+      <!-- Tool 02 — Client Report Generator -->
+      <div class="tool-card active" onclick="openReportPanel()">
         <div class="tool-card-icon">📊</div>
-        <div class="tool-card-header"><div class="tool-card-name">Client Report Generator</div><span class="tool-card-badge badge-soon">Soon</span></div>
-        <p class="tool-card-desc">Pull live GHL data for any client and generate a full monthly performance report — leads, pipeline, revenue, and social — as a branded PDF in seconds.</p>
+        <div class="tool-card-header"><div class="tool-card-name">Client Report Generator</div><span class="tool-card-badge badge-live">Live</span></div>
+        <p class="tool-card-desc">Pull live GHL and GA4 data for any client and generate a full monthly performance report — leads, pipeline, revenue, website, and AI takeaways — as a branded PDF in seconds.</p>
+        <div class="tool-card-action">Launch Tool <span class="tool-card-action-arrow">→</span></div>
+      </div>
+
+      <!-- Tool 03 — Proposal Generator (coming soon) -->
+      <div class="tool-card coming-soon">
+        <div class="tool-card-icon">📝</div>
+        <div class="tool-card-header"><div class="tool-card-name">Proposal Generator</div><span class="tool-card-badge badge-soon">Soon</span></div>
+        <p class="tool-card-desc">Enter discovery call details and generate a branded, fully formatted PDF proposal in seconds — tailored to the prospect's pain points, services, and ROI anchor.</p>
         <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
+
+      <!-- Tool 04 — Onboarding Checklist (coming soon) -->
       <div class="tool-card coming-soon">
         <div class="tool-card-icon">📋</div>
         <div class="tool-card-header"><div class="tool-card-name">Onboarding Checklist</div><span class="tool-card-badge badge-soon">Soon</span></div>
         <p class="tool-card-desc">Input a new client's business type and services purchased. Get a complete, scoped onboarding SOP — step by step, ready to execute without reinventing the wheel.</p>
         <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
+
+      <!-- Tool 05 — Content Brief Generator (coming soon) -->
       <div class="tool-card coming-soon">
         <div class="tool-card-icon">✍️</div>
         <div class="tool-card-header"><div class="tool-card-name">Content Brief Generator</div><span class="tool-card-badge badge-soon">Soon</span></div>
         <p class="tool-card-desc">Generate a full monthly content brief for any client — post ideas, captions, hooks, and platform strategy — built from their brand voice and content pillars.</p>
         <div class="tool-card-action">Coming Soon <span class="tool-card-action-arrow">→</span></div>
       </div>
+
     </div>
   </main>
 </div>
 
-<!-- PROSPECT PANEL -->
-<div id="tool-panel" onclick="handlePanelBackdrop(event)">
+<!-- ── PROSPECT PANEL (Tool 01) ─────────────────────────────────────── -->
+<div id="tool-panel" class="panel-overlay" onclick="handlePanelBackdrop(event)">
   <div class="panel-inner">
     <div class="panel-header">
       <div><div class="panel-tag">Tool 01</div><div class="panel-title">Prospect Intelligence</div></div>
@@ -294,8 +358,73 @@
   </div>
 </div>
 
+<!-- ── REPORT PANEL (Tool 02) ───────────────────────────────────────── -->
+<div id="report-panel" class="panel-overlay" onclick="handleReportBackdrop(event)">
+  <div class="panel-inner">
+    <div class="panel-header">
+      <div><div class="panel-tag">Tool 02</div><div class="panel-title">Client Report Generator</div></div>
+      <button class="panel-close" onclick="closeReportPanel()">✕</button>
+    </div>
+    <div class="panel-body" id="reportPanelBody">
+
+      <!-- Form -->
+      <div class="panel-form" id="reportForm">
+        <div class="panel-field">
+          <label class="panel-label" for="reportClient">Client</label>
+          <select id="reportClient" class="panel-input">
+            <option value="snh">SNH Golf Carts</option>
+          </select>
+        </div>
+        <div class="panel-row">
+          <div class="panel-field">
+            <label class="panel-label" for="reportMonth">Month</label>
+            <select id="reportMonth" class="panel-input">
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4" selected>April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+          <div class="panel-field">
+            <label class="panel-label" for="reportYear">Year</label>
+            <select id="reportYear" class="panel-input">
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-inline-error" id="reportErr"></div>
+        <button class="panel-run-btn" id="reportRunBtn" onclick="runReport()">Generate Report →</button>
+      </div>
+
+      <!-- Loading -->
+      <div class="panel-loading" id="reportLoadingEl">
+        <div class="loading-spinner"></div>
+        <div class="loading-label">
+          <strong id="reportLoadingMsg">Pulling GHL data...</strong>
+          <span>Fetching live data from all sources.</span>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="report-wrap" id="reportWrap"></div>
+
+    </div>
+  </div>
+</div>
+
 <script>
-/* ── AUTH ────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════ */
 const SK = 'mtm_tools_token';
 
 async function checkSession() {
@@ -341,10 +470,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('bizName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('bizCity').focus(); });
   document.getElementById('bizCity').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('bizUrl').focus(); });
   document.getElementById('bizUrl').addEventListener('keydown', e => { if (e.key === 'Enter') runProspect(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePanel(); closeReportPanel(); } });
   checkSession();
 });
 
-/* ── PANEL ───────────────────────────────── */
+/* ══════════════════════════════════════════════
+   PROSPECT PANEL (Tool 01)
+══════════════════════════════════════════════ */
 function openPanel() {
   document.getElementById('tool-panel').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -355,9 +487,7 @@ function closePanel() {
   document.body.style.overflow = '';
 }
 function handlePanelBackdrop(e) { if (e.target === document.getElementById('tool-panel')) closePanel(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 
-/* ── PROSPECT RESEARCH ───────────────────── */
 const MSGS = ['Searching the web...','Checking their website...','Scanning social media...','Analyzing the gaps...','Building your brief...'];
 let _brief = null;
 
@@ -371,7 +501,6 @@ async function runProspect() {
   if (!name) { errEl.textContent = 'Enter a business name.'; errEl.classList.add('show'); return; }
   if (!city) { errEl.textContent = 'Enter a city and state.'; errEl.classList.add('show'); return; }
 
-  // Show loading
   document.getElementById('prospectForm').style.display = 'none';
   document.getElementById('loadingEl').classList.add('show');
   document.getElementById('briefWrap').classList.remove('show');
@@ -392,16 +521,11 @@ async function runProspect() {
     const data = await res.json();
     clearInterval(msgTimer);
 
-    if (!data.success || !data.brief) {
-      showResearchError(data.error || 'Research failed. Please try again.');
-      return;
-    }
-
+    if (!data.success || !data.brief) { showResearchError(data.error || 'Research failed. Please try again.'); return; }
     _brief = data.brief;
     renderBrief(data.brief);
     document.getElementById('loadingEl').classList.remove('show');
     document.getElementById('briefWrap').classList.add('show');
-
   } catch {
     clearInterval(msgTimer);
     showResearchError('Connection error. Please try again.');
@@ -428,7 +552,6 @@ function resetProspect() {
   setTimeout(() => document.getElementById('bizName').focus(), 50);
 }
 
-/* ── RENDER BRIEF ────────────────────────── */
 const GRADE_CLS = { A:'grade-a', B:'grade-b', C:'grade-c', D:'grade-d', F:'grade-f' };
 const sdot = s => s==='Active'?'dot-active':s==='Inactive'?'dot-inactive':'dot-none';
 const sclr = s => s==='Active'?'status-active':s==='Inactive'?'status-inactive':'status-none';
@@ -439,7 +562,6 @@ function renderBrief(b) {
   const sm = p.socialMedia || {};
   const socialHTML = [['Instagram','instagram'],['Facebook','facebook'],['TikTok','tiktok'],['LinkedIn','linkedin']]
     .map(([n,k]) => { const s = sm[k]||'None'; return `<div class="social-item"><span class="s-dot ${sdot(s)}"></span><span class="s-name">${n}</span><span class="s-status ${sclr(s)}">${s}</span></div>`; }).join('');
-
   const gaps = (b.gapAnalysis||[]).map(g=>`<div class="brief-item">${esc(g)}</div>`).join('');
   const qs   = (b.discoveryQuestions||[]).map((q,i)=>`<div class="brief-item"><span class="brief-item-num">${i+1}.</span>${esc(q)}</div>`).join('');
   const tps  = (b.talkingPoints||[]).map(t=>`<div class="brief-item">${esc(t)}</div>`).join('');
@@ -454,7 +576,6 @@ function renderBrief(b) {
       </div>
       <div class="brief-grade ${GRADE_CLS[p.overallGrade]||'grade-c'}">${esc(p.overallGrade||'?')}</div>
     </div>
-
     <div class="brief-section">
       <div class="brief-sec-head"><span class="brief-sec-icon">🌐</span><span class="brief-sec-title">Digital Profile</span></div>
       <div class="brief-sec-body">
@@ -463,29 +584,24 @@ function renderBrief(b) {
         <div class="social-grid">${socialHTML}</div>
       </div>
     </div>
-
     <div class="brief-section">
       <div class="brief-sec-head"><span class="brief-sec-icon">⚡</span><span class="brief-sec-title">Gap Analysis</span></div>
       <div class="brief-sec-body"><div class="brief-list">${gaps}</div></div>
     </div>
-
     <div class="brief-section">
       <div class="brief-sec-head"><span class="brief-sec-icon">💬</span><span class="brief-sec-title">Discovery Questions</span></div>
       <div class="brief-sec-body"><div class="brief-list">${qs}</div></div>
     </div>
-
     <div class="brief-section">
       <div class="brief-sec-head"><span class="brief-sec-icon">🎯</span><span class="brief-sec-title">MTM Talking Points</span></div>
       <div class="brief-sec-body"><div class="brief-list">${tps}</div></div>
     </div>
-
     <div class="brief-section">
       <div class="brief-sec-head"><span class="brief-sec-icon">📦</span><span class="brief-sec-title">Recommended Package</span></div>
       <div class="brief-sec-body">
         <div class="pkg-box"><div class="pkg-name">${esc(pkg.name||'')}</div><div class="pkg-rationale">${esc(pkg.rationale||'')}</div></div>
       </div>
     </div>
-
     <div class="brief-actions">
       <button class="btn-pdf" onclick="generatePDF(_brief)">⬇ Download PDF</button>
       <button class="btn-new" onclick="resetProspect()">New Research</button>
@@ -493,7 +609,9 @@ function renderBrief(b) {
   `;
 }
 
-/* ── PDF GENERATION ──────────────────────── */
+/* ══════════════════════════════════════════════
+   PROSPECT PDF
+══════════════════════════════════════════════ */
 function generatePDF(b) {
   if (!window.jspdf) { alert('PDF library still loading. Try again in a moment.'); return; }
   const { jsPDF } = window.jspdf;
@@ -508,16 +626,12 @@ function generatePDF(b) {
   const sf = (style, size, rgb) => { doc.setFont('helvetica',style); doc.setFontSize(size); doc.setTextColor(...(rgb||BLACK)); };
   const rule = yy => { doc.setDrawColor(...LIGHT); doc.line(ml,yy,W-mr,yy); return yy+5; };
 
-  function maybeNewPage(needed) {
-    if (y + needed > H - 16) { doc.addPage(); y = 18; }
-  }
+  function maybeNewPage(needed) { if (y + needed > H - 16) { doc.addPage(); y = 18; } }
 
   function secHead(icon, label, yy) {
     if (yy + 14 > H - 16) { doc.addPage(); yy = 18; }
-    doc.setFillColor(240, 242, 250);
-    doc.rect(ml, yy, cw, 8, 'F');
-    sf('bold', 8, BLUE);
-    doc.text(`${label.toUpperCase()}`, ml + 4, yy + 5.5);
+    doc.setFillColor(240, 242, 250); doc.rect(ml, yy, cw, 8, 'F');
+    sf('bold', 8, BLUE); doc.text(label.toUpperCase(), ml + 4, yy + 5.5);
     return yy + 13;
   }
 
@@ -531,18 +645,15 @@ function generatePDF(b) {
     return yy + lines.length * 5 + 2.5;
   }
 
-  // Header bar
   doc.setFillColor(...BLUE); doc.rect(0, 0, W, 20, 'F');
   sf('bold', 13, WHITE); doc.text('MORE THAN MOMENTUM', ml, 9);
   sf('normal', 7.5, [180,205,245]); doc.text('Prospect Intelligence Brief  ·  morethanmomentum.com', ml, 15.5);
   y = 28;
 
-  // Business name + grade
   const p = b.profile || {};
   sf('bold', 18, BLACK); doc.text(b.businessName || '', ml, y); y += 5;
   sf('normal', 10, GRAY); doc.text(b.city || '', ml, y);
 
-  // Grade badge
   const gc = gradeRGB(p.overallGrade);
   doc.setFillColor(...gc); doc.roundedRect(W-mr-20, 26, 20, 13, 2.5, 2.5, 'F');
   sf('bold', 16, WHITE); doc.text(p.overallGrade || '?', W-mr-10, 35.5, { align: 'center' });
@@ -551,12 +662,10 @@ function generatePDF(b) {
   sf('italic', 8.5, GRAY);
   const gsl = doc.splitTextToSize(p.gradeSummary || '', cw - 28);
   doc.text(gsl, ml, y); y += gsl.length * 4.5 + 2;
-
   sf('normal', 7.5, GRAY);
   doc.text(`Generated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}`, ml, y); y += 8;
   y = rule(y);
 
-  // Digital Profile
   y = secHead('', 'Digital Profile', y);
   sf('bold', 8, GRAY); doc.text('WEBSITE', ml, y);
   sf('normal', 8.5, BLACK); doc.text(`${p.websitePlatform||'Unknown'} · ${p.websiteQuality||'Unknown'}`, ml+22, y); y += 4.5;
@@ -575,22 +684,18 @@ function generatePDF(b) {
   }); y += 13;
   y = rule(y+2);
 
-  // Gap Analysis
   y = secHead('', 'Gap Analysis', y);
   (b.gapAnalysis||[]).forEach(g => { y = bulletLine(g, y, null); });
   y += 3; y = rule(y);
 
-  // Discovery Questions
   y = secHead('', 'Discovery Questions', y);
   (b.discoveryQuestions||[]).forEach((q,i) => { y = bulletLine(q, y, i+1); });
   y += 3; y = rule(y);
 
-  // Talking Points
   y = secHead('', 'MTM Talking Points', y);
   (b.talkingPoints||[]).forEach(t => { y = bulletLine(t, y, null); });
   y += 3; y = rule(y);
 
-  // Recommended Package
   y = secHead('', 'Recommended Package', y);
   const pkg = b.recommendedPackage || {};
   maybeNewPage(30);
@@ -601,7 +706,6 @@ function generatePDF(b) {
   sf('bold', 13, BLUE); doc.text(pkg.name||'', ml+5, y+8);
   sf('normal', 8.5, [60,80,120]); doc.text(rl, ml+5, y+15); y += bh+6;
 
-  // Footer on all pages
   const np = doc.getNumberOfPages();
   for (let i=1; i<=np; i++) {
     doc.setPage(i);
@@ -614,6 +718,410 @@ function generatePDF(b) {
   const slug = (b.businessName||'prospect').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   doc.save(`MTM-Prospect-${slug}.pdf`);
 }
+
+/* ══════════════════════════════════════════════
+   REPORT PANEL (Tool 02)
+══════════════════════════════════════════════ */
+function openReportPanel() {
+  document.getElementById('report-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeReportPanel() {
+  document.getElementById('report-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleReportBackdrop(e) { if (e.target === document.getElementById('report-panel')) closeReportPanel(); }
+
+const REPORT_MSGS = ['Pulling GHL data...', 'Fetching pipeline metrics...', 'Loading GA4 website data...', 'Running AI analysis...', 'Building your report...'];
+let _report = null;
+
+async function runReport() {
+  const clientId = document.getElementById('reportClient').value;
+  const month    = document.getElementById('reportMonth').value;
+  const year     = document.getElementById('reportYear').value;
+  const errEl    = document.getElementById('reportErr');
+
+  errEl.classList.remove('show');
+  document.getElementById('reportForm').style.display = 'none';
+  document.getElementById('reportLoadingEl').classList.add('show');
+  document.getElementById('reportWrap').classList.remove('show');
+
+  let mi = 0;
+  const msgTimer = setInterval(() => {
+    mi = (mi + 1) % REPORT_MSGS.length;
+    const el = document.getElementById('reportLoadingMsg');
+    if (el) el.textContent = REPORT_MSGS[mi];
+  }, 3500);
+
+  try {
+    const res = await fetch('/api/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId, month: parseInt(month), year: parseInt(year) })
+    });
+    const data = await res.json();
+    clearInterval(msgTimer);
+
+    if (!data.success || !data.report) {
+      showReportError(data.error || 'Report generation failed. Please try again.');
+      return;
+    }
+
+    _report = data.report;
+    renderReport(data.report);
+    document.getElementById('reportLoadingEl').classList.remove('show');
+    document.getElementById('reportWrap').classList.add('show');
+
+  } catch {
+    clearInterval(msgTimer);
+    showReportError('Connection error. Please try again.');
+  }
+}
+
+function showReportError(msg) {
+  document.getElementById('reportLoadingEl').classList.remove('show');
+  document.getElementById('reportForm').style.display = 'flex';
+  const errEl = document.getElementById('reportErr');
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+
+function resetReport() {
+  _report = null;
+  document.getElementById('reportWrap').innerHTML = '';
+  document.getElementById('reportWrap').classList.remove('show');
+  document.getElementById('reportErr').classList.remove('show');
+  document.getElementById('reportForm').style.display = 'flex';
+}
+
+function fmtCurrency(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtNum(n) { return (n || 0).toLocaleString(); }
+
+function fmtDuration(sec) {
+  if (!sec) return '—';
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
+function renderReport(r) {
+  const ghl = r.ghl || {};
+  const ga4 = r.ga4 || {};
+
+  // Metric cards
+  const metricsHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card highlight">
+        <div class="metric-label">Total Leads</div>
+        <div class="metric-value blue">${fmtNum(ghl.totalLeads)}</div>
+        <div class="metric-sub">Top source: ${esc(ghl.topSource || '—')}</div>
+      </div>
+      <div class="metric-card highlight">
+        <div class="metric-label">Won Revenue</div>
+        <div class="metric-value green">${fmtCurrency(ghl.wonRevenue)}</div>
+        <div class="metric-sub">${fmtNum(ghl.wonDeals)} deal${ghl.wonDeals !== 1 ? 's' : ''} closed</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Open Pipeline</div>
+        <div class="metric-value">${fmtCurrency(ghl.openPipelineValue)}</div>
+        <div class="metric-sub">${fmtNum(ghl.openDeals)} open opportunities</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Lost Deals</div>
+        <div class="metric-value">${fmtNum(ghl.lostDeals)}</div>
+        <div class="metric-sub">This period</div>
+      </div>
+    </div>
+  `;
+
+  // Lead sources
+  const sources = ghl.leadSources || [];
+  const sourcesHTML = sources.length > 0
+    ? sources.map(s => `
+        <div class="source-row">
+          <span class="source-name">${esc(s.source)}</span>
+          <div class="source-bar-wrap"><div class="source-bar" style="width:${s.percentage}%"></div></div>
+          <span class="source-pct">${s.percentage}%</span>
+          <span class="source-count">${s.count}</span>
+        </div>
+      `).join('')
+    : '<div class="takeaway-item">No lead source data available for this period.</div>';
+
+  // Won deals
+  const deals = ghl.wonDealsList || [];
+  const dealsHTML = deals.length > 0
+    ? deals.map(d => `
+        <div class="deal-row">
+          <span class="deal-name">${esc(d.name)}</span>
+          <span class="deal-source">${esc(d.source)}</span>
+          <span class="deal-value">${fmtCurrency(d.value)}</span>
+        </div>
+      `).join('')
+    : '<div style="font-size:13px;color:var(--mid);font-style:italic;">No won deals recorded this period.</div>';
+
+  // GA4 section
+  let ga4HTML;
+  if (ga4.error) {
+    ga4HTML = `<div class="ga4-unavailable">${esc(ga4.error)}</div>`;
+  } else {
+    ga4HTML = `
+      <div class="ga4-grid">
+        <div class="ga4-stat"><div class="ga4-stat-val">${fmtNum(ga4.sessions)}</div><div class="ga4-stat-label">Sessions</div></div>
+        <div class="ga4-stat"><div class="ga4-stat-val">${fmtNum(ga4.users)}</div><div class="ga4-stat-label">Users</div></div>
+        <div class="ga4-stat"><div class="ga4-stat-val">${ga4.bounceRate != null ? ga4.bounceRate + '%' : '—'}</div><div class="ga4-stat-label">Bounce Rate</div></div>
+        <div class="ga4-stat"><div class="ga4-stat-val">${fmtDuration(ga4.avgSessionDurationSec)}</div><div class="ga4-stat-label">Avg Session</div></div>
+      </div>
+      ${ga4.trafficChannels && ga4.trafficChannels.length > 0 ? `
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+          ${ga4.trafficChannels.map(ch => `
+            <div class="source-row">
+              <span class="source-name">${esc(ch.channel)}</span>
+              <div class="source-bar-wrap"><div class="source-bar" style="width:${ga4.sessions > 0 ? Math.round((ch.sessions/ga4.sessions)*100) : 0}%;background:var(--accent-light)"></div></div>
+              <span class="source-pct">${fmtNum(ch.sessions)}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    `;
+  }
+
+  // Key takeaways
+  const takeaways = r.takeaways || [];
+  const takeawaysHTML = takeaways.length > 0
+    ? takeaways.map(t => `<div class="takeaway-item">${esc(t)}</div>`).join('')
+    : '<div class="takeaway-item">No takeaways generated.</div>';
+
+  document.getElementById('reportWrap').innerHTML = `
+    <div class="report-header">
+      <div class="report-client-name">${esc(r.client.name)}</div>
+      <div class="report-period">${esc(r.period.label)}</div>
+      <div class="report-generated">Generated ${new Date(r.generatedAt).toLocaleString()}</div>
+    </div>
+
+    ${metricsHTML}
+
+    <div class="report-section">
+      <div class="report-sec-head"><span class="report-sec-icon">📍</span><span class="report-sec-title">Lead Sources</span></div>
+      <div class="report-sec-body">${sourcesHTML}</div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-sec-head"><span class="report-sec-icon">✅</span><span class="report-sec-title">Won Deals</span></div>
+      <div class="report-sec-body">${dealsHTML}</div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-sec-head"><span class="report-sec-icon">🌐</span><span class="report-sec-title">Website — Google Analytics</span></div>
+      <div class="report-sec-body">${ga4HTML}</div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-sec-head"><span class="report-sec-icon">💡</span><span class="report-sec-title">Key Takeaways</span></div>
+      <div class="report-sec-body" style="gap:10px;">${takeawaysHTML}</div>
+    </div>
+
+    <div class="report-actions">
+      <button class="btn-pdf" onclick="generateReportPDF(_report)">⬇ Download PDF</button>
+      <button class="btn-slides" id="slidesBtn" onclick="generateSlides()">🖥 Open in Google Slides</button>
+      <button class="btn-new" onclick="resetReport()">New Report</button>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════════
+   REPORT PDF
+══════════════════════════════════════════════ */
+function generateReportPDF(r) {
+  if (!window.jspdf) { alert('PDF library still loading. Try again in a moment.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, H = 297, ml = 18, mr = 18, cw = W - ml - mr;
+  let y = 0;
+
+  const BLUE=[45,107,228], WHITE=[244,244,242], GRAY=[130,130,130], LIGHT=[225,225,222], BLACK=[12,12,12];
+  const GREEN=[74,222,128], ACCENT_LIGHT=[91,143,240];
+
+  const sf = (style, size, rgb) => { doc.setFont('helvetica',style); doc.setFontSize(size); doc.setTextColor(...(rgb||BLACK)); };
+  const rule = yy => { doc.setDrawColor(...LIGHT); doc.line(ml,yy,W-mr,yy); return yy+5; };
+  const maybeNewPage = needed => { if (y + needed > H - 16) { doc.addPage(); y = 18; } };
+
+  function secHead(label, yy) {
+    maybeNewPage(14);
+    doc.setFillColor(240, 242, 250); doc.rect(ml, yy, cw, 8, 'F');
+    sf('bold', 8, BLUE); doc.text(label.toUpperCase(), ml + 4, yy + 5.5);
+    return yy + 13;
+  }
+
+  function metricBox(x, yy, bw, label, value, sub) {
+    doc.setFillColor(245, 247, 252); doc.setDrawColor(...LIGHT);
+    doc.roundedRect(x, yy, bw, 22, 2, 2, 'FD');
+    sf('bold', 7, GRAY); doc.text(label.toUpperCase(), x+4, yy+5.5);
+    sf('bold', 14, BLUE); doc.text(String(value), x+4, yy+14);
+    if (sub) { sf('normal', 7, GRAY); doc.text(String(sub), x+4, yy+19.5); }
+  }
+
+  const ghl = r.ghl || {};
+  const ga4 = r.ga4 || {};
+
+  // Header
+  doc.setFillColor(...BLUE); doc.rect(0, 0, W, 20, 'F');
+  sf('bold', 13, WHITE); doc.text('MORE THAN MOMENTUM', ml, 9);
+  sf('normal', 7.5, [180,205,245]); doc.text('Client Performance Report  ·  morethanmomentum.com', ml, 15.5);
+  y = 28;
+
+  // Client + period
+  sf('bold', 18, BLACK); doc.text(r.client.name || '', ml, y); y += 6;
+  sf('bold', 11, BLUE); doc.text(r.period.label || '', ml, y); y += 5;
+  sf('normal', 7.5, GRAY); doc.text(`Generated: ${new Date(r.generatedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}`, ml, y); y += 8;
+  y = rule(y);
+
+  // Metric boxes (2 per row)
+  y = secHead('Pipeline Summary', y);
+  const bw = (cw - 6) / 2;
+  metricBox(ml,      y, bw, 'Total Leads',    fmtNum(ghl.totalLeads),        `Top: ${ghl.topSource || '—'}`);
+  metricBox(ml+bw+6, y, bw, 'Won Revenue',    fmtCurrency(ghl.wonRevenue),   `${fmtNum(ghl.wonDeals)} deals closed`);
+  y += 26;
+  metricBox(ml,      y, bw, 'Open Pipeline',  fmtCurrency(ghl.openPipelineValue), `${fmtNum(ghl.openDeals)} opportunities`);
+  metricBox(ml+bw+6, y, bw, 'Lost Deals',     fmtNum(ghl.lostDeals),         'This period');
+  y += 30;
+  y = rule(y);
+
+  // Lead sources
+  y = secHead('Lead Sources', y);
+  const sources = ghl.leadSources || [];
+  sources.forEach(s => {
+    maybeNewPage(10);
+    sf('normal', 8.5, BLACK); doc.text(s.source, ml, y);
+    const barW = (cw - 60) * (s.percentage / 100);
+    doc.setFillColor(...ACCENT_LIGHT); doc.rect(ml + 55, y - 3.5, barW, 4, 'F');
+    sf('bold', 8, BLUE); doc.text(`${s.percentage}%`, ml + cw - 14, y, { align: 'right' });
+    sf('normal', 7.5, GRAY); doc.text(`${s.count} lead${s.count !== 1 ? 's' : ''}`, ml + cw, y, { align: 'right' });
+    y += 7;
+  });
+  y += 3; y = rule(y);
+
+  // Won deals
+  y = secHead('Won Deals', y);
+  const deals = ghl.wonDealsList || [];
+  if (deals.length === 0) {
+    sf('italic', 8.5, GRAY); doc.text('No won deals recorded this period.', ml, y); y += 8;
+  } else {
+    deals.forEach(d => {
+      maybeNewPage(10);
+      sf('normal', 8.5, BLACK); const nameLines = doc.splitTextToSize(d.name, cw - 50); doc.text(nameLines, ml, y);
+      sf('normal', 7.5, GRAY); doc.text(d.source, ml + 70, y);
+      sf('bold', 9, GREEN); doc.text(fmtCurrency(d.value), W - mr, y, { align: 'right' });
+      y += nameLines.length * 5 + 2;
+    });
+  }
+  y += 3; y = rule(y);
+
+  // GA4
+  y = secHead('Website — Google Analytics', y);
+  if (ga4.error) {
+    sf('italic', 8.5, GRAY); doc.text(ga4.error, ml, y); y += 8;
+  } else {
+    metricBox(ml,        y, (cw-18)/4, 'Sessions',    fmtNum(ga4.sessions),  null);
+    metricBox(ml+(cw-18)/4+6, y, (cw-18)/4, 'Users', fmtNum(ga4.users),     null);
+    metricBox(ml+((cw-18)/4+6)*2, y, (cw-18)/4, 'Bounce Rate', ga4.bounceRate+'%', null);
+    metricBox(ml+((cw-18)/4+6)*3, y, (cw-18)/4, 'Avg Session', fmtDuration(ga4.avgSessionDurationSec), null);
+    y += 30;
+
+    if (ga4.trafficChannels && ga4.trafficChannels.length > 0) {
+      sf('bold', 8, GRAY); doc.text('TRAFFIC CHANNELS', ml, y); y += 5;
+      ga4.trafficChannels.forEach(ch => {
+        maybeNewPage(8);
+        sf('normal', 8, BLACK); doc.text(ch.channel, ml, y);
+        const pct = ga4.sessions > 0 ? Math.round((ch.sessions / ga4.sessions) * 100) : 0;
+        const bW = (cw - 55) * (pct / 100);
+        doc.setFillColor(...ACCENT_LIGHT); doc.rect(ml + 50, y - 3.5, bW, 4, 'F');
+        sf('normal', 7.5, GRAY); doc.text(`${fmtNum(ch.sessions)} sessions`, W-mr, y, { align: 'right' });
+        y += 6.5;
+      });
+    }
+  }
+  y += 3; y = rule(y);
+
+  // Key Takeaways
+  y = secHead('Key Takeaways', y);
+  const takeaways = r.takeaways || [];
+  takeaways.forEach(t => {
+    maybeNewPage(12);
+    sf('bold', 8, BLUE); doc.text('→', ml + 2, y);
+    sf('normal', 8.5, BLACK);
+    const lines = doc.splitTextToSize(t, cw - 14);
+    doc.text(lines, ml + 11, y);
+    y += lines.length * 5 + 3;
+  });
+
+  // Footer
+  const np = doc.getNumberOfPages();
+  for (let i = 1; i <= np; i++) {
+    doc.setPage(i);
+    doc.setFillColor(245,245,243); doc.rect(0,H-11,W,11,'F');
+    sf('normal', 7, GRAY);
+    doc.text('More Than Momentum  ·  morethanmomentum.com  ·  Confidential', ml, H-4);
+    doc.text(`${i} / ${np}`, W-mr, H-4, { align:'right' });
+  }
+
+  const slug = (r.client.name||'client').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const periodSlug = r.period.label.toLowerCase().replace(/\s+/g,'-');
+  doc.save(`MTM-Report-${slug}-${periodSlug}.pdf`);
+}
+
+function fmtCurrency(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtNum(n) { return (n || 0).toLocaleString(); }
+function fmtDuration(sec) {
+  if (!sec) return '—';
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
+
+/* ══════════════════════════════════════════════
+   GOOGLE SLIDES (Tool 02)
+══════════════════════════════════════════════ */
+async function generateSlides() {
+  if (!_report) return;
+  const btn = document.getElementById('slidesBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Creating deck...';
+
+  try {
+    const res = await fetch('/api/report-slides', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ report: _report })
+    });
+    const data = await res.json();
+
+    if (!data.success || !data.url) {
+      btn.disabled = false;
+      btn.textContent = '🖥 Open in Google Slides';
+      alert(data.error || 'Failed to create slides. Please try again.');
+      return;
+    }
+
+    // Open the deck in a new tab
+    window.open(data.url, '_blank');
+    btn.disabled = false;
+    btn.textContent = '✅ Slides Ready';
+    setTimeout(() => { btn.textContent = '🖥 Open in Google Slides'; }, 4000);
+
+  } catch {
+    btn.disabled = false;
+    btn.textContent = '🖥 Open in Google Slides';
+    alert('Connection error. Please try again.');
+  }
+}
+
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
