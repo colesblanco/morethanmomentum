@@ -104,37 +104,32 @@ async function getOAuthAccessToken(env) {
 async function createPresentation(report, token, mtmReportsFolder) {
   const ghl = report.ghl || {};
   const ga4 = report.ga4 || {};
-
   const title = `${report.client.name} — ${report.period.label} Performance Report`;
 
-  // Create presentation directly in user's Drive (OAuth token = file goes to MTM's account)
-  const createBody = {
-    name: title,
-    mimeType: 'application/vnd.google-apps.presentation',
-  };
-  if (mtmReportsFolder) {
-    createBody.parents = [mtmReportsFolder];
-  }
-
-  const createResp = await fetch(`${DRIVE_BASE}/files`, {
+  // ── Step 1: Create via Slides API directly (avoids Drive API quirks with batchUpdate) ──
+  const createResp = await fetch(`${SLIDES_BASE}/presentations`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(createBody),
+    body: JSON.stringify({ title }),
   });
-  const driveFile = await createResp.json();
-  const pid = driveFile.id;
+  const presentation = await createResp.json();
+  const pid = presentation.presentationId;
+  if (!pid) throw new Error(`Failed to create presentation: ${JSON.stringify(presentation)}`);
 
-  if (!pid) throw new Error(`Failed to create presentation: ${JSON.stringify(driveFile)}`);
+  // Move to reports folder if configured
+  if (mtmReportsFolder) {
+    await fetch(`${DRIVE_BASE}/files/${pid}?addParents=${mtmReportsFolder}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+  }
 
-  // Step 1c: Fetch the presentation object to get the default slide ID
-  const presResp = await fetch(`${SLIDES_BASE}/presentations/${pid}`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  });
-  const presentation = await presResp.json();
-
-  // Step 2: Delete the default blank slide
+  // ── Step 2: Delete the default blank slide (separate batchUpdate) ──
   const defaultSlideId = presentation.slides?.[0]?.objectId;
-  const deleteReqs = defaultSlideId ? [{ deleteObject: { objectId: defaultSlideId } }] : [];
+  if (defaultSlideId) {
+    await doBatchUpdate(pid, [{ deleteObject: { objectId: defaultSlideId } }], token);
+  }
 
   // Slide IDs
   const S = {
@@ -146,58 +141,45 @@ async function createPresentation(report, token, mtmReportsFolder) {
     takeaways: 'slide_takeaways',
   };
 
-  // Build all slide requests
-  const requests = [
-    ...deleteReqs,
-
-    // ── ADD ALL SLIDES ──
+  // ── Step 3: Add all slides + set backgrounds (separate batchUpdate) ──
+  const slideReqs = [
     ...Object.values(S).map(id => ({
       addSlide: { objectId: id, slideLayoutReference: { predefinedLayout: 'BLANK' } }
     })),
-
-    // ── SET ALL BACKGROUNDS TO BLACK ──
     ...Object.values(S).map(id => ({
       updatePageProperties: {
         objectId: id,
-        pageProperties: {
-          pageBackgroundFill: { solidFill: { color: { rgbColor: C.BLACK } } }
-        },
-        fields: 'pageBackgroundFill'
+        pageProperties: { pageBackgroundFill: { solidFill: { color: { rgbColor: C.BLACK } } } },
+        fields: 'pageBackgroundFill',
       }
     })),
+  ];
+  await doBatchUpdate(pid, slideReqs, token);
 
+  // ── Step 4: Add all content (shapes, text) ──
+  const contentReqs = [
     // ══ SLIDE 1 — COVER ══════════════════════════════════════════════════════
-    // Blue accent bar at top
     ...rect('cover_bar', S.cover, 0, 0, SW, px(6), C.BLUE),
-    // MTM label
     ...text('cover_mtm', S.cover, 'MORE THAN MOMENTUM', px(56), px(28), SW - px(112), px(30),
       { size: 11, bold: true, color: C.ACCENT_LIGHT, spacing: 2 }),
-    // Client name (large)
     ...text('cover_client', S.cover, report.client.name || '', px(56), px(68), SW - px(112), px(90),
       { size: 42, bold: true, color: C.WHITE }),
-    // Report type
     ...text('cover_type', S.cover, 'Monthly Performance Report', px(56), px(162), SW - px(112), px(36),
       { size: 18, bold: false, color: C.GRAY }),
-    // Period
     ...text('cover_period', S.cover, report.period.label || '', px(56), px(202), SW - px(300), px(36),
       { size: 16, bold: true, color: C.BLUE }),
-    // Date
     ...text('cover_date', S.cover, `Generated ${new Date(report.generatedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`,
-      px(56), px(242), SW - px(112), px(26),
-      { size: 11, color: C.MID }),
-    // Bottom accent bar
+      px(56), px(242), SW - px(112), px(26), { size: 11, color: C.MID }),
     ...rect('cover_bottom', S.cover, 0, SH - px(4), SW, px(4), C.CARD),
-    // Footer
     ...text('cover_footer', S.cover, 'morethanmomentum.com', px(56), SH - px(28), SW - px(112), px(20),
       { size: 9, color: C.MID }),
 
     // ══ SLIDE 2 — PIPELINE SUMMARY ═══════════════════════════════════════════
     ...slideHeader('metrics_bar', 'metrics_title', S.metrics, 'Pipeline Summary'),
-    // 4 metric cards in 2x2 grid
-    ...metricCard('mc1', S.metrics, px(48), px(100), fmtCurrency(ghl.wonRevenue),    'WON REVENUE',     `${fmtNum(ghl.wonDeals)} deals closed`, C.GREEN),
-    ...metricCard('mc2', S.metrics, px(320), px(100), fmtNum(ghl.totalLeads),        'TOTAL LEADS',     `Top: ${ghl.topSource || '—'}`, C.ACCENT_LIGHT),
-    ...metricCard('mc3', S.metrics, px(592), px(100), fmtCurrency(ghl.openPipelineValue), 'OPEN PIPELINE', `${fmtNum(ghl.openDeals)} opportunities`, C.WHITE),
-    ...metricCard('mc4', S.metrics, px(864), px(100), fmtNum(ghl.lostDeals),         'LOST DEALS',      'This period', C.GRAY),
+    ...metricCard('mc1', S.metrics, px(48),  px(100), fmtCurrency(ghl.wonRevenue),          'WON REVENUE',    `${fmtNum(ghl.wonDeals)} deals closed`, C.GREEN),
+    ...metricCard('mc2', S.metrics, px(320), px(100), fmtNum(ghl.totalLeads),               'TOTAL LEADS',    `Top: ${ghl.topSource || '—'}`, C.ACCENT_LIGHT),
+    ...metricCard('mc3', S.metrics, px(592), px(100), fmtCurrency(ghl.openPipelineValue),   'OPEN PIPELINE',  `${fmtNum(ghl.openDeals)} opportunities`, C.WHITE),
+    ...metricCard('mc4', S.metrics, px(864), px(100), fmtNum(ghl.lostDeals),               'LOST DEALS',     'This period', C.GRAY),
 
     // ══ SLIDE 3 — LEAD SOURCES ═══════════════════════════════════════════════
     ...slideHeader('sources_bar', 'sources_title', S.sources, 'Lead Sources'),
@@ -215,18 +197,21 @@ async function createPresentation(report, token, mtmReportsFolder) {
     ...slideHeader('takeaways_bar', 'takeaways_title', S.takeaways, 'Key Takeaways'),
     ...buildTakeawaysSlide(S.takeaways, report.takeaways || []),
   ];
+  await doBatchUpdate(pid, contentReqs, token);
 
-  // Step 3: Execute all batchUpdate requests
-  const updateResp = await fetch(`${SLIDES_BASE}/presentations/${pid}:batchUpdate`, {
+  return pid;
+}
+
+async function doBatchUpdate(pid, requests, token) {
+  if (!requests.length) return;
+  const resp = await fetch(`${SLIDES_BASE}/presentations/${pid}:batchUpdate`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ requests }),
   });
-
-  const updateData = await updateResp.json();
-  if (updateData.error) throw new Error(`batchUpdate failed: ${JSON.stringify(updateData.error)}`);
-
-  return pid;
+  const data = await resp.json();
+  if (data.error) throw new Error(`batchUpdate failed: ${JSON.stringify(data.error)}`);
+  return data;
 }
 
 // ── SLIDE SECTION BUILDERS ────────────────────────────────────────────────────
