@@ -37,6 +37,7 @@
 
 <!-- PORTFOLIO -->
 <section class="portfolio" id="work">
+  <canvas class="particle-canvas" id="particles-portfolio"></canvas>
   <div class="portfolio-top">
     <div>
       <div class="section-tag reveal">Our Work</div>
@@ -60,33 +61,36 @@
       </div>
     </div>
 
-    <div class="ba-slider-container" id="baSlider">
-      <!-- BEFORE IMAGE — replace div.ba-placeholder-before with: <img src="images/website-before.jpg" alt="Website before MTM"/> -->
-      <div class="ba-before-pane">
-        <div class="ba-img-label ba-lbl-before">Before</div>
-        <div class="ba-placeholder ba-placeholder-before">
-          <div class="ba-placeholder-inner">
-            <p>📷 Your before screenshot<br/><span>images/website-before.jpg</span></p>
-          </div>
-        </div>
-      </div>
-      <!-- AFTER IMAGE — replace div.ba-placeholder-after with: <img src="images/website-after.jpg" alt="Website after MTM"/> -->
-      <div class="ba-after-pane" id="baAfterPane">
-        <div class="ba-img-label ba-lbl-after">After MTM</div>
-        <div class="ba-placeholder ba-placeholder-after">
-          <div class="ba-placeholder-inner">
-            <p>📷 Your after screenshot<br/><span>images/website-after.jpg</span></p>
-          </div>
-        </div>
-      </div>
-      <div class="ba-divider" id="baDivider">
-        <div class="ba-handle" id="baHandle">
-          <div class="ba-handle-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 4L2 10L6 16M14 4L18 10L14 16" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
+<div class="ba-slider-container" id="baSlider">
+  <!-- Labels: direct children of container so they stay fixed at each edge regardless of pane scroll -->
+  <div class="ba-img-label ba-lbl-before">Before</div>
+  <div class="ba-img-label ba-lbl-after">After MTM</div>
+
+  <!-- Before pane — left side, full image scrollable -->
+  <div class="ba-before-pane" id="baBeforePane">
+    <img src="images/golfcartbefore.png" alt="Website before MTM redesign"/>
+  </div>
+
+  <!-- After pane — right side, clipped from left, scrollable in sync -->
+  <div class="ba-after-pane" id="baAfterPane">
+    <img src="images/golfcartafter.png" alt="Website after MTM redesign"/>
+  </div>
+
+  <!-- Drag divider -->
+  <div class="ba-divider" id="baDivider">
+    <div class="ba-handle" id="baHandle">
+      <div class="ba-handle-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 4L2 10L6 16M14 4L18 10L14 16" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
     </div>
+  </div>
+
+  <!-- Scroll hint — fades out after first scroll -->
+  <div class="ba-scroll-hint" id="baScrollHint">
+    <div class="ba-scroll-hint-arrow"></div>
+    <span class="ba-scroll-hint-text">Scroll to explore</span>
+  </div>
+</div>
 
     <div style="display:flex;justify-content:center;margin-top:2rem;">
       <a href="contact.html" class="btn-primary" style="background:var(--black);color:var(--white);text-decoration:none;display:inline-flex;align-items:center;gap:.8rem;">Get a Website Like This</a>

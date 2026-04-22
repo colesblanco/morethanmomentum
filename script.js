@@ -321,6 +321,7 @@ window.addEventListener('load', () => {
   initParticles('particles-about');
   initParticles('particles-pricing');
   initParticles('particles-contact');
+  initParticles('particles-portfolio');
 });
 
 
@@ -881,7 +882,8 @@ window.addEventListener('load', () => {
 
 /* ============================================================
    BEFORE / AFTER IMAGE SLIDER — work page
-   Drag (mouse + touch) to reveal the "after" image.
+   LEFT = Before  |  RIGHT = After
+   Drag handle horizontally to reveal each side.
    ============================================================ */
 (function () {
   const slider    = document.getElementById('baSlider');
@@ -890,20 +892,19 @@ window.addEventListener('load', () => {
   const handle    = document.getElementById('baHandle');
   if (!slider || !afterPane || !divider) return;
 
-  // Add pulse hint class
   if (handle) handle.classList.add('pulse');
 
   let dragging = false;
-  let pct = 50; // percentage from left
+  let pct      = 50;
 
   function setPosition(clientX) {
     const rect = slider.getBoundingClientRect();
     pct = Math.min(Math.max(((clientX - rect.left) / rect.width) * 100, 2), 98);
-    afterPane.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    afterPane.style.clipPath = `inset(0 0 0 ${pct}%)`;
     divider.style.left = pct + '%';
   }
 
-  // Mouse events
+  /* Mouse drag */
   slider.addEventListener('mousedown', e => {
     dragging = true;
     if (handle) handle.classList.remove('pulse');
@@ -916,7 +917,7 @@ window.addEventListener('load', () => {
   });
   document.addEventListener('mouseup', () => { dragging = false; });
 
-  // Touch events
+  /* Touch drag */
   slider.addEventListener('touchstart', e => {
     dragging = true;
     if (handle) handle.classList.remove('pulse');
@@ -927,8 +928,9 @@ window.addEventListener('load', () => {
     if (!dragging) return;
     setPosition(e.touches[0].clientX);
   }, { passive: true });
-  document.addEventListener('touchend', () => { dragging = false; });
+  slider.addEventListener('touchend', () => { dragging = false; });
 
-  // Set initial clip (50/50)
-  afterPane.style.clipPath = 'inset(0 50% 0 0)';
+  /* Initial state: BEFORE left, AFTER right */
+  afterPane.style.clipPath = 'inset(0 0 0 50%)';
+  divider.style.left = '50%';
 })();
