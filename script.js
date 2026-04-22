@@ -153,58 +153,51 @@ document.querySelectorAll('.nav-mobile-link, .nav-mobile-cta').forEach(link => {
 
 
 
-/* --- SCROLL REVEAL (fixed: elements in viewport on load get revealed immediately) --- */
+/* --- SCROLL REVEAL (robust: no-flash on load, smooth on scroll) --- */
+function revealEl(el, instant) {
+  if (instant) {
+    /* Skip transition for elements already in view on load */
+    el.style.transition = 'none';
+    el.classList.add('visible');
+    /* Re-enable transition after paint so future interactions still animate */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { el.style.transition = ''; });
+    });
+  } else {
+    el.classList.add('visible');
+  }
+}
+
 const revealObserver = new IntersectionObserver(entries => {
   entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), i * 70);
+      setTimeout(() => revealEl(entry.target, false), i * 70);
+      revealObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.08 });
+}, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-
-/* Immediately reveal elements already in viewport on page load */
-window.addEventListener('load', () => {
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.reveal').forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight + 50 && rect.bottom > -50) {
-        el.classList.add('visible');
-      }
-    });
-  });
-});
-
-/* --- ANIMATED COUNTERS (homepage stats) --- */
-function animateCounters() {
-  document.querySelectorAll('[data-count-target]').forEach(el => {
-    const target = parseInt(el.dataset.countTarget);
-    const prefix = el.dataset.countPrefix || '';
-    const suffix = el.dataset.countSuffix || '';
-    const duration = 1800;
-    const steps = 60;
-    const increment = target / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current = Math.min(current + increment, target);
-      el.textContent = prefix + Math.round(current) + suffix;
-      if (current >= target) clearInterval(timer);
-    }, duration / steps);
+/* Immediately reveal anything in viewport on load — no transition */
+function revealInViewport() {
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) {
+      revealEl(el, true);
+    } else {
+      revealObserver.observe(el);
+    }
   });
 }
 
-const counterObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      counterObserver.unobserve(e.target);
-      animateCounters();
-    }
-  });
-}, { threshold: 0.3 });
+/* Run as early as possible, then again after full load */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', revealInViewport);
+} else {
+  revealInViewport();
+}
+window.addEventListener('load', revealInViewport);
 
-const statsSection = document.querySelector('.homepage-stats');
-if (statsSection) counterObserver.observe(statsSection);
+
 
 
 
