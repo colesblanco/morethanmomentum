@@ -146,14 +146,12 @@ export async function onRequestPost(context) {
     if (event === 'transcript.done') {
       const botId = payload.data?.bot?.id;
       const transcriptId = payload.data?.transcript?.id;
-      // Async transcription data lives at download_url inside the payload
-      const downloadUrl = payload.data?.transcript?.data?.download_url;
 
-      console.log('transcript.done | botId:', botId, '| transcriptId:', transcriptId, '| hasDownloadUrl:', !!downloadUrl);
+      console.log('transcript.done | botId:', botId, '| transcriptId:', transcriptId);
 
-      if (!botId) {
-        console.warn('No bot ID in transcript.done payload');
-        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
+      if (!botId || !transcriptId) {
+        console.warn('Missing bot ID or transcript ID in payload');
+        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'missing ids' }), { headers });
       }
 
       // Retrieve and clean up the pending entry
@@ -166,16 +164,21 @@ export async function onRequestPost(context) {
         }
       }
 
-      // Prefer download_url from payload (async transcript format)
-      // Fall back to bot transcript endpoint (real-time format)
+      // Step 1: Fetch transcript object to get the download_url
+      const downloadUrl = await fetchTranscriptDownloadUrl(transcriptId, env.RECALL_AI_API_KEY);
+      console.log('Download URL found:', !!downloadUrl);
+
+      // Step 2: Fetch the actual transcript text from the download URL
       let transcript = '';
       if (downloadUrl) {
         transcript = await fetchTranscriptFromDownloadUrl(downloadUrl, env.RECALL_AI_API_KEY);
-        console.log('Transcript via download_url, length:', transcript.length);
+        console.log('Transcript from download_url, length:', transcript.length);
       }
+
+      // Fallback: try bot transcript endpoint (real-time format)
       if (!transcript || transcript.length < 30) {
         transcript = await fetchTranscriptFromRecall(botId, env.RECALL_AI_API_KEY);
-        console.log('Transcript via bot endpoint, length:', transcript.length);
+        console.log('Transcript from bot endpoint fallback, length:', transcript.length);
       }
 
       if (!transcript || transcript.length < 30) {
@@ -318,9 +321,31 @@ async function fetchMeetingTitle(botId, apiKey) {
   }
 }
 
-// ── FETCH TRANSCRIPT FROM DOWNLOAD URL (async transcription format) ───────────
-// Recall.ai async transcripts are served at a signed download URL.
-// Format: [{ participant: { name }, transcript: "full text", words: [...] }]
+// ── FETCH TRANSCRIPT DOWNLOAD URL ────────────────────────────────────────────
+// GET /api/v1/transcript/{id}/ — returns transcript object with data.download_url
+
+async function fetchTranscriptDownloadUrl(transcriptId, apiKey) {
+  if (!transcriptId || !apiKey) return null;
+  try {
+    const resp = await fetch(`${RECALL_API}/transcript/${transcriptId}/`, {
+      headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+    });
+    if (!resp.ok) {
+      console.error('Transcript object fetch failed:', resp.status);
+      return null;
+    }
+    const data = await resp.json();
+    const url = data.data?.download_url || null;
+    console.log('Transcript download_url:', url ? 'found' : 'not found');
+    return url;
+  } catch (err) {
+    console.error('fetchTranscriptDownloadUrl error:', err.message);
+    return null;
+  }
+}
+
+// ── FETCH TRANSCRIPT FROM DOWNLOAD URL ───────────────────────────────────────
+// Async transcript format: [{ participant: { name }, transcript: "text", words: [...] }]
 
 async function fetchTranscriptFromDownloadUrl(downloadUrl, apiKey) {
   if (!downloadUrl) return '';
@@ -333,7 +358,6 @@ async function fetchTranscriptFromDownloadUrl(downloadUrl, apiKey) {
       return '';
     }
     const data = await resp.json();
-    // Each item has participant.name and transcript (full text for that speaker turn)
     if (Array.isArray(data)) {
       return data.map(item => {
         const speaker = item.participant?.name || 'Speaker';
