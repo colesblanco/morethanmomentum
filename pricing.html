@@ -6,8 +6,352 @@
   <title>Pricing — More Than Momentum</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    /* ── PRICING PAGE OVERRIDES ───────────────────────────────── */
+
+    /* Full-page dark background */
+    body { background: var(--black); }
+    footer { background: var(--black); border-top-color: #1a1a1a; }
+    footer .footer-logo-text,
+    footer .footer-copy,
+    footer .footer-links a { color: rgba(255,255,255,.35); }
+    footer .footer-links a:hover { color: var(--white); }
+
+    /* ── HERO BAND ───────────────────────────────────────────── */
+    .pricing-hero {
+      padding: 9rem 5rem 5rem;
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 5rem; right: 5rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #1e1e1e 20%, #1e1e1e 80%, transparent);
+    }
+    .pricing-hero-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 4rem;
+    }
+    .pricing-hero-left { flex: 1; max-width: 560px; }
+    .pricing-hero-right { flex-shrink: 0; max-width: 320px; text-align: right; }
+    .pricing-hero-note {
+      font-size: .82rem;
+      color: rgba(255,255,255,.4);
+      line-height: 1.85;
+    }
+    .pricing-hero-note strong {
+      color: rgba(255,255,255,.75);
+      font-weight: 400;
+    }
+    .pricing-main-heading {
+      font-family: var(--speed);
+      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: .95;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    .pricing-main-heading em {
+      font-style: italic;
+      color: var(--accent-light);
+      opacity: .7;
+    }
+    .pricing-subhead-text {
+      font-size: .9rem;
+      color: rgba(255,255,255,.45);
+      line-height: 1.85;
+      max-width: 460px;
+    }
+
+    /* ── GUARANTEE STRIP ─────────────────────────────────────── */
+    .guarantee-strip {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      padding: 1.8rem 5rem;
+      background: #0d0d0d;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+      overflow: hidden;
+      flex-wrap: wrap;
+    }
+    .guarantee-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    .guarantee-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(45,107,228,.15);
+      border: 1px solid rgba(45,107,228,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      color: var(--accent-light);
+      flex-shrink: 0;
+    }
+    .guarantee-text strong {
+      display: block;
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--white);
+      font-weight: 500;
+      margin-bottom: .1rem;
+    }
+    .guarantee-text span {
+      font-size: .75rem;
+      color: rgba(255,255,255,.35);
+    }
+    .guarantee-sep {
+      width: 1px;
+      height: 36px;
+      background: #1e1e1e;
+      flex-shrink: 0;
+    }
+
+    /* ── TRACK SECTION ────────────────────────────────────────── */
+    .track-section {
+      padding: 5rem 5rem 4rem;
+      position: relative;
+    }
+    .track-section + .track-section {
+      border-top: 1px solid #1a1a1a;
+    }
+    .track-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.8rem;
+      margin-bottom: 3rem;
+    }
+    .track-letter {
+      width: 52px;
+      height: 52px;
+      border: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--accent-light);
+      flex-shrink: 0;
+    }
+    .track-info { flex: 1; }
+    .track-name {
+      font-family: var(--speed);
+      font-size: clamp(1.4rem, 2vw, 1.8rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -.01em;
+      line-height: 1;
+      margin-bottom: .5rem;
+    }
+    .track-desc {
+      font-size: .82rem;
+      color: rgba(255,255,255,.4);
+      line-height: 1.7;
+      max-width: 480px;
+    }
+    .track-tag {
+      font-size: .64rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(45,107,228,.3);
+      padding: .3rem .8rem;
+      align-self: flex-start;
+      margin-top: .2rem;
+      white-space: nowrap;
+    }
+
+    /* ── PLAN GRID VARIANTS ───────────────────────────────────── */
+    .track-a-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: #1a1a1a;
+    }
+    .track-b-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #1a1a1a;
+    }
+
+    /* Shared plan card overrides */
+    .plan-price-anchor {
+      font-family: var(--serif);
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: -.02em;
+      line-height: 1;
+      margin-bottom: .25rem;
+    }
+    .plan.featured .plan-price-anchor { color: var(--black); }
+
+    .plan-price-type {
+      font-size: .68rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 1.8rem;
+    }
+    .plan.featured .plan-price-type { color: var(--gray); }
+
+    .plan-caveat {
+      font-size: .7rem;
+      color: rgba(255,255,255,.25);
+      font-style: italic;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+      border-top: 1px solid #1a1a1a;
+      padding-top: 1rem;
+    }
+    .plan.featured .plan-caveat {
+      color: var(--gray);
+      border-top-color: var(--light);
+    }
+
+    .plan-addon-note {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      border: 1px solid rgba(91,143,240,.25);
+      padding: .25rem .6rem;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── CUSTOM PRICING CALLOUT ───────────────────────────────── */
+    .custom-callout {
+      margin: 0 5rem 5rem;
+      padding: 2.8rem 3rem;
+      border: 1px solid #1e1e1e;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 3rem;
+    }
+    .custom-callout-heading {
+      font-family: var(--speed);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -.01em;
+      margin-bottom: .5rem;
+    }
+    .custom-callout-sub {
+      font-size: .82rem;
+      color: rgba(255,255,255,.4);
+      line-height: 1.75;
+      max-width: 560px;
+    }
+    .custom-callout-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .8rem;
+      background: var(--accent);
+      color: var(--white);
+      text-decoration: none;
+      font-size: .72rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      padding: 1.1rem 2rem;
+      white-space: nowrap;
+      transition: background .25s, gap .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .custom-callout-cta::after { content: '→'; }
+    .custom-callout-cta:hover { background: #1a52c4; gap: 1.3rem; }
+    .custom-callout-cta .scan-light {
+      position: absolute; top: 0; left: -80%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+      animation: scan-btn 2.8s ease-in-out infinite;
+    }
+
+    /* ── VARIABLE PRICING NOTE ────────────────────────────────── */
+    .variable-note {
+      padding: 0 5rem 6rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .variable-note-label {
+      font-size: .64rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      white-space: nowrap;
+      padding-top: .15rem;
+    }
+    .variable-note-items {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .vn-item {
+      padding: 1.5rem;
+      border: 1px solid #1a1a1a;
+    }
+    .vn-item-title {
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: .5rem;
+      font-weight: 500;
+    }
+    .vn-item-desc {
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      line-height: 1.75;
+    }
+
+    /* ── RESPONSIVE ───────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .pricing-hero { padding: 7rem 2.5rem 3.5rem; }
+      .pricing-hero-inner { flex-direction: column; gap: 2rem; }
+      .pricing-hero-right { text-align: left; max-width: 100%; }
+      .guarantee-strip { padding: 1.5rem 2.5rem; gap: 1.5rem; }
+      .guarantee-sep { display: none; }
+      .track-section { padding: 3.5rem 2.5rem 3rem; }
+      .track-a-grid { grid-template-columns: 1fr; }
+      .track-b-grid { grid-template-columns: 1fr; }
+      .custom-callout { margin: 0 2.5rem 3rem; grid-template-columns: 1fr; gap: 2rem; }
+      .variable-note { padding: 0 2.5rem 4rem; grid-template-columns: 1fr; }
+      .variable-note-items { grid-template-columns: 1fr; gap: 1rem; }
+    }
+    @media (max-width: 640px) {
+      .pricing-hero { padding: 6rem 1.5rem 2.5rem; }
+      .guarantee-strip { padding: 1.2rem 1.5rem; }
+      .track-section { padding: 2.5rem 1.5rem; }
+      .custom-callout { margin: 0 1.5rem 2.5rem; padding: 2rem 1.5rem; }
+      .variable-note { padding: 0 1.5rem 3rem; }
+      .track-header { flex-wrap: wrap; gap: 1rem; }
+    }
+  </style>
 </head>
-<body>
+<body class="inner-page">
 
 <div class="cursor" id="cursor">
   <img src="images/whiteguylogo.png" id="cursor-img" alt=""/>
@@ -27,7 +371,6 @@
     <li><a href="services.html">Services</a></li>
     <li><a href="pricing.html">Pricing</a></li>
     <li><a href="work.html">Work</a></li>
-    
   </ul>
   <a href="contact.html" class="nav-cta"><span class="scan-light"></span>Get Started</a>
   <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
@@ -35,62 +378,228 @@
   </button>
 </nav>
 
-<!-- PRICING -->
-<section class="pricing" id="pricing">
+<!-- ── HERO BAND ─────────────────────────────────────────────── -->
+<section class="pricing-hero">
   <canvas class="particle-canvas" id="particles-pricing"></canvas>
-  <div class="section-tag reveal">Investment</div>
-  <h2 class="pricing-heading reveal">Simple, <em>transparent</em> packages.</h2>
-  <p class="pricing-subhead reveal">Every business is different. Reach out and we'll build a package around your goals and scope.</p>
-  <div class="pricing-grid">
-    <div class="plan reveal">
-      <div class="plan-label">For growing brands</div>
-      <div class="plan-name">Starter</div>
-      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
-      <div class="plan-divider"></div>
-      <ul class="plan-features">
-        <li>AI-built content calendar & strategy</li>
-        <li>Social media management (2 platforms)</li>
-        <li>8 posts per month with captions</li>
-        <li>Monthly performance report</li>
-        <li>Email support</li>
-      </ul>
-      <a href="contact.html" class="plan-cta">Get a Quote</a>
+  <div class="pricing-hero-inner" style="position:relative;z-index:2;">
+    <div class="pricing-hero-left">
+      <div class="section-tag reveal" style="color:var(--accent-light);">
+        <span style="display:inline-block;width:1.8rem;height:1px;background:var(--accent-light);vertical-align:middle;margin-right:.5rem;"></span>
+        Investment
+      </div>
+      <h1 class="pricing-main-heading reveal">Two tracks.<br><em>One goal.</em></h1>
+      <p class="pricing-subhead-text reveal">
+        Own your system outright, or partner with us monthly — every engagement is built around your business, not a shelf package.
+      </p>
     </div>
-    <div class="plan featured reveal reveal-delay-1">
-      <div class="plan-badge">Most Popular</div>
-      <div class="plan-label">For scaling businesses</div>
-      <div class="plan-name">Growth</div>
-      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
-      <div class="plan-divider"></div>
-      <ul class="plan-features">
-        <li>Everything in Starter</li>
-        <li>Video filming & editing (4 videos/mo)</li>
-        <li>AI automation & scheduling setup</li>
-        <li>Social management (4 platforms)</li>
-        <li>16 posts per month</li>
-        <li>Bi-weekly strategy calls</li>
-        <li>Priority support</li>
-      </ul>
-      <a href="contact.html" class="plan-cta">Get a Quote</a>
-    </div>
-    <div class="plan reveal reveal-delay-2">
-      <div class="plan-label">For established businesses</div>
-      <div class="plan-name">Scale</div>
-      <div class="plan-pricing-note">Custom pricing — contact us for a quote</div>
-      <div class="plan-divider"></div>
-      <ul class="plan-features">
-        <li>Everything in Growth</li>
-        <li>Custom AI agents built for your brand</li>
-        <li>AI website design or redesign</li>
-        <li>Unlimited platforms & posts</li>
-        <li>Full creative studio access</li>
-        <li>Weekly strategy & reporting calls</li>
-        <li>Dedicated account manager</li>
-      </ul>
-      <a href="contact.html" class="plan-cta">Get a Quote</a>
+    <div class="pricing-hero-right reveal">
+      <p class="pricing-hero-note">
+        <strong>Pricing is custom.</strong> The numbers below are starting anchors. Your final offer is built during discovery using real data — your customer value, your current spend, and your biggest pain point.
+      </p>
     </div>
   </div>
 </section>
+
+<!-- ── GUARANTEE STRIP ───────────────────────────────────────── -->
+<div class="guarantee-strip">
+  <div class="guarantee-item">
+    <div class="guarantee-icon">↑</div>
+    <div class="guarantee-text">
+      <strong>Performance Guarantee</strong>
+      <span>Intro rate until benchmarks hit</span>
+    </div>
+  </div>
+  <div class="guarantee-sep"></div>
+  <div class="guarantee-item">
+    <div class="guarantee-icon">✓</div>
+    <div class="guarantee-text">
+      <strong>You Own Everything</strong>
+      <span>Website, CRM, content — all yours</span>
+    </div>
+  </div>
+  <div class="guarantee-sep"></div>
+  <div class="guarantee-item">
+    <div class="guarantee-icon">↻</div>
+    <div class="guarantee-text">
+      <strong>Month-to-Month</strong>
+      <span>No lock-in after minimum term</span>
+    </div>
+  </div>
+  <div class="guarantee-sep"></div>
+  <div class="guarantee-item">
+    <div class="guarantee-icon">$</div>
+    <div class="guarantee-text">
+      <strong>Intro Rate Model</strong>
+      <span>Pay less until we prove results</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TRACK A — BUILD & HAND OFF
+     ══════════════════════════════════════════════════════════════ -->
+<div class="track-section">
+  <div class="track-header">
+    <div class="track-letter">A</div>
+    <div class="track-info">
+      <div class="track-name reveal">Build &amp; Hand Off</div>
+      <div class="track-desc reveal">Pay once. Own it forever. Best for owners who want a professional asset delivered and handed to them to run — no recurring bill, no strings.</div>
+    </div>
+    <div class="track-tag reveal">One-Time Fee</div>
+  </div>
+
+  <div class="track-a-grid">
+
+    <!-- Launch Site -->
+    <div class="plan reveal">
+      <div class="plan-label">Foundation</div>
+      <div class="plan-name">Launch Site</div>
+      <div class="plan-price-anchor">From $1,000</div>
+      <div class="plan-price-type">One-time · No monthly fees</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Custom-designed website built from scratch</li>
+        <li>Mobile-first, fast-loading, conversion-focused layout</li>
+        <li>Up to 5 core pages (Home, About, Services, Contact + one custom)</li>
+        <li>Contact form wired directly to your email</li>
+        <li>Domain &amp; hosting guidance included</li>
+        <li>One full round of revisions before launch</li>
+      </ul>
+      <div class="plan-caveat">No automation or CRM included. Add Launch System if you want leads followed up automatically.</div>
+      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+    </div>
+
+    <!-- Launch System -->
+    <div class="plan reveal reveal-delay-1">
+      <div class="plan-label">Foundation + Automation</div>
+      <div class="plan-name">Launch System</div>
+      <div class="plan-price-anchor">From $1,500</div>
+      <div class="plan-price-type">One-time · Includes full automation build</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Everything in Launch Site</li>
+        <li>Full AI lead capture — instant SMS + email follow-up fires the moment a lead contacts you</li>
+        <li>Appointment booking automation</li>
+        <li>Automated Google review requests after every job</li>
+        <li>Pipeline tracking dashboard (GoHighLevel)</li>
+        <li>Full training walkthrough — you know how to run it</li>
+      </ul>
+      <div class="plan-caveat">Optional add-on: Stay Current ($500/mo) keeps the system optimized as AI tools evolve. Not required — just available.</div>
+      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TRACK B — ONGOING PARTNERSHIP
+     ══════════════════════════════════════════════════════════════ -->
+<div class="track-section">
+  <div class="track-header">
+    <div class="track-letter">B</div>
+    <div class="track-info">
+      <div class="track-name reveal">Ongoing Partnership</div>
+      <div class="track-desc reveal">We're in the trenches with you every month. Content gets made, leads get followed up, the system gets smarter. This is where we deliver the most value — and where the results compound.</div>
+    </div>
+    <div class="track-tag reveal">Monthly Retainer</div>
+  </div>
+
+  <div class="track-b-grid">
+
+    <!-- Stay Current -->
+    <div class="plan reveal">
+      <div class="plan-label">Add-On · Automation Maintenance</div>
+      <div class="plan-name">Stay Current</div>
+      <div class="plan-addon-note">⚠ Requires Launch System build</div>
+      <div class="plan-price-anchor">From $500<span style="font-size:1rem;font-weight:300;">/mo</span></div>
+      <div class="plan-price-type">Monthly · Cancel anytime after 30 days</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Ongoing monitoring + optimization of your automation system</li>
+        <li>New AI features added as the tools evolve — we add what matters</li>
+        <li>Priority support when something breaks</li>
+        <li>Quarterly check-ins on what's working and what to improve</li>
+      </ul>
+      <div class="plan-caveat">Only offered after a Launch System build. This is the "keep it sharp" layer — not a standalone service.</div>
+      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+    </div>
+
+    <!-- Content Partner — FEATURED -->
+    <div class="plan featured reveal reveal-delay-1">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-label">Social + Automation</div>
+      <div class="plan-name">Content Partner</div>
+      <div class="plan-price-anchor">From $1,500<span style="font-size:1rem;font-weight:300;">/mo</span></div>
+      <div class="plan-price-type">Monthly · No setup fee · Includes full build</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Custom website + full AI automation system built during onboarding</li>
+        <li>You film raw footage on your phone — we turn it into scroll-stopping content</li>
+        <li>Posting across your social channels on a planned schedule</li>
+        <li>Monthly content calendar built around your business goals</li>
+        <li>Monthly performance report with real numbers</li>
+        <li>Leads followed up with automatically — no lead falls through the cracks</li>
+      </ul>
+      <div class="plan-caveat" style="border-top-color:var(--light);color:var(--gray);">
+        Intro rate applies. Standard rate activates when performance benchmarks are hit — you pay less until we prove it works.
+      </div>
+      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+    </div>
+
+    <!-- Full Momentum -->
+    <div class="plan reveal reveal-delay-2">
+      <div class="plan-label">Flagship · Full Service</div>
+      <div class="plan-name">Full Momentum</div>
+      <div class="plan-price-anchor">From $2,500<span style="font-size:1rem;font-weight:300;">/mo</span></div>
+      <div class="plan-price-type">$3,000 setup · Then monthly</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Custom website + full automation system built during setup</li>
+        <li>We show up on-site to film — you, your shop, your team, your work</li>
+        <li>Broadcast-quality editing and content production</li>
+        <li>Strategic content calendar built around busy seasons and growth goals</li>
+        <li>Monthly strategy call — 60 minutes reviewing what's working</li>
+        <li>Full performance dashboard with leads, pipeline, and social data</li>
+      </ul>
+      <div class="plan-caveat">Most clients pay for this with one or two extra jobs a month. Intro rate applies until benchmarks are met.</div>
+      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── VARIABLE PRICING EXPLAINER ────────────────────────────── -->
+<div class="variable-note reveal">
+  <div class="variable-note-label">How pricing works</div>
+  <div class="variable-note-items">
+    <div class="vn-item">
+      <div class="vn-item-title">Anchored to your ROI</div>
+      <div class="vn-item-desc">If one new customer is worth $5,000, a $500/month investment is trivial. Every offer is priced relative to what the system recovers for your business.</div>
+    </div>
+    <div class="vn-item">
+      <div class="vn-item-title">Intro rate / standard rate</div>
+      <div class="vn-item-desc">Every ongoing engagement starts at a reduced intro rate. When specific, agreed-upon benchmarks are hit, the rate increases to standard. You pay less until we prove it works.</div>
+    </div>
+    <div class="vn-item">
+      <div class="vn-item-title">Built during discovery</div>
+      <div class="vn-item-desc">Your final offer isn't picked from a menu. It's built from your discovery call — your goals, current spend, customer value, and what outcome would make you sign today.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CUSTOM CALLOUT ────────────────────────────────────────── -->
+<div class="custom-callout reveal">
+  <div>
+    <div class="custom-callout-heading">Not sure which track fits?</div>
+    <p class="custom-callout-sub">
+      Tell us what's broken — we'll tell you what it would take to fix it. No pitch, no pressure. A 30-minute conversation and you'll know exactly what you need and what it costs.
+    </p>
+  </div>
+  <a href="contact.html" class="custom-callout-cta">
+    <span class="scan-light"></span>
+    Book a Call
+  </a>
+</div>
 
 <!-- FOOTER -->
 <footer>
