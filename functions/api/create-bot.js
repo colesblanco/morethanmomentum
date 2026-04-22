@@ -13,7 +13,7 @@
  * Returns: { success: true, botId, message }
  */
 
-const RECALL_API = 'https://us-east-1.recall.ai/api/v1';
+const RECALL_API = 'https://us-west-2.recall.ai/api/v1';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
