@@ -6,21 +6,21 @@
  *
  *   1. bot.done fires
  *      → Fetch meeting title from Recall.ai bot metadata
- *      → Trigger async transcription via Recall.ai API (uses Gladia credentials)
- *      → Store a pending entry in KV so we know which meeting this is
+ *      → Trigger async transcription via Recall.ai API (Gladia)
+ *      → Store pending entry in KV (meeting title + date, keyed by bot ID)
  *
  *   2. transcript.done fires
- *      → Fetch the completed transcript from Recall.ai
+ *      → Fetch completed transcript from Recall.ai
  *      → Claude extracts structured fields
- *      → Finalize the call entry in KV rolling history
+ *      → Write finalized call entry to KV rolling history
  *
  * Manual paste flow:
  *   → { event: 'manual_paste', data: { transcript: "..." } }
- *   → Claude extracts fields, writes to KV rolling history directly
+ *   → Claude extracts fields, writes to KV directly
  *
  * Environment Variables Required:
  *   RECALL_AI_API_KEY         — Recall.ai API key
- *   RECALL_AI_WEBHOOK_SECRET  — Webhook secret for signature verification (optional)
+ *   RECALL_AI_WEBHOOK_SECRET  — Webhook signing secret (optional)
  *   ANTHROPIC_API_KEY         — MTM Anthropic key
  *   MTM_CLIENT_PROFILES       — KV namespace binding
  */
@@ -49,7 +49,7 @@ export async function onRequestPost(context) {
 
     const payload = JSON.parse(rawBody);
     const event = payload.event;
-    console.log('Received event:', event);
+    console.log('Received event:', event, '| Full payload keys:', Object.keys(payload).join(', '));
 
     // ── MANUAL PASTE FLOW ────────────────────────────────────────────────
     if (event === 'manual_paste') {
@@ -84,55 +84,64 @@ export async function onRequestPost(context) {
         return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
       }
 
+      console.log('bot.done for botId:', botId);
+
       // Fetch meeting title from bot metadata
       const meetingTitle = await fetchMeetingTitle(botId, env.RECALL_AI_API_KEY);
-      console.log('bot.done received for:', botId, '| Title:', meetingTitle);
+      console.log('Meeting title:', meetingTitle);
 
-      // Store a pending entry so we have the title when transcript.done fires
+      // Store pending entry so transcript.done can find the title
       if (env.MTM_CLIENT_PROFILES) {
         const pending = {
           botId,
           meetingTitle: meetingTitle || 'Google Meet — ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           date: new Date().toISOString(),
         };
-        await env.MTM_CLIENT_PROFILES.put(`pending:bot:${botId}`, JSON.stringify(pending), { expirationTtl: 3600 });
+        await env.MTM_CLIENT_PROFILES.put(`pending:bot:${botId}`, JSON.stringify(pending), { expirationTtl: 7200 });
+        console.log('Pending entry saved for botId:', botId);
       }
 
-      // Trigger async transcription
-      const transcriptId = await triggerAsyncTranscription(botId, env.RECALL_AI_API_KEY);
-      console.log('Async transcription triggered, transcript ID:', transcriptId);
+      // Trigger async transcription — POST to /bot/{id}/async_transcribe/
+      const triggerResult = await triggerAsyncTranscription(botId, env.RECALL_AI_API_KEY);
+      console.log('Transcription trigger result:', JSON.stringify(triggerResult));
 
-      return new Response(JSON.stringify({ received: true, action: 'transcription_triggered', botId, transcriptId }), { headers });
+      return new Response(JSON.stringify({
+        received: true,
+        action: 'transcription_triggered',
+        botId,
+        triggerResult,
+      }), { headers });
     }
 
     // ── STEP 2: TRANSCRIPT.DONE — process completed transcript ───────────
     if (event === 'transcript.done') {
+      // Recall.ai sends: payload.data.bot.id and payload.data.transcript.id
       const botId = payload.data?.bot?.id;
-      const transcriptId = payload.data?.transcript?.id || payload.data?.id;
+      const transcriptId = payload.data?.transcript?.id;
 
-      if (!botId && !transcriptId) {
-        console.warn('No bot ID or transcript ID in transcript.done payload');
-        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no ids' }), { headers });
+      console.log('transcript.done | botId:', botId, '| transcriptId:', transcriptId);
+
+      if (!botId) {
+        console.warn('No bot ID in transcript.done payload');
+        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
       }
 
-      console.log('transcript.done received | botId:', botId, '| transcriptId:', transcriptId);
-
-      // Retrieve pending entry for this bot (has meeting title + date)
+      // Retrieve and clean up the pending entry
       let pending = null;
-      if (botId && env.MTM_CLIENT_PROFILES) {
+      if (env.MTM_CLIENT_PROFILES) {
         const raw = await env.MTM_CLIENT_PROFILES.get(`pending:bot:${botId}`);
         if (raw) {
           try { pending = JSON.parse(raw); } catch { pending = null; }
-          // Clean up the pending key
           await env.MTM_CLIENT_PROFILES.delete(`pending:bot:${botId}`);
         }
       }
 
-      // Fetch the transcript text
-      const transcript = await fetchTranscriptFromRecall(botId || transcriptId, env.RECALL_AI_API_KEY, !!transcriptId && !botId);
+      // Fetch the transcript text via bot ID
+      const transcript = await fetchTranscriptFromRecall(botId, env.RECALL_AI_API_KEY);
+      console.log('Transcript length:', transcript.length);
 
       if (!transcript || transcript.length < 30) {
-        console.warn('Transcript too short or empty');
+        console.warn('Transcript too short or empty for bot:', botId);
         return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'transcript too short' }), { headers });
       }
 
@@ -143,19 +152,19 @@ export async function onRequestPost(context) {
         id: generateId(),
         meetingTitle: pending?.meetingTitle || 'Google Meet — ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         date: pending?.date || new Date().toISOString(),
-        botId: botId || null,
+        botId,
         fields,
         transcript: transcript.slice(0, 3000),
         processedAt: new Date().toISOString(),
       };
 
       await addCallToHistory(env.MTM_CLIENT_PROFILES, callEntry);
-      console.log('Call entry saved:', callEntry.id);
+      console.log('Call saved to history:', callEntry.id);
 
       return new Response(JSON.stringify({ success: true, callId: callEntry.id, fieldsExtracted: Object.keys(fields).length }), { headers });
     }
 
-    // All other events — ignore
+    // All other events
     return new Response(JSON.stringify({ received: true, action: 'ignored', event }), { headers });
 
   } catch (err) {
@@ -165,35 +174,49 @@ export async function onRequestPost(context) {
 }
 
 // ── TRIGGER ASYNC TRANSCRIPTION ───────────────────────────────────────────────
+// Recall.ai docs: POST /api/v1/bot/{bot_id}/async_transcribe/
+// Body: { "transcription_options": { "provider": "gladia" } }
 
 async function triggerAsyncTranscription(botId, apiKey) {
-  if (!apiKey) { console.error('RECALL_AI_API_KEY not configured'); return null; }
+  if (!apiKey) {
+    console.error('RECALL_AI_API_KEY not configured');
+    return { error: 'no api key' };
+  }
 
   try {
-    const resp = await fetch(`${RECALL_API}/bot/${botId}/async_transcribe/`, {
+    const url = `${RECALL_API}/bot/${botId}/async_transcribe/`;
+    const body = {
+      transcription_options: {
+        provider: 'gladia',
+      },
+    };
+
+    console.log('Triggering async transcription at:', url);
+
+    const resp = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        transcription_options: {
-          provider: 'gladia',
-        }
-      }),
+      body: JSON.stringify(body),
     });
 
+    const responseText = await resp.text();
+    console.log('Async transcription response:', resp.status, responseText.slice(0, 300));
+
     if (!resp.ok) {
-      const errText = await resp.text();
-      console.error('Async transcription trigger failed:', resp.status, errText);
-      return null;
+      return { error: `HTTP ${resp.status}`, detail: responseText.slice(0, 200) };
     }
 
-    const data = await resp.json();
-    return data.id || null;
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      return { raw: responseText.slice(0, 200) };
+    }
   } catch (err) {
     console.error('triggerAsyncTranscription error:', err.message);
-    return null;
+    return { error: err.message };
   }
 }
 
@@ -219,16 +242,11 @@ async function fetchMeetingTitle(botId, apiKey) {
 
 // ── FETCH TRANSCRIPT ──────────────────────────────────────────────────────────
 
-async function fetchTranscriptFromRecall(id, apiKey, isTranscriptId = false) {
+async function fetchTranscriptFromRecall(botId, apiKey) {
   if (!apiKey) { console.error('RECALL_AI_API_KEY not configured'); return ''; }
 
   try {
-    // If we have a transcript ID, fetch directly; otherwise fetch via bot ID
-    const url = isTranscriptId
-      ? `${RECALL_API}/transcript/${id}/`
-      : `${RECALL_API}/bot/${id}/transcript/`;
-
-    const resp = await fetch(url, {
+    const resp = await fetch(`${RECALL_API}/bot/${botId}/transcript/`, {
       headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
     });
 
@@ -239,16 +257,7 @@ async function fetchTranscriptFromRecall(id, apiKey, isTranscriptId = false) {
 
     const data = await resp.json();
 
-    // Handle transcript object with segments array
-    if (data.segments && Array.isArray(data.segments)) {
-      return data.segments.map(seg => {
-        const speaker = seg.speaker || 'Speaker';
-        const text = seg.text || seg.words?.map(w => w.text || w.word || '').join(' ') || '';
-        return `${speaker}: ${text}`;
-      }).join('\n');
-    }
-
-    // Handle flat array of segments
+    // Handle array of segments (standard Recall.ai format)
     if (Array.isArray(data)) {
       return data.map(seg => {
         const speaker = seg.speaker || 'Speaker';
@@ -256,7 +265,16 @@ async function fetchTranscriptFromRecall(id, apiKey, isTranscriptId = false) {
           ? seg.words.map(w => w.text || w.word || '').join(' ')
           : (seg.text || '');
         return `${speaker}: ${words}`;
-      }).join('\n');
+      }).filter(line => line.trim().length > 0).join('\n');
+    }
+
+    // Handle object with segments array
+    if (data.segments && Array.isArray(data.segments)) {
+      return data.segments.map(seg => {
+        const speaker = seg.speaker || 'Speaker';
+        const text = seg.text || '';
+        return `${speaker}: ${text}`;
+      }).filter(line => line.trim().length > 0).join('\n');
     }
 
     // Handle object with results array
@@ -265,7 +283,7 @@ async function fetchTranscriptFromRecall(id, apiKey, isTranscriptId = false) {
         const speaker = seg.speaker || 'Speaker';
         const text = seg.text || seg.words?.map(w => w.text).join(' ') || '';
         return `${speaker}: ${text}`;
-      }).join('\n');
+      }).filter(line => line.trim().length > 0).join('\n');
     }
 
     console.warn('Unexpected transcript format:', JSON.stringify(data).slice(0, 200));
