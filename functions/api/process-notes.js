@@ -76,6 +76,35 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ success: true, callId: callEntry.id }), { headers });
     }
 
+    // ── RECORDING.DONE — same as bot.done, trigger transcription ─────────
+    // Recall.ai docs recommend subscribing to recording.done for async transcription
+    if (event === 'recording.done') {
+      const botId = payload.data?.bot?.id;
+      if (!botId) {
+        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
+      }
+      console.log('recording.done for botId:', botId, '— triggering transcription');
+      // Reuse bot.done logic by falling through with same botId
+      const meetingTitle = await fetchMeetingTitle(botId, env.RECALL_AI_API_KEY);
+      if (env.MTM_CLIENT_PROFILES) {
+        const pending = {
+          botId,
+          meetingTitle: meetingTitle || 'Google Meet — ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          date: new Date().toISOString(),
+        };
+        await env.MTM_CLIENT_PROFILES.put(`pending:bot:${botId}`, JSON.stringify(pending), { expirationTtl: 7200 });
+      }
+      const triggerResult = await triggerAsyncTranscription(botId, env.RECALL_AI_API_KEY);
+      console.log('Transcription trigger result:', JSON.stringify(triggerResult));
+      return new Response(JSON.stringify({ received: true, action: 'transcription_triggered', botId, triggerResult }), { headers });
+    }
+
+    // ── TRANSCRIPT.FAILED — log for debugging ─────────────────────────────
+    if (event === 'transcript.failed') {
+      console.error('Transcript failed:', JSON.stringify(payload.data));
+      return new Response(JSON.stringify({ received: true, action: 'logged', event }), { headers });
+    }
+
     // ── STEP 1: BOT.DONE — trigger async transcription ───────────────────
     if (event === 'bot.done') {
       const botId = payload.data?.bot?.id;
@@ -174,8 +203,10 @@ export async function onRequestPost(context) {
 }
 
 // ── TRIGGER ASYNC TRANSCRIPTION ───────────────────────────────────────────────
-// Recall.ai docs: POST /api/v1/bot/{bot_id}/async_transcribe/
-// Body: { "transcription_options": { "provider": "gladia" } }
+// Recall.ai docs: POST /api/v1/recording/{recording_id}/create_transcript/
+// The recording ID is different from the bot ID — must be fetched first via
+// GET /api/v1/recording/?bot_id={botId}
+// Provider body format: { "provider": { "gladia_v2_async": {} } }
 
 async function triggerAsyncTranscription(botId, apiKey) {
   if (!apiKey) {
@@ -184,10 +215,19 @@ async function triggerAsyncTranscription(botId, apiKey) {
   }
 
   try {
-    const url = `${RECALL_API}/bot/${botId}/async_transcribe/`;
+    // Step 1: Get the recording ID for this bot
+    const recordingId = await fetchRecordingId(botId, apiKey);
+    if (!recordingId) {
+      console.error('No recording found for bot:', botId);
+      return { error: 'no recording id found for bot' };
+    }
+    console.log('Recording ID for bot', botId, ':', recordingId);
+
+    // Step 2: Trigger async transcription using the recording ID
+    const url = `${RECALL_API}/recording/${recordingId}/create_transcript/`;
     const body = {
-      transcription_options: {
-        provider: 'gladia',
+      provider: {
+        gladia_v2_async: {},
       },
     };
 
@@ -217,6 +257,35 @@ async function triggerAsyncTranscription(botId, apiKey) {
   } catch (err) {
     console.error('triggerAsyncTranscription error:', err.message);
     return { error: err.message };
+  }
+}
+
+// ── FETCH RECORDING ID FOR A BOT ──────────────────────────────────────────────
+// GET /api/v1/recording/?bot_id={botId}
+
+async function fetchRecordingId(botId, apiKey) {
+  if (!apiKey) return null;
+  try {
+    const resp = await fetch(`${RECALL_API}/recording/?bot_id=${botId}`, {
+      headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+    });
+    if (!resp.ok) {
+      console.error('Recording list fetch failed:', resp.status, await resp.text());
+      return null;
+    }
+    const data = await resp.json();
+    const results = data.results || (Array.isArray(data) ? data : []);
+    if (!results.length) {
+      console.warn('No recordings found for bot:', botId);
+      return null;
+    }
+    // Prefer a done recording, fall back to first
+    const done = results.find(r => r.status?.code === 'done') || results[0];
+    console.log('Found recording:', done?.id, '| status:', done?.status?.code);
+    return done?.id || null;
+  } catch (err) {
+    console.error('fetchRecordingId error:', err.message);
+    return null;
   }
 }
 
