@@ -628,8 +628,8 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
 }
 .carousel-arrow {
   background: none;
- border: 1px solid #ccc;
- color: var(--black);
+  border: 1px solid rgba(255,255,255,.35);
+  color: var(--white);
   font-family: var(--sans);
   font-size: 1.2rem;
   width: 44px;
@@ -637,24 +637,14 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color .25s, color .25s, background .25s;
+  transition: border-color .25s;
   overflow: hidden;
   position: relative;
   pointer-events: all;
   border-radius: 50%;
 }
-.carousel-arrow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--black);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .3s ease;
-  z-index: 0;
-}
-.carousel-arrow:hover::before { transform: scaleX(1); }
-.carousel-arrow:hover { color: var(--white); border-color: var(--black); }
+.carousel-arrow::before { display: none; }
+.carousel-arrow:hover { border-color: rgba(255,255,255,.85); }
 .carousel-arrow span { position: relative; z-index: 1; }
 @media (max-width: 1024px) {
   .carousel-controls { display: none; }
@@ -1393,13 +1383,8 @@ footer {
 .ba-after-pane {
   position: absolute;
   inset: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;
+  overflow: hidden;
 }
-.ba-before-pane::-webkit-scrollbar,
-.ba-after-pane::-webkit-scrollbar { display: none; }
 .ba-after-pane {
   clip-path: inset(0 0 0 50%);
   transition: clip-path 0.05s ease;
@@ -1407,9 +1392,8 @@ footer {
 .ba-before-pane img,
 .ba-after-pane img {
   width: 100%;
-  height: auto;
-  min-height: 100%;
-  object-fit: initial;
+  height: 100%;
+  object-fit: cover;
   display: block;
   pointer-events: none;
 }
@@ -1509,7 +1493,7 @@ footer {
 }
 
 /* ── BEFORE/AFTER SLIDER EXTRAS ──────────────────────────────── */
-.ba-scroll-hint {
+.ba-scroll-hint { display: none !important;
   position: absolute;
   bottom: 1rem;
   left: 50%;
