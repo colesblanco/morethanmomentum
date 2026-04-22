@@ -3,24 +3,20 @@
  * Route: POST /api/process-notes
  *
  * Recall.ai webhook handler. When a Google Meet ends:
- *   1. Recall.ai sends transcript payload to this endpoint
- *   2. Worker extracts structured Tool 02 fields via Claude
- *   3. Result stored in KV under 'session:latest_call_notes'
- *   4. Tools dashboard shows "Load from Last Call" button in Tool 02
+ *   1. Recall.ai sends bot.done webhook (no transcript in payload)
+ *   2. Worker uses bot ID to fetch full transcript from Recall.ai API
+ *   3. Claude extracts structured Tool 02 fields from transcript
+ *   4. Result stored in KV under 'session:latest_call_notes'
+ *   5. Tools dashboard "Load Latest Call" button retrieves it
  *
  * Environment Variables Required:
  *   RECALL_AI_API_KEY         — Recall.ai API key
- *   RECALL_AI_WEBHOOK_SECRET  — Webhook secret for signature verification (optional but recommended)
+ *   RECALL_AI_WEBHOOK_SECRET  — Webhook secret for signature verification (optional)
  *   ANTHROPIC_API_KEY         — MTM Anthropic key
  *   MTM_CLIENT_PROFILES       — KV namespace binding (already exists)
- *
- * Recall.ai setup:
- *   1. Create account at recall.ai
- *   2. Go to Webhooks → Add webhook URL: https://morethanmomentum.com/api/process-notes
- *   3. Subscribe to: bot.done event
- *   4. Copy webhook secret → RECALL_AI_WEBHOOK_SECRET env var
- *   5. Copy API key → RECALL_AI_API_KEY env var
  */
+
+const RECALL_API = 'https://us-west-2.recall.ai/api/v1';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -42,18 +38,26 @@ export async function onRequestPost(context) {
     }
 
     const payload = JSON.parse(rawBody);
-    const event = payload.event || payload.data?.status;
+    const event = payload.event;
 
-    // Only process completed bot calls
-    if (event !== 'bot.done' && event !== 'done' && payload.data?.status?.code !== 'done') {
+    // Only process bot.done — transcript is ready at this point
+    if (event !== 'bot.done') {
       return new Response(JSON.stringify({ received: true, action: 'ignored', event }), { headers });
     }
 
-    const botData = payload.data || payload;
-    const transcript = extractTranscript(botData);
+    // Extract bot ID from payload
+    const botId = payload.data?.bot?.id;
+    if (!botId) {
+      console.warn('No bot ID in payload:', JSON.stringify(payload));
+      return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
+    }
 
-    if (!transcript || transcript.length < 50) {
-      return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'transcript too short' }), { headers });
+    // Fetch full transcript from Recall.ai API using bot ID
+    const transcript = await fetchTranscriptFromRecall(botId, env.RECALL_AI_API_KEY);
+
+    if (!transcript || transcript.length < 30) {
+      console.warn('Transcript too short or empty for bot:', botId);
+      return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'transcript too short or empty' }), { headers });
     }
 
     // Extract Tool 02 fields via Claude
@@ -62,8 +66,8 @@ export async function onRequestPost(context) {
     // Store in KV with timestamp
     const stored = {
       fields,
-      transcript: transcript.slice(0, 3000), // store first 3000 chars for context
-      botId: botData.id || botData.bot_id || 'unknown',
+      transcript: transcript.slice(0, 3000),
+      botId,
       processedAt: new Date().toISOString(),
     };
 
@@ -79,30 +83,56 @@ export async function onRequestPost(context) {
   }
 }
 
-// ── TRANSCRIPT EXTRACTION ─────────────────────────────────────────────────────
+// ── FETCH TRANSCRIPT FROM RECALL.AI ──────────────────────────────────────────
 
-function extractTranscript(botData) {
-  // Handle various Recall.ai response formats
-  const transcript = botData.transcript || botData.transcription || [];
-
-  if (Array.isArray(transcript)) {
-    // Array of {speaker, words} or {speaker, text} objects
-    return transcript.map(seg => {
-      const speaker = seg.speaker || 'Speaker';
-      const text = seg.text || (Array.isArray(seg.words) ? seg.words.map(w => w.text || w.word).join(' ') : '');
-      return `${speaker}: ${text}`;
-    }).join('\n');
+async function fetchTranscriptFromRecall(botId, apiKey) {
+  if (!apiKey) {
+    console.error('RECALL_AI_API_KEY not configured');
+    return '';
   }
 
-  if (typeof transcript === 'string') return transcript;
+  try {
+    const resp = await fetch(`${RECALL_API}/bot/${botId}/transcript/`, {
+      headers: {
+        'Authorization': `Token ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-  // Try nested path
-  const raw = botData?.output?.[0]?.transcript;
-  if (Array.isArray(raw)) {
-    return raw.map(s => `${s.speaker||'Speaker'}: ${s.words?.map(w=>w.text).join(' ')||''}`).join('\n');
+    if (!resp.ok) {
+      console.error('Recall.ai transcript fetch failed:', resp.status, await resp.text());
+      return '';
+    }
+
+    const data = await resp.json();
+
+    // Recall.ai returns an array of transcript segments
+    if (Array.isArray(data)) {
+      return data.map(seg => {
+        const speaker = seg.speaker || 'Speaker';
+        const words = Array.isArray(seg.words)
+          ? seg.words.map(w => w.text || w.word || '').join(' ')
+          : (seg.text || '');
+        return `${speaker}: ${words}`;
+      }).join('\n');
+    }
+
+    // Fallback: handle object with results array
+    if (data.results && Array.isArray(data.results)) {
+      return data.results.map(seg => {
+        const speaker = seg.speaker || 'Speaker';
+        const text = seg.text || seg.words?.map(w => w.text).join(' ') || '';
+        return `${speaker}: ${text}`;
+      }).join('\n');
+    }
+
+    console.warn('Unexpected transcript format:', JSON.stringify(data).slice(0, 200));
+    return '';
+
+  } catch (err) {
+    console.error('fetchTranscriptFromRecall error:', err.message);
+    return '';
   }
-
-  return '';
 }
 
 // ── CLAUDE FIELD EXTRACTION ───────────────────────────────────────────────────
@@ -151,8 +181,16 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.`;
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      }),
     });
     const data = await resp.json();
     const text = data.content?.[0]?.text || '{}';
@@ -176,10 +214,16 @@ async function verifySignature(body, signature, secret) {
 
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) bytes[i/2] = parseInt(hex.substr(i, 2), 16);
+  for (let i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
   return bytes;
 }
 
 export async function onRequestOptions() {
-  return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' } });
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  });
 }
