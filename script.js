@@ -68,7 +68,7 @@ if (!isTouchDevice) {
     requestAnimationFrame(animCursor);
   })();
 
-  document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select, input, textarea').forEach(el => {
+  document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.style.opacity = '0'; });
     el.addEventListener('mouseleave', () => { cursor.style.opacity = '1'; });
   });
@@ -200,8 +200,11 @@ window.addEventListener('load', revealInViewport);
 
 
 
-/* --- CONTACT FORM (Formspree) --- */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mgopveve';
+/* --- CONTACT FORM → GHL --- */
+// ── LEAD SUBMISSION ENDPOINT ──────────────────────────────
+// Cloudflare Pages Function — creates GHL contact directly.
+// GHL workflow fires automatically on Contact Created.
+const LEAD_ENDPOINT = '/submit-lead';
 
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
@@ -215,7 +218,7 @@ if (contactForm) {
     btn.disabled = true;
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(LEAD_ENDPOINT, {
         method: 'POST',
         body: new FormData(this),
         headers: { 'Accept': 'application/json' }
@@ -854,11 +857,8 @@ window.addEventListener('load', () => {
    ============================================================ */
 
 /* ── SHARED SUBMIT FUNCTION ──────────────────────────────────
- * Currently routes to Formspree.
- * TODO: Replace FORMSPREE_ENDPOINT with '/functions/submit-lead'
- * once the Cloudflare Pages Function + GHL sub-account are ready.
- * The Pages Function should: validate input → POST to GHL contacts
- * API → create pipeline opportunity → fire welcome automation.
+ * Posts to /submit-lead (Cloudflare Pages Function) which
+ * creates the GHL contact. The workflow fires automatically.
  * ──────────────────────────────────────────────────────────── */
 async function submitLead(formEl, source, extraFields) {
   const data = new FormData(formEl);
@@ -867,7 +867,7 @@ async function submitLead(formEl, source, extraFields) {
   if (extraFields) {
     for (const [k, v] of Object.entries(extraFields)) data.append(k, v);
   }
-  const res = await fetch(FORMSPREE_ENDPOINT, {
+  const res = await fetch(LEAD_ENDPOINT, {
     method: 'POST',
     body: data,
     headers: { Accept: 'application/json' },
