@@ -9,8 +9,6 @@
 
   <style>
     /* ── PRICING PAGE OVERRIDES ───────────────────────────────── */
-
-    /* Full-page dark background */
     body { background: var(--black); }
     footer { background: var(--black); border-top-color: #1a1a1a; }
     footer .footer-logo-text,
@@ -278,6 +276,9 @@
       transition: background .25s, gap .25s;
       position: relative;
       overflow: hidden;
+      border: none;
+      font-family: var(--sans);
+      font-weight: 400;
     }
     .custom-callout-cta::after { content: '→'; }
     .custom-callout-cta:hover { background: #1a52c4; gap: 1.3rem; }
@@ -467,7 +468,7 @@
         <li>One full round of revisions before launch</li>
       </ul>
       <div class="plan-caveat">No automation or CRM included. Add Launch System if you want leads followed up automatically.</div>
-      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+      <button class="plan-cta open-quote-modal" style="margin-top:2rem;" data-plan="Launch Site">Get a Quote</button>
     </div>
 
     <!-- Launch System -->
@@ -486,7 +487,7 @@
         <li>Full training walkthrough — you know how to run it</li>
       </ul>
       <div class="plan-caveat">Optional add-on: Stay Current ($500/mo) keeps the system optimized as AI tools evolve. Not required — just available.</div>
-      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+      <button class="plan-cta open-quote-modal" style="margin-top:2rem;" data-plan="Launch System">Get a Quote</button>
     </div>
 
   </div>
@@ -522,7 +523,7 @@
         <li>Quarterly check-ins on what's working and what to improve</li>
       </ul>
       <div class="plan-caveat">Only offered after a Launch System build. This is the "keep it sharp" layer — not a standalone service.</div>
-      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+      <button class="plan-cta open-quote-modal" style="margin-top:2rem;" data-plan="Stay Current">Get a Quote</button>
     </div>
 
     <!-- Content Partner — FEATURED -->
@@ -544,7 +545,7 @@
       <div class="plan-caveat" style="border-top-color:var(--light);color:var(--gray);">
         Intro rate applies. Standard rate activates when performance benchmarks are hit — you pay less until we prove it works.
       </div>
-      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+      <button class="plan-cta open-quote-modal" style="margin-top:2rem;" data-plan="Content Partner">Get a Quote</button>
     </div>
 
     <!-- Full Momentum -->
@@ -563,7 +564,7 @@
         <li>Full performance dashboard with leads, pipeline, and social data</li>
       </ul>
       <div class="plan-caveat">Most clients pay for this with one or two extra jobs a month. Intro rate applies until benchmarks are met.</div>
-      <a href="contact.html" class="plan-cta" style="margin-top:2rem;">Get a Quote</a>
+      <button class="plan-cta open-quote-modal" style="margin-top:2rem;" data-plan="Full Momentum">Get a Quote</button>
     </div>
 
   </div>
@@ -596,10 +597,10 @@
       Tell us what's broken — we'll tell you what it would take to fix it. No pitch, no pressure. A 30-minute conversation and you'll know exactly what you need and what it costs.
     </p>
   </div>
-  <a href="contact.html" class="custom-callout-cta">
+  <button class="custom-callout-cta open-quote-modal" data-plan="">
     <span class="scan-light"></span>
     Book a Call
-  </a>
+  </button>
 </div>
 
 <!-- FOOTER -->
@@ -629,6 +630,60 @@
   <a href="contact.html" class="nav-mobile-cta">Get Started →</a>
 </nav>
 <div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+
+<!-- ── SCROLL SLIDE-IN WIDGET ────────────────────────────────── -->
+<div class="slide-in-widget" id="slideInWidget" role="dialog" aria-label="Free digital audit offer">
+  <button class="slide-in-close" id="slideInClose" aria-label="Close">✕</button>
+  <div class="slide-in-icon">⚡</div>
+  <div class="slide-in-heading">Not ready to commit?<br/>Start with a free audit.</div>
+  <p class="slide-in-sub">30 minutes. We'll show you exactly what's costing you leads and what it would take to fix it.</p>
+  <form class="slide-in-form" id="slideInForm" novalidate>
+    <input type="text" name="name" placeholder="Your name" required class="slide-in-input" autocomplete="name"/>
+    <input type="email" name="email" placeholder="Business email" required class="slide-in-input" autocomplete="email"/>
+    <input type="tel" name="phone" placeholder="Phone (optional)" class="slide-in-input" autocomplete="tel"/>
+    <button type="submit" class="slide-in-btn"><span class="scan-light"></span>Get Free Audit</button>
+  </form>
+</div>
+
+<!-- ── QUOTE REQUEST MODAL ───────────────────────────────────── -->
+<div class="quote-modal-overlay" id="quoteModalOverlay" role="dialog" aria-modal="true" aria-label="Request a quote">
+  <div class="quote-modal">
+    <button class="quote-modal-close" id="quoteModalClose" aria-label="Close">✕</button>
+    <div class="quote-modal-badge">Custom Quote</div>
+    <div class="quote-modal-plan-name" id="quoteModalPlanName"></div>
+    <h3 class="quote-modal-heading">Let's build<br/><em>your offer.</em></h3>
+    <p class="quote-modal-sub">Tell us what you need — we'll put together a real proposal built around your business and your goals, not a shelf package.</p>
+    <form class="quote-modal-form" id="quoteModalForm" novalidate>
+      <input type="hidden" name="plan" id="quoteModalPlan"/>
+      <div class="quote-modal-row">
+        <input type="text" name="name" placeholder="Your name" required class="quote-modal-input"/>
+        <input type="email" name="email" placeholder="Business email" required class="quote-modal-input"/>
+      </div>
+      <input type="text" name="business" placeholder="Business name" class="quote-modal-input full"/>
+      <input type="tel" name="phone" placeholder="Best phone number" class="quote-modal-input full"/>
+      <textarea name="message" placeholder="What's broken? What's the goal?" class="quote-modal-textarea"></textarea>
+      <button type="submit" class="quote-modal-btn"><span class="scan-light"></span>Send My Request →</button>
+    </form>
+    <div class="quote-modal-success" id="quoteModalSuccess">
+      ✓ Request received — we'll be in touch within 24 hours with a custom proposal.
+    </div>
+  </div>
+</div>
+
+<!-- ── EXIT INTENT MODAL ──────────────────────────────────────── -->
+<div class="exit-modal-overlay" id="exitModalOverlay" role="dialog" aria-modal="true" aria-label="Before you go">
+  <div class="exit-modal">
+    <button class="exit-modal-close" id="exitModalClose" aria-label="Close">✕</button>
+    <div class="exit-modal-stat">$12k+</div>
+    <div class="exit-modal-heading">Average pipeline value our clients<br/>generate by month 6.</div>
+    <p class="exit-modal-sub">What would one extra client per month mean for your business? Drop your email and we'll show you exactly what that looks like for your niche.</p>
+    <form class="exit-modal-form" id="exitModalForm" novalidate>
+      <input type="email" name="email" placeholder="Your business email" required class="exit-modal-input"/>
+      <button type="submit" class="exit-modal-btn"><span class="scan-light"></span>Show Me What's Possible →</button>
+    </form>
+    <p class="exit-modal-note">No pitch. No commitment. Just clarity on what the system delivers.</p>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
