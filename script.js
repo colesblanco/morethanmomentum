@@ -200,7 +200,6 @@ window.addEventListener('load', revealInViewport);
 
 
 
-
 /* --- CONTACT FORM (Formspree) --- */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mgopveve';
 
@@ -446,36 +445,33 @@ function initVideoCarousel() {
 
   let autoTimer = setInterval(() => advance('next'), 5000);
 
+    let touchStartX = 0;
+    let touchEndX   = 0;
+    const SWIPE_THRESHOLD = 50;
+
+    track.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].clientX;
+    }, { passive: true });
+
+    track.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > SWIPE_THRESHOLD) {
+        if (diff > 0) { advance('next'); } else { advance('prev'); }
+        resetTimer();
+      }
+    }, { passive: true });
+
+    const btnPrev = document.getElementById('carouselPrev');
+    const btnNext = document.getElementById('carouselNext');
+    if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
+    if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
+  }
+
   function resetTimer() {
     clearInterval(autoTimer);
     autoTimer = setInterval(() => advance('next'), 5000);
   }
-
-  const btnPrev = document.getElementById('carouselPrev');
-  const btnNext = document.getElementById('carouselNext');
-  if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
-  if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
-
-  let touchStartX = 0;
-  let touchEndX   = 0;
-  const SWIPE_THRESHOLD = 50;
-
-  track.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].clientX;
-  }, { passive: true });
-
-  track.addEventListener('touchend', e => {
-    touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) > SWIPE_THRESHOLD) {
-      if (diff > 0) {
-        advance('next');
-      } else {
-        advance('prev');
-      }
-      resetTimer();
-    }
-  }, { passive: true });
 }
 
 
@@ -517,12 +513,6 @@ function initVideoLightbox() {
     width: 34px; height: 34px; font-size: 15px;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
   `;
-  closeBtn.addEventListener('mouseenter', () => {
-    if (cursorEl) cursorEl.style.opacity = '1';
-  });
-  closeBtn.addEventListener('mouseleave', () => {
-    if (cursorEl) cursorEl.style.opacity = '1';
-  });
 
   overlay.appendChild(inner);
   overlay.appendChild(closeBtn);
@@ -572,24 +562,15 @@ function initVideoLightbox() {
     inner.style.transform = 'scale(0.88)';
     overlay.style.pointerEvents = 'none';
     document.body.style.overflow = '';
-    if (activeVideo) {
-      activeVideo.pause();
-      activeVideo = null;
-    }
+    if (activeVideo) { activeVideo.pause(); activeVideo = null; }
     setTimeout(() => { inner.innerHTML = ''; }, 350);
     if (cursorEl) cursorEl.style.zIndex = '';
     if (ringEl)   ringEl.style.zIndex   = '';
   }
 
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeLightbox();
-  });
-
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeLightbox(); });
   closeBtn.addEventListener('click', closeLightbox);
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLightbox();
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
   window._openVideoLightbox = openLightbox;
 }
@@ -603,119 +584,73 @@ window.addEventListener('load', () => {
 /* ============================================================
    EASTER EGG — SPRINT TO TOOLS
    Desktop: shake the cursor rapidly left-right to unlock /tools
-   Mobile:  tap the nav logo 5x quickly
    ============================================================ */
 (function() {
-
-  // ── DESKTOP: cursor shake detection ──────────────────────
   if (!window.matchMedia('(pointer: coarse)').matches) {
-
-    // Track from last direction-change point, NOT last mousemove event.
-    // mousemove fires every ~4ms so per-event dx is only 1-5px — useless.
-    // Instead we measure accumulated travel since the last reversal.
-    let anchorX    = 0;      // x position at last direction change
+    let anchorX    = 0;
     let lastDir    = null;
     let dirChanges = 0;
     let resetTimer = null;
     let triggered  = false;
 
-    const CHANGES_NEEDED = 5;    // direction reversals needed
-    const MIN_DIST       = 160;  // px of travel per leg — wide sweeps feel like a real sprint
-    const WINDOW_MS      = 1400; // wider window to allow for the bigger movements
+    const CHANGES_NEEDED = 5;
+    const MIN_DIST       = 160;
+    const WINDOW_MS      = 1400;
 
     document.addEventListener('mousemove', e => {
       if (triggered) return;
-
       const dx  = e.clientX - anchorX;
-      if (Math.abs(dx) < MIN_DIST) return; // haven't travelled far enough yet
-
+      if (Math.abs(dx) < MIN_DIST) return;
       const dir = dx > 0 ? 'r' : 'l';
-
-      if (dir === lastDir) {
-        // Still going the same way — push anchor forward to keep measuring
-        anchorX = e.clientX;
-        return;
-      }
-
-      // Direction reversed — count it
+      if (dir === lastDir) { anchorX = e.clientX; return; }
       anchorX  = e.clientX;
       lastDir  = dir;
       dirChanges++;
-
       clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => {
-        dirChanges = 0;
-        lastDir    = null;
-      }, WINDOW_MS);
-
+      resetTimer = setTimeout(() => { dirChanges = 0; lastDir = null; }, WINDOW_MS);
       if (dirChanges >= CHANGES_NEEDED) {
-        triggered  = true;
-        dirChanges = 0;
+        triggered = true; dirChanges = 0;
         fireEasterEgg(e.clientX, e.clientY);
       }
     });
 
     function fireEasterEgg(x, y) {
-      // Clickable badge — user must click within 3 seconds or it dismisses and resets
       const badge = document.createElement('button');
       badge.textContent = '🏃 MTM Tools →';
       badge.style.cssText = `
         position: fixed;
         left: ${Math.min(x + 18, window.innerWidth - 175)}px;
         top:  ${Math.max(y - 48, 12)}px;
-        background: #2D6BE4;
-        color: #f4f4f2;
-        padding: 10px 18px;
-        border-radius: 8px;
-        border: none;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
-        font-weight: 500;
-        z-index: 99999;
-        cursor: pointer;
-        white-space: nowrap;
+        background: #2D6BE4; color: #f4f4f2;
+        padding: 10px 18px; border-radius: 8px; border: none;
+        font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+        z-index: 99999; cursor: pointer; white-space: nowrap;
         box-shadow: 0 4px 24px rgba(45,107,228,.5);
-        opacity: 0;
-        transform: translateY(6px) scale(0.92);
+        opacity: 0; transform: translateY(6px) scale(0.92);
         transition: opacity .22s ease, transform .22s ease;
       `;
       document.body.appendChild(badge);
-
-      // Animate in
       requestAnimationFrame(() => {
-        badge.style.opacity   = '1';
+        badge.style.opacity = '1';
         badge.style.transform = 'translateY(0) scale(1)';
       });
 
       function dismiss() {
-        badge.style.opacity   = '0';
+        badge.style.opacity = '0';
         badge.style.transform = 'translateY(6px) scale(0.92)';
         setTimeout(() => { if (badge.parentNode) badge.parentNode.removeChild(badge); }, 250);
-        // Reset everything so it can be triggered again
-        triggered  = false;
-        dirChanges = 0;
-        lastDir    = null;
-        anchorX    = 0;
+        triggered = false; dirChanges = 0; lastDir = null; anchorX = 0;
       }
 
-      // Click → navigate
-      badge.addEventListener('click', () => {
-        clearTimeout(dismissTimer);
-        window.location.href = '/tools.html';
-      });
-
-      // 3 seconds with no click → dismiss and full reset
+      badge.addEventListener('click', () => { clearTimeout(dismissTimer); window.location.href = '/tools.html'; });
       const dismissTimer = setTimeout(dismiss, 3000);
     }
   }
-
 })();
 
 
 /* ============================================================
    ANIMATED RESULTS CHART — homepage
-   Draws a Canvas chart that animates on scroll.
-   Two lines: "With MTM" (exponential) vs "Without" (flat).
    ============================================================ */
 (function () {
   const canvas = document.getElementById('resultsChart');
@@ -723,10 +658,9 @@ window.addEventListener('load', () => {
 
   const ctx = canvas.getContext('2d');
   const months = ['Mo 1','Mo 2','Mo 3','Mo 4','Mo 5','Mo 6'];
-  const withMTM  = [5, 12, 22, 34, 44, 52];   // the "10x" growth curve
-  const without  = [5, 6, 6, 7, 7, 8];         // flat baseline
+  const withMTM  = [5, 12, 22, 34, 44, 52];
+  const without  = [5, 6, 6, 7, 7, 8];
 
-  // Animated counter helpers
   function animCount(id, target, suffix, prefix, dur) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -740,23 +674,20 @@ window.addEventListener('load', () => {
   }
 
   let chartDrawn = false;
-  let animProgress = 0; // 0 → 1
+  let animProgress = 0;
   let animFrame = null;
 
   function drawChart(progress) {
     const W = canvas.width  = canvas.parentElement.clientWidth  - 48;
     const H = canvas.height = 280;
-
     const pad = { top: 20, right: 30, bottom: 40, left: 40 };
     const plotW = W - pad.left - pad.right;
     const plotH = H - pad.top  - pad.bottom;
-
     const maxVal = 60;
     const pts = months.length;
 
     ctx.clearRect(0, 0, W, H);
 
-    // ── Grid lines ──────────────────────────────────────────
     ctx.strokeStyle = 'rgba(255,255,255,0.05)';
     ctx.lineWidth = 1;
     [0, 15, 30, 45, 60].forEach(v => {
@@ -767,7 +698,6 @@ window.addEventListener('load', () => {
       ctx.fillText(v, pad.left - 30, y + 4);
     });
 
-    // ── X labels ────────────────────────────────────────────
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     ctx.font = '10px DM Sans, sans-serif';
     ctx.textAlign = 'center';
@@ -777,7 +707,6 @@ window.addEventListener('load', () => {
     });
     ctx.textAlign = 'left';
 
-    // How many points to draw based on progress
     const drawPts = Math.max(2, Math.ceil(progress * pts));
     const frac    = (progress * pts) - Math.floor(progress * pts);
 
@@ -796,7 +725,6 @@ window.addEventListener('load', () => {
         const [x, y] = getPoint(data, i);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
-      // Partial last segment
       if (drawPts < pts && frac > 0) {
         const [x0, y0] = getPoint(data, drawPts - 1);
         const [x1, y1] = getPoint(data, Math.min(drawPts, pts - 1));
@@ -809,7 +737,6 @@ window.addEventListener('load', () => {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Fill under MTM line
       if (!dashed) {
         ctx.lineTo(pad.left + (Math.min(drawPts - 1, pts - 1) / (pts - 1)) * plotW, pad.top + plotH);
         ctx.lineTo(pad.left, pad.top + plotH);
@@ -822,17 +749,14 @@ window.addEventListener('load', () => {
       }
     }
 
-    // Draw lines
     drawLine(without, 'rgba(255,255,255,0.18)', true);
     drawLine(withMTM, '#2D6BE4', false);
 
-    // Dots on MTM line
     ctx.fillStyle = '#2D6BE4';
     for (let i = 0; i < Math.min(drawPts, pts); i++) {
       const [x, y] = getPoint(withMTM, i);
       ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
     }
-    // Last dot label
     if (progress >= 0.98) {
       const [lx, ly] = getPoint(withMTM, pts - 1);
       ctx.fillStyle = 'rgba(255,255,255,0.9)';
@@ -844,19 +768,15 @@ window.addEventListener('load', () => {
   function startAnimation() {
     if (chartDrawn) return;
     chartDrawn = true;
-
-    // Animate stat counters
     animCount('gStatLeads',    10, '×', '',  1800);
     animCount('gStatResponse', 60, 's', '',  1200);
     animCount('gStatPipeline', 56, 'k', '$', 2000);
     animCount('gStatConvert',  98, '%', '',  1600);
 
-    // Animate chart
     const start = performance.now();
     const dur   = 2200;
     function step(now) {
       animProgress = Math.min((now - start) / dur, 1);
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - animProgress, 3);
       drawChart(ease);
       if (animProgress < 1) animFrame = requestAnimationFrame(step);
@@ -864,7 +784,6 @@ window.addEventListener('load', () => {
     animFrame = requestAnimationFrame(step);
   }
 
-  // Trigger on scroll into view
   const graphObs = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting) {
       graphObs.disconnect();
@@ -873,7 +792,6 @@ window.addEventListener('load', () => {
   }, { threshold: 0.25 });
   graphObs.observe(canvas);
 
-  // Redraw on resize (keep proportions)
   window.addEventListener('resize', () => {
     if (chartDrawn) drawChart(1);
   });
@@ -882,8 +800,6 @@ window.addEventListener('load', () => {
 
 /* ============================================================
    BEFORE / AFTER IMAGE SLIDER — work page
-   LEFT = Before  |  RIGHT = After
-   Drag handle horizontally to reveal each side.
    ============================================================ */
 (function () {
   const slider    = document.getElementById('baSlider');
@@ -904,7 +820,6 @@ window.addEventListener('load', () => {
     divider.style.left = pct + '%';
   }
 
-  /* Mouse drag */
   slider.addEventListener('mousedown', e => {
     dragging = true;
     if (handle) handle.classList.remove('pulse');
@@ -917,7 +832,6 @@ window.addEventListener('load', () => {
   });
   document.addEventListener('mouseup', () => { dragging = false; });
 
-  /* Touch drag */
   slider.addEventListener('touchstart', e => {
     dragging = true;
     if (handle) handle.classList.remove('pulse');
@@ -930,7 +844,261 @@ window.addEventListener('load', () => {
   }, { passive: true });
   slider.addEventListener('touchend', () => { dragging = false; });
 
-  /* Initial state: BEFORE left, AFTER right */
   afterPane.style.clipPath = 'inset(0 0 0 50%)';
   divider.style.left = '50%';
+})();
+
+
+/* ============================================================
+   MTM LEAD CAPTURE SYSTEM
+   Shared submitLead() · Hero form · Slide-in · Quote modal · Exit intent
+   ============================================================ */
+
+/* ── SHARED SUBMIT FUNCTION ──────────────────────────────────
+ * Currently routes to Formspree.
+ * TODO: Replace FORMSPREE_ENDPOINT with '/functions/submit-lead'
+ * once the Cloudflare Pages Function + GHL sub-account are ready.
+ * The Pages Function should: validate input → POST to GHL contacts
+ * API → create pipeline opportunity → fire welcome automation.
+ * ──────────────────────────────────────────────────────────── */
+async function submitLead(formEl, source, extraFields) {
+  const data = new FormData(formEl);
+  data.append('_source', source);
+  data.append('_page', window.location.pathname);
+  if (extraFields) {
+    for (const [k, v] of Object.entries(extraFields)) data.append(k, v);
+  }
+  const res = await fetch(FORMSPREE_ENDPOINT, {
+    method: 'POST',
+    body: data,
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json?.errors?.[0]?.message || 'Submission failed');
+  }
+}
+
+/* Button state helper */
+function setLeadBtn(btn, state, originalText) {
+  if (state === 'loading') {
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+  } else if (state === 'done') {
+    btn.textContent = 'Sent ✓';
+    btn.style.background = '#0d2a0d';
+  } else if (state === 'error') {
+    btn.textContent = 'Error — try again';
+    btn.style.background = '#2a0d0d';
+    btn.disabled = false;
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.style.background = '';
+    }, 3500);
+  } else {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    btn.style.background = '';
+  }
+}
+
+
+/* ── HERO LEAD FORM ──────────────────────────────────────── */
+(function () {
+  const form    = document.getElementById('heroLeadForm');
+  const success = document.getElementById('heroLeadSuccess');
+  if (!form) return;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = form.querySelector('.hero-lead-btn');
+    const origText = btn.textContent;
+    setLeadBtn(btn, 'loading');
+
+    try {
+      await submitLead(form, 'hero-form');
+      form.style.opacity = '0';
+      form.style.pointerEvents = 'none';
+      if (success) success.classList.add('show');
+      sessionStorage.setItem('mtm_lead_captured', '1');
+    } catch (err) {
+      console.error('Hero form error:', err);
+      setLeadBtn(btn, 'error', origText);
+    }
+  });
+})();
+
+
+/* ── SCROLL SLIDE-IN WIDGET ──────────────────────────────── */
+(function () {
+  const widget   = document.getElementById('slideInWidget');
+  const closeBtn = document.getElementById('slideInClose');
+  const form     = document.getElementById('slideInForm');
+  if (!widget) return;
+
+  let shown = false;
+
+  function show() {
+    if (shown) return;
+    if (sessionStorage.getItem('mtm_lead_captured')) return;
+    if (sessionStorage.getItem('mtm_slidein_dismissed')) return;
+    shown = true;
+    widget.classList.add('visible');
+  }
+
+  function dismiss() {
+    widget.classList.remove('visible');
+    sessionStorage.setItem('mtm_slidein_dismissed', '1');
+  }
+
+  // Trigger at 60% scroll depth
+  window.addEventListener('scroll', function () {
+    if (shown) return;
+    const pct = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+    if (pct >= 0.60) show();
+  }, { passive: true });
+
+  if (closeBtn) closeBtn.addEventListener('click', dismiss);
+
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = form.querySelector('.slide-in-btn');
+      const origText = btn.textContent;
+      setLeadBtn(btn, 'loading');
+
+      try {
+        await submitLead(form, 'slide-in');
+        form.innerHTML = '<p style="color:var(--accent-light);font-size:.82rem;text-align:center;padding:.4rem 0 0;">✓ Got it — we\'ll be in touch today.</p>';
+        sessionStorage.setItem('mtm_lead_captured', '1');
+        setTimeout(dismiss, 3200);
+      } catch (err) {
+        console.error('Slide-in error:', err);
+        setLeadBtn(btn, 'error', origText);
+      }
+    });
+  }
+})();
+
+
+/* ── PRICING QUOTE MODAL ─────────────────────────────────── */
+(function () {
+  const overlay   = document.getElementById('quoteModalOverlay');
+  const closeBtn  = document.getElementById('quoteModalClose');
+  const form      = document.getElementById('quoteModalForm');
+  const planInput = document.getElementById('quoteModalPlan');
+  const planLabel = document.getElementById('quoteModalPlanName');
+  const success   = document.getElementById('quoteModalSuccess');
+  if (!overlay) return;
+
+  function openModal(planName) {
+    if (planInput) planInput.value = planName || '';
+    if (planLabel) planLabel.textContent = planName ? 'Plan: ' + planName : '';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // Focus first input for accessibility
+    setTimeout(() => {
+      const first = overlay.querySelector('input:not([type=hidden])');
+      if (first) first.focus();
+    }, 320);
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Wire up all open-quote-modal triggers
+  document.querySelectorAll('.open-quote-modal').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal(this.dataset.plan || '');
+    });
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+  });
+
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = form.querySelector('.quote-modal-btn');
+      const origText = btn.textContent;
+      setLeadBtn(btn, 'loading');
+
+      try {
+        await submitLead(form, 'pricing-modal');
+        form.style.display = 'none';
+        if (success) success.classList.add('show');
+        sessionStorage.setItem('mtm_lead_captured', '1');
+        setTimeout(closeModal, 4500);
+      } catch (err) {
+        console.error('Quote modal error:', err);
+        setLeadBtn(btn, 'error', origText);
+      }
+    });
+  }
+})();
+
+
+/* ── EXIT INTENT MODAL (pricing page) ───────────────────── */
+(function () {
+  const overlay  = document.getElementById('exitModalOverlay');
+  const closeBtn = document.getElementById('exitModalClose');
+  const form     = document.getElementById('exitModalForm');
+  if (!overlay) return;
+
+  let triggered = false;
+
+  function show() {
+    if (triggered) return;
+    if (sessionStorage.getItem('mtm_lead_captured')) return;
+    if (sessionStorage.getItem('mtm_exit_dismissed')) return;
+    triggered = true;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('mtm_exit_dismissed', '1');
+  }
+
+  // Trigger when mouse exits viewport through the top edge
+  document.addEventListener('mouseleave', function (e) {
+    if (e.clientY <= 0) show();
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+  });
+
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = form.querySelector('.exit-modal-btn');
+      const origText = btn.textContent;
+      setLeadBtn(btn, 'loading');
+
+      try {
+        await submitLead(form, 'exit-intent');
+        form.innerHTML = '<p style="color:var(--accent-light);font-size:.9rem;text-align:center;padding:.5rem 0;">✓ Perfect — expect a message from us today.</p>';
+        sessionStorage.setItem('mtm_lead_captured', '1');
+        setTimeout(close, 4000);
+      } catch (err) {
+        console.error('Exit intent error:', err);
+        setLeadBtn(btn, 'error', origText);
+      }
+    });
+  }
 })();

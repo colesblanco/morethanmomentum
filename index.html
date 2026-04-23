@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
   <title>More Than Momentum — AI-Powered Digital Growth Infrastructure</title>
   <meta name="description" content="More Than Momentum builds the AI-powered digital infrastructure small and mid-size businesses need to grow — websites, automation, and content that keeps the momentum going."/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Barlow+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
@@ -45,10 +46,30 @@
         <p class="hero-desc">We build the AI-powered digital infrastructure <strong style="color:rgba(255,255,255,.7);font-weight:400;">small and mid-size businesses</strong> need to grow — websites that convert, automation that captures every lead, and content that keeps the momentum going.</p>
         <p style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;color:rgba(255,255,255,.3);margin-top:1.2rem;"><span style="width:1.5rem;height:1px;background:var(--accent);display:block;"></span>Performance guarantee — you pay less until we prove results</p>
       </div>
-      <div class="hero-actions">
-        <a href="services.html" class="btn-primary btn-blue"><span class="scan-light"></span>See What We Do</a>
-        <a href="work.html" class="btn-ghost">View Our Work</a>
+
+      <!-- ── HERO LEAD CAPTURE FORM ─────────────────────────── -->
+      <div class="hero-lead-wrap">
+        <form class="hero-lead-form" id="heroLeadForm" novalidate>
+          <div class="hero-lead-badge-row">
+            <span class="hero-lead-pulse"></span>
+            Free digital audit — 30 minutes, no pitch
+          </div>
+          <div class="hero-lead-row">
+            <input type="text" name="name" class="hero-lead-input" placeholder="Your name" required autocomplete="name"/>
+            <input type="email" name="email" class="hero-lead-input" placeholder="Business email" required autocomplete="email"/>
+            <button type="submit" class="hero-lead-btn">
+              <span class="scan-light"></span>Get My Audit →
+            </button>
+          </div>
+          <div class="hero-lead-success" id="heroLeadSuccess">✓ Got it — we'll reach out within 24 hours.</div>
+        </form>
+        <div class="hero-cta-secondary">
+          <a href="services.html" class="hero-sec-link">See What We Do →</a>
+          <span class="hero-sec-sep">·</span>
+          <a href="work.html" class="hero-sec-link">View Our Work →</a>
+        </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -197,6 +218,20 @@
   <a href="contact.html" class="nav-mobile-cta">Get Started →</a>
 </nav>
 <div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+
+<!-- ── SCROLL SLIDE-IN WIDGET ────────────────────────────────── -->
+<div class="slide-in-widget" id="slideInWidget" role="dialog" aria-label="Free digital audit offer">
+  <button class="slide-in-close" id="slideInClose" aria-label="Close">✕</button>
+  <div class="slide-in-icon">⚡</div>
+  <div class="slide-in-heading">What's costing you<br/>leads right now?</div>
+  <p class="slide-in-sub">Get a free audit — we'll show you exactly where your business is leaving money on the table.</p>
+  <form class="slide-in-form" id="slideInForm" novalidate>
+    <input type="text" name="name" placeholder="Your name" required class="slide-in-input" autocomplete="name"/>
+    <input type="email" name="email" placeholder="Business email" required class="slide-in-input" autocomplete="email"/>
+    <input type="tel" name="phone" placeholder="Phone (optional)" class="slide-in-input" autocomplete="tel"/>
+    <button type="submit" class="slide-in-btn"><span class="scan-light"></span>Get Free Audit</button>
+  </form>
+</div>
 
 <script src="script.js"></script>
 </body>
