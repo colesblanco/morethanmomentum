@@ -68,7 +68,7 @@ if (!isTouchDevice) {
     requestAnimationFrame(animCursor);
   })();
 
-  document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select').forEach(el => {
+  document.querySelectorAll('a, button, .nav-cta, .plan-cta, .btn-primary, .btn-ghost, .social-link, select, input, textarea').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.style.opacity = '0'; });
     el.addEventListener('mouseleave', () => { cursor.style.opacity = '1'; });
   });

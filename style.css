@@ -59,6 +59,7 @@ body {
 /* --- CURSOR --- */
 * { cursor: none !important; }
 a, a *, button, button *, .nav-cta, .nav-cta *, .plan-cta, .btn-primary, .btn-primary *, .btn-ghost, .social-link, select { cursor: pointer !important; }
+input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="search"], textarea { cursor: text !important; }
 .cursor {
   position: fixed;
   width: 110px; height: 110px;
@@ -575,6 +576,13 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
   text-decoration: none; font-size: .72rem; letter-spacing: .13em; text-transform: uppercase;
   color: #f9f9f7; border-bottom: 1px solid #f9f9f7; padding-bottom: .25rem;
   transition: color .25s, border-color .25s, gap .25s;
+  /* Reset native <button> defaults so styling works on both a and button */
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+  font-family: var(--sans);
+  padding-top: 0; padding-left: 0; padding-right: 0;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .plan-cta::after { content: '→'; }
 .plan-cta:hover { gap: 1.1rem; color: var(--accent-light); border-color: var(--accent-light); }
@@ -1629,14 +1637,15 @@ footer {
   font-size: .7rem;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.28);
+  color: var(--accent-light);
   text-decoration: none;
-  transition: color .25s;
+  transition: color .25s, opacity .25s;
+  opacity: .85;
 }
-.hero-sec-link:hover { color: rgba(255,255,255,.65); }
+.hero-sec-link:hover { color: var(--white); opacity: 1; }
  
 .hero-sec-sep {
-  color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.2);
   font-size: .7rem;
 }
  
