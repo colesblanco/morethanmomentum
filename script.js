@@ -905,21 +905,35 @@ function setLeadBtn(btn, state, originalText) {
 /* ── HERO LEAD FORM ──────────────────────────────────────── */
 (function () {
   const form    = document.getElementById('heroLeadForm');
-  const success = document.getElementById('heroLeadSuccess');
   if (!form) return;
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const btn = form.querySelector('.hero-lead-btn');
+    const btn    = form.querySelector('.hero-lead-btn');
+    const inputs = form.querySelectorAll('.hero-lead-input');
     const origText = btn.textContent;
     setLeadBtn(btn, 'loading');
 
     try {
       await submitLead(form, 'hero-form');
-      form.style.opacity = '0';
-      form.style.pointerEvents = 'none';
-      if (success) success.classList.add('show');
+
+      // ── Success state: green button, form stays visible ──
+      btn.textContent = '✓ Sent — we\'ll be in touch';
+      btn.style.background = '#1a4a1a';
+      btn.style.letterSpacing = '.06em';
+      btn.disabled = true;
       sessionStorage.setItem('mtm_lead_captured', '1');
+
+      // Reset button the moment user starts typing again
+      function resetOnType() {
+        btn.textContent = origText;
+        btn.style.background = '';
+        btn.style.letterSpacing = '';
+        btn.disabled = false;
+        inputs.forEach(i => i.removeEventListener('input', resetOnType));
+      }
+      inputs.forEach(i => i.addEventListener('input', resetOnType));
+
     } catch (err) {
       console.error('Hero form error:', err);
       setLeadBtn(btn, 'error', origText);
