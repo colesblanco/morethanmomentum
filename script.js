@@ -445,33 +445,32 @@ function initVideoCarousel() {
 
   let autoTimer = setInterval(() => advance('next'), 5000);
 
-    let touchStartX = 0;
-    let touchEndX   = 0;
-    const SWIPE_THRESHOLD = 50;
-
-    track.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].clientX;
-    }, { passive: true });
-
-    track.addEventListener('touchend', e => {
-      touchEndX = e.changedTouches[0].clientX;
-      const diff = touchStartX - touchEndX;
-      if (Math.abs(diff) > SWIPE_THRESHOLD) {
-        if (diff > 0) { advance('next'); } else { advance('prev'); }
-        resetTimer();
-      }
-    }, { passive: true });
-
-    const btnPrev = document.getElementById('carouselPrev');
-    const btnNext = document.getElementById('carouselNext');
-    if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
-    if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
-  }
-
   function resetTimer() {
     clearInterval(autoTimer);
     autoTimer = setInterval(() => advance('next'), 5000);
   }
+
+  let touchStartX = 0;
+  let touchEndX   = 0;
+  const SWIPE_THRESHOLD = 50;
+
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  track.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) { advance('next'); } else { advance('prev'); }
+      resetTimer();
+    }
+  }, { passive: true });
+
+  const btnPrev = document.getElementById('carouselPrev');
+  const btnNext = document.getElementById('carouselNext');
+  if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
+  if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
 }
 
 
