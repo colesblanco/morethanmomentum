@@ -11,7 +11,7 @@
  * Body: { prompt, pillar, platform, format, count }
  */
 
-const MODEL   = 'claude-sonnet-4-20250514';
+const MODEL = 'claude-sonnet-4-6';
 const MAX_TOK = 2000;
 
 /* ─── MTM Playbook System Prompt ───────────────────────────────────────────
