@@ -345,11 +345,14 @@ function initVideoCarousel() {
   ];
 
   const STATES = {
-    entering: { tx: '-680px', tz: '-280px', ry: '65deg',  scale: 0.62, opacity: 0,   zi: 1 },
-    left:     { tx: '-310px', tz: '-160px', ry: '42deg',  scale: 0.86, opacity: 0.7, zi: 3 },
-    center:   { tx: '0px',   tz: '0px',    ry: '0deg',   scale: 1,    opacity: 1,   zi: 5 },
-    right:    { tx: '310px', tz: '-160px', ry: '-42deg', scale: 0.86, opacity: 0.7, zi: 3 },
-    exiting:  { tx: '680px', tz: '-280px', ry: '-65deg', scale: 0.62, opacity: 0,   zi: 1 },
+    entering:       { tx: '-740px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
+    'far-left':     { tx: '-510px', tz: '-240px', ry: '52deg',  scale: 0.72, opacity: 0.42, zi: 2 },
+    left:           { tx: '-310px', tz: '-160px', ry: '42deg',  scale: 0.86, opacity: 0.7,  zi: 3 },
+    center:         { tx: '0px',    tz: '0px',    ry: '0deg',   scale: 1,    opacity: 1,    zi: 5 },
+    right:          { tx: '310px',  tz: '-160px', ry: '-42deg', scale: 0.86, opacity: 0.7,  zi: 3 },
+    'far-right':    { tx: '510px',  tz: '-240px', ry: '-52deg', scale: 0.72, opacity: 0.42, zi: 2 },
+    exiting:        { tx: '740px',  tz: '-340px', ry: '-68deg', scale: 0.55, opacity: 0,    zi: 1 },
+    'exiting-left': { tx: '-740px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
   };
 
   function applyState(el, stateName, animate) {
@@ -400,12 +403,16 @@ function initVideoCarousel() {
     return videos[((idx % n) + n) % n];
   }
 
-  const leftSlot   = createSlot(getVideo(centerIndex - 1), 'left');
-  const centerSlot = createSlot(getVideo(centerIndex),     'center');
-  const rightSlot  = createSlot(getVideo(centerIndex + 1), 'right');
+  const farLeftSlot  = createSlot(getVideo(centerIndex - 2), 'far-left');
+  const leftSlot     = createSlot(getVideo(centerIndex - 1), 'left');
+  const centerSlot   = createSlot(getVideo(centerIndex),     'center');
+  const rightSlot    = createSlot(getVideo(centerIndex + 1), 'right');
+  const farRightSlot = createSlot(getVideo(centerIndex + 2), 'far-right');
+  track.appendChild(farLeftSlot);
   track.appendChild(leftSlot);
   track.appendChild(centerSlot);
   track.appendChild(rightSlot);
+  track.appendChild(farRightSlot);
 
   let animating = false;
 
@@ -415,32 +422,27 @@ function initVideoCarousel() {
 
     if (direction === 'next') {
       centerIndex = ((centerIndex - 1) + n) % n;
-      const entering = createSlot(getVideo(centerIndex - 1), 'entering');
+      const entering = createSlot(getVideo(centerIndex - 2), 'entering');
       track.insertBefore(entering, track.firstChild);
       entering.offsetHeight;
-      const stateOrder = ['left', 'center', 'right', 'exiting'];
+      const stateOrder = ['far-left', 'left', 'center', 'right', 'far-right', 'exiting'];
       Array.from(track.children).forEach((slot, i) => applyState(slot, stateOrder[i], true));
     } else {
       centerIndex = (centerIndex + 1) % n;
-      const entering = createSlot(getVideo(centerIndex + 1), 'exiting');
+      const entering = createSlot(getVideo(centerIndex + 2), 'exiting');
       entering.style.transition = 'none';
-      entering.style.transform = `translateX(680px) translateZ(-280px) rotateY(-65deg) scale(0.62)`;
+      entering.style.transform = `translateX(740px) translateZ(-340px) rotateY(-68deg) scale(0.55)`;
       entering.style.opacity = '0';
       entering.style.zIndex = '1';
       entering.dataset.state = 'entering-rev';
       track.appendChild(entering);
       entering.offsetHeight;
-      const slots = Array.from(track.children);
-      applyState(slots[0], 'exiting', true);
-      applyState(slots[1], 'left',    true);
-      applyState(slots[2], 'center',  true);
-      applyState(slots[3], 'right',   true);
+      const stateOrder = ['exiting-left', 'far-left', 'left', 'center', 'right', 'far-right'];
+      Array.from(track.children).forEach((slot, i) => applyState(slot, stateOrder[i], true));
     }
 
     setTimeout(() => {
-      const dead = direction === 'next'
-        ? track.querySelector('[data-state="exiting"]')
-        : track.children[0];
+      const dead = track.querySelector('[data-state="exiting"], [data-state="exiting-left"]');
       if (dead && dead.parentNode === track) track.removeChild(dead);
       animating = false;
     }, 920);
@@ -585,18 +587,20 @@ function initSiteCarousel() {
 
   const sites = [
     {
-      name: 'SNH Golf Carts',
-      type: 'Golf Cart Dealer',
-      url: 'snhgolfcarts.pages.dev',
-      href: 'https://snhgolfcarts.pages.dev',
+      name: 'Underdog Pizza',
+      type: 'Restaurant',
+      url: 'underdogpizza.com',
+      href: 'https://underdog-pizza.preview.morethanmomentum.com/',
+      img: 'images/underdogscreenshot.png',
       placeholder: false,
     },
     {
-      name: 'Coming Soon',
-      type: 'Local Service',
-      url: 'coming-soon.com',
-      href: null,
-      placeholder: true,
+      name: 'The Original Cigar Bar',
+      type: 'Bar & Lounge',
+      url: 'theoriginalcigarbar.com',
+      href: 'https://the-original-cigar-bar.preview.morethanmomentum.com/',
+      img: 'images/cigarbarscreenshot.png',
+      placeholder: false,
     },
   ];
 
@@ -604,9 +608,9 @@ function initSiteCarousel() {
   dotsWrap.innerHTML = '';
 
   function buildCardMarkup(s) {
-    const overlayHtml = s.placeholder
-      ? ''
-      : '<div class="pf-overlay"><span class="pf-cta-btn">Check it out →</span></div>';
+    const previewHtml = s.img
+      ? `<img class="pf-preview-img" src="${s.img}" alt="${s.name} screenshot" loading="lazy">`
+      : '';
     return `
       <div class="pf-chrome">
         <span class="pf-dot pf-dot-red"></span>
@@ -615,11 +619,7 @@ function initSiteCarousel() {
         <span class="pf-url">${s.url}</span>
       </div>
       <div class="pf-preview">
-        <div class="pf-preview-placeholder">
-          <span class="pf-preview-name">${s.name}</span>
-          <span class="pf-preview-type">${s.type}</span>
-        </div>
-        ${overlayHtml}
+        ${previewHtml}
       </div>
       <div class="pf-card-meta">
         <span class="pf-card-type">${s.type}</span>
@@ -684,6 +684,15 @@ function initSiteCarousel() {
   const btnNext = document.getElementById('pfSiteNext');
   if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
   if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
+
+  // Hide the global custom cursor (running-man logo) while hovering carousel cards.
+  const customCursor = document.getElementById('cursor');
+  if (customCursor) {
+    track.querySelectorAll('.pf-card').forEach(card => {
+      card.addEventListener('mouseenter', () => { customCursor.style.opacity = '0'; });
+      card.addEventListener('mouseleave', () => { customCursor.style.opacity = '1'; });
+    });
+  }
 }
 
 
