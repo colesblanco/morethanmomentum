@@ -577,9 +577,120 @@ function initVideoLightbox() {
   window._openVideoLightbox = openLightbox;
 }
 
+/* --- WEBSITE CAROUSEL (Section 01 — Portfolio) --- */
+function initSiteCarousel() {
+  const track = document.getElementById('pfSiteTrack');
+  const dotsWrap = document.getElementById('pfSiteDots');
+  if (!track || !dotsWrap) return;
+
+  const sites = [
+    {
+      name: 'SNH Golf Carts',
+      type: 'Golf Cart Dealer',
+      url: 'snhgolfcarts.pages.dev',
+      href: 'https://snhgolfcarts.pages.dev',
+      placeholder: false,
+    },
+    {
+      name: 'Coming Soon',
+      type: 'Local Service',
+      url: 'coming-soon.com',
+      href: null,
+      placeholder: true,
+    },
+  ];
+
+  track.innerHTML = '';
+  dotsWrap.innerHTML = '';
+
+  function buildCardMarkup(s) {
+    const overlayHtml = s.placeholder
+      ? ''
+      : '<div class="pf-overlay"><span class="pf-cta-btn">Check it out →</span></div>';
+    return `
+      <div class="pf-chrome">
+        <span class="pf-dot pf-dot-red"></span>
+        <span class="pf-dot pf-dot-yellow"></span>
+        <span class="pf-dot pf-dot-green"></span>
+        <span class="pf-url">${s.url}</span>
+      </div>
+      <div class="pf-preview">
+        <div class="pf-preview-placeholder">
+          <span class="pf-preview-name">${s.name}</span>
+          <span class="pf-preview-type">${s.type}</span>
+        </div>
+        ${overlayHtml}
+      </div>
+      <div class="pf-card-meta">
+        <span class="pf-card-type">${s.type}</span>
+        <span class="pf-card-name">${s.name}</span>
+      </div>
+    `;
+  }
+
+  sites.forEach((s, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'pf-site-slide' + (i === 0 ? ' is-active' : '');
+
+    let card;
+    if (s.placeholder) {
+      card = document.createElement('div');
+      card.className = 'pf-card pf-card-placeholder';
+    } else {
+      card = document.createElement('a');
+      card.className = 'pf-card';
+      card.href = s.href;
+      card.target = '_blank';
+      card.rel = 'noopener';
+    }
+    card.innerHTML = buildCardMarkup(s);
+    slide.appendChild(card);
+    track.appendChild(slide);
+
+    const dot = document.createElement('button');
+    dot.className = 'pf-site-dot' + (i === 0 ? ' is-active' : '');
+    dot.type = 'button';
+    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    dot.addEventListener('click', () => { goTo(i); resetTimer(); });
+    dotsWrap.appendChild(dot);
+  });
+
+  const slides = Array.from(track.querySelectorAll('.pf-site-slide'));
+  const dots   = Array.from(dotsWrap.querySelectorAll('.pf-site-dot'));
+  let current  = 0;
+  const n      = slides.length;
+
+  function goTo(idx) {
+    const next = ((idx % n) + n) % n;
+    if (next === current) return;
+    slides[current].classList.remove('is-active');
+    dots[current].classList.remove('is-active');
+    current = next;
+    slides[current].classList.add('is-active');
+    dots[current].classList.add('is-active');
+  }
+
+  function advance(dir) {
+    goTo(current + (dir === 'next' ? 1 : -1));
+  }
+
+  let autoTimer = setInterval(() => advance('next'), 5000);
+  function resetTimer() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => advance('next'), 5000);
+  }
+
+  const btnPrev = document.getElementById('pfSitePrev');
+  const btnNext = document.getElementById('pfSiteNext');
+  if (btnPrev) btnPrev.addEventListener('click', () => { advance('prev'); resetTimer(); });
+  if (btnNext) btnNext.addEventListener('click', () => { advance('next'); resetTimer(); });
+}
+
+
 window.addEventListener('load', () => {
   initVideoLightbox();
   initVideoCarousel();
+  initSiteCarousel();
 });
 
 

@@ -2082,3 +2082,379 @@ footer {
     padding: 2.2rem 1.4rem;
   }
 }
+
+/* ============================================================
+   PORTFOLIO — Rebuilt from scratch
+   Three numbered sections: Websites, CRM & Automation, Content & Social
+   ============================================================ */
+.pf {
+  background: #0C0C0C;
+  color: #fff;
+  padding: 80px 1.5rem;
+}
+.pf-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+/* ── Section header ────────────────────────────────────────── */
+.pf-section-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.pf-section-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,.4);
+  flex-shrink: 0;
+}
+.pf-section-rule {
+  flex: 1;
+  height: 1px;
+  background: #2a2a2a;
+  min-width: 1rem;
+}
+.pf-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.01em;
+  margin: 0;
+  flex-shrink: 0;
+}
+.pf-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.pf-badge-live {
+  background: #1a3a2a;
+  color: #4ade80;
+}
+.pf-badge-soon {
+  background: #1a1a1a;
+  color: #555;
+}
+
+/* ── Grid layouts ──────────────────────────────────────────── */
+.pf-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+.pf-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.pf-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* ── Website card ──────────────────────────────────────────── */
+.pf-card {
+  display: block;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+.pf-card:hover {
+  border-color: rgba(45, 107, 228, 0.4);
+}
+
+/* Browser chrome */
+.pf-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1A1A1A;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.pf-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.pf-dot-red { background: #FF5F57; }
+.pf-dot-yellow { background: #FEBC2E; }
+.pf-dot-green { background: #28C840; }
+.pf-url {
+  flex: 1;
+  margin-left: 8px;
+  background: #0c0c0c;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Preview area */
+.pf-preview {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+.pf-preview-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0c0c0c 100%);
+  padding: 1rem;
+  text-align: center;
+}
+.pf-preview-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+  letter-spacing: 0.02em;
+}
+.pf-preview-type {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,.3);
+}
+
+/* Hover overlay */
+.pf-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.pf-card:hover .pf-overlay {
+  opacity: 1;
+}
+.pf-cta-btn {
+  background: #2D6BE4;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* Card meta */
+.pf-card-meta {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pf-card-type {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,.4);
+}
+.pf-card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+/* Placeholder card variant (Coming Soon site) */
+.pf-card-placeholder {
+  border-style: dashed;
+  opacity: 0.5;
+  cursor: default;
+}
+.pf-card-placeholder:hover {
+  border-color: #2a2a2a;
+}
+.pf-card-placeholder .pf-overlay {
+  display: none;
+}
+
+/* ── Placeholder cards (CRM + Content sections) ────────────── */
+.pf-placeholder-card {
+  background: #111111;
+  border: 1px dashed #2a2a2a;
+  border-radius: 12px;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: border-color 0.2s ease;
+}
+.pf-placeholder-card:hover {
+  border-color: rgba(45, 107, 228, 0.4);
+}
+.pf-placeholder-icon {
+  font-size: 1.4rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 0.4rem;
+}
+.pf-placeholder-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+.pf-placeholder-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,.5);
+  margin: 0;
+}
+
+/* ── Website carousel (Section 01) ─────────────────────────── */
+.pf-site-carousel {
+  position: relative;
+  width: 100%;
+}
+.pf-site-track {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.pf-site-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.pf-site-slide.is-active {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Large card variant inside the carousel */
+.pf-site-track .pf-card {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+.pf-site-track .pf-preview {
+  height: 420px;
+}
+.pf-site-track .pf-preview-name {
+  font-size: 32px;
+}
+.pf-site-track .pf-preview-type {
+  font-size: 13px;
+}
+.pf-site-track .pf-cta-btn {
+  font-size: 15px;
+  padding: 14px 28px;
+}
+.pf-site-track .pf-card-meta {
+  padding: 18px 22px 20px;
+}
+.pf-site-track .pf-card-name {
+  font-size: 18px;
+}
+
+/* Position arrows over the carousel */
+.pf-site-controls {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Dot indicators (matched to video carousel arrow styling palette) */
+.pf-site-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+.pf-site-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.pf-site-dot:hover {
+  border-color: rgba(255,255,255,.85);
+}
+.pf-site-dot.is-active {
+  background: var(--accent, #2D6BE4);
+  border-color: var(--accent, #2D6BE4);
+  transform: scale(1.15);
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .pf-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pf-site-track .pf-preview {
+    height: 380px;
+  }
+}
+@media (max-width: 768px) {
+  .pf {
+    padding: 60px 1.25rem;
+  }
+  .pf-inner {
+    gap: 60px;
+  }
+  .pf-grid-3,
+  .pf-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .pf-section-title {
+    font-size: 18px;
+  }
+  .pf-site-track .pf-preview {
+    height: 380px;
+  }
+  .pf-site-track .pf-preview-name {
+    font-size: 24px;
+  }
+  .pf-site-controls {
+    display: none;
+  }
+}

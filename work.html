@@ -44,74 +44,87 @@
 </nav>
 
 <!-- PORTFOLIO -->
-<section class="portfolio" id="work">
-  <canvas class="particle-canvas" id="particles-portfolio"></canvas>
-  <div class="portfolio-top">
-    <div>
-      <div class="section-tag reveal">Our Work</div>
-      <h2 class="portfolio-heading reveal">Content that <em>moves.</em></h2>
-    </div>
-    <p class="portfolio-note reveal">Built from scratch. Designed to convert.</p>
-  </div>
+<section class="pf" id="work">
+  <div class="pf-inner">
 
-  <!-- BEFORE / AFTER WEBSITE SLIDER -->
-  <div class="ba-wrap reveal">
-    <div class="ba-header">
-      <div class="ba-header-left">
-        <div class="ba-tag">Website Redesign</div>
-        <h3 class="ba-title">Before &amp; After — <em>Drag to Compare</em></h3>
-        <p class="ba-desc">A complete digital rebuild — new brand identity, mobile-first design, AI-powered lead capture, and automation connected from day one.</p>
+    <!-- SECTION 01 — WEBSITES -->
+    <div class="pf-section">
+      <div class="pf-section-head">
+        <span class="pf-section-num">01</span>
+        <span class="pf-section-rule"></span>
+        <h2 class="pf-section-title">Websites</h2>
+        <span class="pf-badge pf-badge-live">Live</span>
       </div>
-      <div class="ba-header-right">
-        <div class="ba-result"><span class="ba-result-num">10×</span><span class="ba-result-lbl">Lead Volume</span></div>
-        <div class="ba-result"><span class="ba-result-num">60s</span><span class="ba-result-lbl">Response Time</span></div>
-        <div class="ba-result"><span class="ba-result-num">100%</span><span class="ba-result-lbl">Automated Follow-Up</span></div>
-      </div>
-    </div>
 
-<div class="ba-slider-container" id="baSlider">
-  <!-- Labels: direct children of container so they stay fixed at each edge regardless of pane scroll -->
-  <div class="ba-img-label ba-lbl-before">Before</div>
-  <div class="ba-img-label ba-lbl-after">After MTM</div>
-
-  <!-- Before pane — left side, full image scrollable -->
-  <div class="ba-before-pane" id="baBeforePane">
-    <img src="images/golfcartbefore.png" alt="Website before MTM redesign"/>
-  </div>
-
-  <!-- After pane — right side, clipped from left, scrollable in sync -->
-  <div class="ba-after-pane" id="baAfterPane">
-    <img src="images/golfcartafter.png" alt="Website after MTM redesign"/>
-  </div>
-
-  <!-- Drag divider -->
-  <div class="ba-divider" id="baDivider">
-    <div class="ba-handle" id="baHandle">
-      <div class="ba-handle-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 4L2 10L6 16M14 4L18 10L14 16" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="pf-site-carousel">
+        <div class="pf-site-track" id="pfSiteTrack">
+          <!-- Cards injected by script.js -->
+        </div>
+        <div class="carousel-controls pf-site-controls">
+          <button class="carousel-arrow carousel-arrow-prev" id="pfSitePrev" aria-label="Previous website"><span>‹</span></button>
+          <button class="carousel-arrow carousel-arrow-next" id="pfSiteNext" aria-label="Next website"><span>›</span></button>
+        </div>
+        <div class="pf-site-dots" id="pfSiteDots"></div>
       </div>
     </div>
-  </div>
 
-</div>
+    <!-- SECTION 02 — CRM & AUTOMATION -->
+    <div class="pf-section">
+      <div class="pf-section-head">
+        <span class="pf-section-num">02</span>
+        <span class="pf-section-rule"></span>
+        <h2 class="pf-section-title">CRM &amp; Automation</h2>
+        <span class="pf-badge pf-badge-soon">Coming Soon</span>
+      </div>
 
-    <div style="display:flex;justify-content:center;margin-top:2rem;">
-      <a href="contact.html" class="btn-primary" style="background:var(--black);color:var(--white);text-decoration:none;display:inline-flex;align-items:center;gap:.8rem;">Get a Website Like This</a>
+      <div class="pf-grid pf-grid-2">
+        <div class="pf-placeholder-card">
+          <div class="pf-placeholder-icon">⚙</div>
+          <div class="pf-placeholder-title">Pipeline Walkthrough</div>
+          <p class="pf-placeholder-desc">A lead hits the form. Watch what happens in the next 5 minutes — automatically.</p>
+        </div>
+        <div class="pf-placeholder-card">
+          <div class="pf-placeholder-icon">⚡</div>
+          <div class="pf-placeholder-title">Automation Demo</div>
+          <p class="pf-placeholder-desc">Instant follow-up, lead scoring, and review requests firing without anyone lifting a finger.</p>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- VIDEO CAROUSEL -->
-  <div style="margin-top:5rem;padding:0 5rem;">
-    <div class="section-tag reveal" style="justify-content:center;">Content We've Produced</div>
-  </div>
-  <div class="video-carousel" style="margin-top:2rem;">
-    <div class="video-track" id="videoTrack">
-      <!-- Videos injected by script.js -->
+    <!-- SECTION 03 — CONTENT & SOCIAL -->
+    <div class="pf-section">
+      <div class="pf-section-head">
+        <span class="pf-section-num">03</span>
+        <span class="pf-section-rule"></span>
+        <h2 class="pf-section-title">Content &amp; Social</h2>
+        <span class="pf-badge pf-badge-soon">Coming Soon</span>
+      </div>
+
+      <!-- VIDEO CAROUSEL -->
+      <div class="video-carousel">
+        <div class="video-track" id="videoTrack">
+          <!-- Videos injected by script.js -->
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow carousel-arrow-prev" id="carouselPrev" aria-label="Previous"><span>‹</span></button>
+          <button class="carousel-arrow carousel-arrow-next" id="carouselNext" aria-label="Next"><span>›</span></button>
+        </div>
+      </div>
+
+      <div class="pf-grid pf-grid-2">
+        <div class="pf-placeholder-card">
+          <div class="pf-placeholder-icon">▶</div>
+          <div class="pf-placeholder-title">Short-Form Video</div>
+          <p class="pf-placeholder-desc">Client Reels and content embedded directly — results visible before you ever book a call.</p>
+        </div>
+        <div class="pf-placeholder-card">
+          <div class="pf-placeholder-icon">↗</div>
+          <div class="pf-placeholder-title">Social Results</div>
+          <p class="pf-placeholder-desc">Reach, engagement, and follower growth shown alongside the content that drove it.</p>
+        </div>
+      </div>
     </div>
-    <div class="carousel-controls">
-      <button class="carousel-arrow carousel-arrow-prev" id="carouselPrev" aria-label="Previous"><span>‹</span></button>
-      <button class="carousel-arrow carousel-arrow-next" id="carouselNext" aria-label="Next"><span>›</span></button>
-    </div>
+
   </div>
 </section>
 <!-- FOOTER -->
