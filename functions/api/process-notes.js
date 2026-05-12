@@ -4,12 +4,14 @@
  *
  * Two-event flow:
  *
- *   1. bot.done fires
+ *   1. bot.done fires (canonical trigger — recording.done is intentionally ignored
+ *      to prevent duplicate transcription jobs and duplicate summary records)
  *      → Fetch meeting title from Recall.ai bot metadata
  *      → Trigger async transcription via Recall.ai API (Gladia)
  *      → Store pending entry in KV (meeting title + date, keyed by bot ID)
  *
  *   2. transcript.done fires
+ *      → Dedup guard: skip if this botId has already been processed
  *      → Fetch completed transcript from Recall.ai
  *      → Claude extracts structured fields
  *      → Write finalized call entry to KV rolling history
@@ -76,27 +78,14 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ success: true, callId: callEntry.id }), { headers });
     }
 
-    // ── RECORDING.DONE — same as bot.done, trigger transcription ─────────
-    // Recall.ai docs recommend subscribing to recording.done for async transcription
+    // ── RECORDING.DONE — intentionally ignored to prevent duplicate jobs ──
+    // bot.done is the canonical trigger. Subscribing to both caused Recall.ai
+    // to receive two async_transcribe requests per meeting, which emitted two
+    // transcript.done events and produced duplicate summary records.
     if (event === 'recording.done') {
       const botId = payload.data?.bot?.id;
-      if (!botId) {
-        return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'no bot id' }), { headers });
-      }
-      console.log('recording.done for botId:', botId, '— triggering transcription');
-      // Reuse bot.done logic by falling through with same botId
-      const meetingTitle = await fetchMeetingTitle(botId, env.RECALL_AI_API_KEY);
-      if (env.MTM_CLIENT_PROFILES) {
-        const pending = {
-          botId,
-          meetingTitle: meetingTitle || 'Google Meet — ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          date: new Date().toISOString(),
-        };
-        await env.MTM_CLIENT_PROFILES.put(`pending:bot:${botId}`, JSON.stringify(pending), { expirationTtl: 7200 });
-      }
-      const triggerResult = await triggerAsyncTranscription(botId, env.RECALL_AI_API_KEY);
-      console.log('Transcription trigger result:', JSON.stringify(triggerResult));
-      return new Response(JSON.stringify({ received: true, action: 'transcription_triggered', botId, triggerResult }), { headers });
+      console.log('recording.done received for botId:', botId, '— ignored (bot.done is the trigger)');
+      return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'recording.done is not the trigger event' }), { headers });
     }
 
     // ── TRANSCRIPT.FAILED — log for debugging ─────────────────────────────
@@ -114,6 +103,16 @@ export async function onRequestPost(context) {
       }
 
       console.log('bot.done for botId:', botId);
+
+      // Dedup guard: skip if we've already kicked off (or finished) work for this bot
+      if (env.MTM_CLIENT_PROFILES) {
+        const alreadyProcessed = await env.MTM_CLIENT_PROFILES.get(`processed:bot:${botId}`);
+        const alreadyPending = await env.MTM_CLIENT_PROFILES.get(`pending:bot:${botId}`);
+        if (alreadyProcessed || alreadyPending) {
+          console.log('Duplicate bot.done suppressed for botId:', botId, '| processed:', !!alreadyProcessed, '| pending:', !!alreadyPending);
+          return new Response(JSON.stringify({ received: true, action: 'duplicate_skipped', botId }), { headers });
+        }
+      }
 
       // Fetch meeting title from bot metadata
       const meetingTitle = await fetchMeetingTitle(botId, env.RECALL_AI_API_KEY);
@@ -152,6 +151,25 @@ export async function onRequestPost(context) {
       if (!botId || !transcriptId) {
         console.warn('Missing bot ID or transcript ID in payload');
         return new Response(JSON.stringify({ received: true, action: 'ignored', reason: 'missing ids' }), { headers });
+      }
+
+      // Dedup guard: bail out if this bot's transcript has already been processed,
+      // or if a summary record for it already exists in the rolling history.
+      // Prevents duplicate summaries when Recall.ai retries the webhook or when
+      // multiple transcription jobs fire for the same bot.
+      if (env.MTM_CLIENT_PROFILES) {
+        const alreadyProcessed = await env.MTM_CLIENT_PROFILES.get(`processed:bot:${botId}`);
+        if (alreadyProcessed) {
+          console.log('Duplicate transcript.done suppressed for botId:', botId);
+          return new Response(JSON.stringify({ received: true, action: 'duplicate_skipped', botId }), { headers });
+        }
+        if (await historyHasBot(env.MTM_CLIENT_PROFILES, botId)) {
+          console.log('Summary already in history for botId:', botId, '— skipping');
+          await env.MTM_CLIENT_PROFILES.put(`processed:bot:${botId}`, '1', { expirationTtl: 86400 });
+          return new Response(JSON.stringify({ received: true, action: 'duplicate_skipped', botId }), { headers });
+        }
+        // Claim this botId immediately so a concurrent duplicate bails out above.
+        await env.MTM_CLIENT_PROFILES.put(`processed:bot:${botId}`, '1', { expirationTtl: 86400 });
       }
 
       // Retrieve and clean up the pending entry
@@ -436,11 +454,22 @@ async function extractCallFields(transcript, apiKey) {
 
   const prompt = `You are analyzing a meeting transcript for More Than Momentum (MTM), a digital marketing agency.
 
-Determine the call type and extract all relevant information. Return ONLY a JSON object. Use null for fields not mentioned.
+Determine the call type and extract all relevant information. Return ONLY a JSON object. Use null for fields not mentioned, and use empty arrays ([]) for list fields with no content.
 
 {
   "callType": "discovery | check-in | review | internal | other",
-  "summary": "2-3 sentence summary of the call — key topics, decisions made, and next steps",
+  "summary": "2-3 sentence overview of the call — key topics, decisions made, and next steps",
+  "participants": [
+    { "name": "speaker name if detectable from transcript", "role": "their role or affiliation (e.g. 'MTM team', 'prospect', 'client owner', 'unknown') if inferable" }
+  ],
+  "actionItems": [
+    { "item": "the explicit next step", "owner": "person responsible if stated, else null", "dueDate": "if stated, else null" }
+  ],
+  "decisionsMade": ["array of explicit conclusions, agreements, or decisions reached during the call"],
+  "personalContext": ["array of personal / casual details mentioned — hobbies, family, life updates, weekend plans, small talk, anything non-work that came up"],
+  "toneAndEnergy": "1-2 sentences describing how the call felt — energy level, humor, stress, enthusiasm, friction, rapport",
+  "topicsMentionedInPassing": ["array of ideas, products, names, or topics brought up briefly that did NOT become formal action items but may be worth remembering"],
+  "additionalNotes": "anything else worth capturing that doesn't fit other fields (max 500 chars)",
   "businessName": "prospect or client business name",
   "contactName": "prospect or client contact name",
   "city": "their city and state",
@@ -459,9 +488,16 @@ Determine the call type and extract all relevant information. Return ONLY a JSON
   "currentFacebookFollowers": "Facebook followers (number only)",
   "currentGoogleReviews": "Google review count (number only)",
   "serviceInterests": { "website": true/false, "backend": true/false, "social": true/false },
-  "actionItems": ["array of action items or next steps from the call"],
   "discoveryNotes": "any other important context (max 300 chars)"
 }
+
+Extraction guidance:
+- participants: include everyone who speaks; infer role from context (introductions, what they discuss, who they represent). Use "unknown" for role if not inferable.
+- actionItems: only include EXPLICIT next steps that someone committed to. If owner isn't stated, set to null — don't guess.
+- decisionsMade: capture only actual agreements/conclusions, not topics discussed. "We decided to launch in March" is a decision; "we talked about launch timing" is not.
+- personalContext: capture non-work humanizing details — kids, pets, vacations, hobbies, sports, health, weather chat — anything that helps remember the person.
+- toneAndEnergy: be honest and specific. "Light and joking throughout, lots of laughter" or "Tense early on around pricing, warmed up by the end".
+- topicsMentionedInPassing: ideas floated but not committed to. Future-feature wishes, competitor names, books/tools mentioned, "we should look into X someday".
 
 TRANSCRIPT:
 ${transcript.slice(0, 4000)}
@@ -478,7 +514,7 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
+        max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }]
       }),
     });
@@ -505,9 +541,24 @@ async function addCallToHistory(kv, callEntry) {
     }
   } catch { history = []; }
 
+  if (callEntry.botId && history.some(c => c?.botId === callEntry.botId)) {
+    console.log('addCallToHistory: botId already present, skipping unshift:', callEntry.botId);
+    return;
+  }
+
   history.unshift(callEntry);
   if (history.length > MAX_CALLS) history = history.slice(0, MAX_CALLS);
   await kv.put('session:call_history', JSON.stringify(history));
+}
+
+async function historyHasBot(kv, botId) {
+  if (!kv || !botId) return false;
+  try {
+    const raw = await kv.get('session:call_history');
+    if (!raw) return false;
+    const history = JSON.parse(raw);
+    return Array.isArray(history) && history.some(c => c?.botId === botId);
+  } catch { return false; }
 }
 
 // ── SIGNATURE VERIFICATION ────────────────────────────────────────────────────

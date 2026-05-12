@@ -2660,17 +2660,34 @@ function downloadCallPDF(index) {
   }
 
   // ── ACTION ITEMS ──
+  // actionItems is now an array of { item, owner, dueDate }.
+  // Plain-string fallback preserved for legacy KV records written before the schema change.
   const actions = f.actionItems || [];
   if (actions.length > 0) {
     mnp(14);
     sf('bold', 10, BLUE); doc.text('ACTION ITEMS', ml, y); y += 7;
-    actions.forEach(item => {
-      mnp(10);
+    actions.forEach(a => {
+      const text = typeof a === 'string' ? a : (a?.item || '');
+      if (!text) return;
+      const owner = typeof a === 'object' ? a?.owner : null;
+      const dueDate = typeof a === 'object' ? a?.dueDate : null;
+      const meta = [owner && `Owner: ${owner}`, dueDate && `Due: ${dueDate}`].filter(Boolean).join('  ·  ');
+
+      const lines = doc.splitTextToSize(text, cw - 14);
+      const metaLines = meta ? doc.splitTextToSize(meta, cw - 14) : [];
+      mnp(lines.length * 4.5 + metaLines.length * 4 + 4);
+
       sf('bold', 8, GREEN); doc.text('✓', ml + 2, y);
       sf('normal', 8.5, BLACK);
-      const lines = doc.splitTextToSize(String(item), cw - 14);
       doc.text(lines, ml + 10, y);
-      y += lines.length * 4.5 + 2.5;
+      y += lines.length * 4.5;
+
+      if (metaLines.length) {
+        sf('normal', 7.5, GRAY);
+        doc.text(metaLines, ml + 10, y + 1);
+        y += metaLines.length * 4 + 1;
+      }
+      y += 2.5;
     });
     y += 2;
     y = rule(y);
