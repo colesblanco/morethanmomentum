@@ -75,16 +75,114 @@
         <h2 class="pf-section-title">CRM &amp; Automation</h2>
       </div>
 
-      <div class="pf-grid pf-grid-2">
-        <div class="pf-placeholder-card">
-          <div class="pf-placeholder-icon">⚙</div>
-          <div class="pf-placeholder-title">Pipeline Walkthrough</div>
-          <p class="pf-placeholder-desc">A lead hits the form. Watch what happens in the next 5 minutes — automatically.</p>
+      <div class="pf-flow" id="pfFlow">
+        <!-- LEFT: Without MTM -->
+        <div class="pf-flow-col pf-flow-col--bad" data-col="bad">
+          <div class="pf-flow-col-head">
+            <span class="pf-flow-col-eyebrow">The Old Way</span>
+            <h3 class="pf-flow-col-title">Without MTM</h3>
+          </div>
+          <ol class="pf-flow-list">
+            <li class="pf-flow-step" data-step="0">
+              <span class="pf-flow-step-icon" aria-hidden="true">📝</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Lead fills out a form</span>
+                <span class="pf-flow-step-sub">Hopeful. Ready to talk.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="1">
+              <span class="pf-flow-step-icon" aria-hidden="true">⏳</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Nobody follows up</span>
+                <span class="pf-flow-step-sub">Inbox lost in the noise.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="2">
+              <span class="pf-flow-step-icon" aria-hidden="true">❄</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Lead goes cold</span>
+                <span class="pf-flow-step-sub">Interest fades by the hour.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="3">
+              <span class="pf-flow-step-icon" aria-hidden="true">📞</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Lead calls a competitor</span>
+                <span class="pf-flow-step-sub">Someone else picks up first.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step pf-flow-step--final" data-step="4">
+              <span class="pf-flow-step-icon" aria-hidden="true">✕</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Job lost</span>
+                <span class="pf-flow-step-sub">Revenue gone. Effort wasted.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step pf-flow-step--final" data-step="5">
+              <span class="pf-flow-step-icon" aria-hidden="true">↻</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Cycle repeats</span>
+                <span class="pf-flow-step-sub">Next lead. Same result.</span>
+              </div>
+            </li>
+          </ol>
         </div>
-        <div class="pf-placeholder-card">
-          <div class="pf-placeholder-icon">⚡</div>
-          <div class="pf-placeholder-title">Automation Demo</div>
-          <p class="pf-placeholder-desc">Instant follow-up, lead scoring, and review requests firing without anyone lifting a finger.</p>
+
+        <!-- Divider -->
+        <div class="pf-flow-divider" aria-hidden="true">
+          <span class="pf-flow-vs">VS</span>
+        </div>
+
+        <!-- RIGHT: With MTM -->
+        <div class="pf-flow-col pf-flow-col--good" data-col="good">
+          <div class="pf-flow-col-head">
+            <span class="pf-flow-col-eyebrow">The MTM Way</span>
+            <h3 class="pf-flow-col-title">With MTM</h3>
+          </div>
+          <ol class="pf-flow-list pf-flow-list--chain">
+            <li class="pf-flow-step" data-step="0">
+              <span class="pf-flow-step-icon" aria-hidden="true">📝</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Lead fills out a form</span>
+                <span class="pf-flow-step-sub">The moment they hit submit.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="1">
+              <span class="pf-flow-step-icon" aria-hidden="true">⚡</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">CRM entry created instantly</span>
+                <span class="pf-flow-step-sub">Contact, source, timestamp — all logged.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="2">
+              <span class="pf-flow-step-icon" aria-hidden="true">💬</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Automated SMS fires in 60 seconds</span>
+                <span class="pf-flow-step-sub">Personalized. From a real number.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="3">
+              <span class="pf-flow-step-icon" aria-hidden="true">⭐</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Lead scored and prioritized</span>
+                <span class="pf-flow-step-sub">High-intent jumps to the top.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step" data-step="4">
+              <span class="pf-flow-step-icon" aria-hidden="true">🔔</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Rep notified with full context</span>
+                <span class="pf-flow-step-sub">Name, need, score — on their phone.</span>
+              </div>
+            </li>
+            <li class="pf-flow-step pf-flow-step--final" data-step="5">
+              <span class="pf-flow-step-icon" aria-hidden="true">✓</span>
+              <div class="pf-flow-step-body">
+                <span class="pf-flow-step-label">Appointment booked</span>
+                <span class="pf-flow-step-sub">On the calendar. Confirmed.</span>
+              </div>
+            </li>
+          </ol>
         </div>
       </div>
     </div>

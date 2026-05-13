@@ -2526,3 +2526,284 @@ footer {
     min-height: min(100vh, 1080px);
   }
 }
+
+/* ============================================================
+   AUTOMATION FLOW (Section 02 — CRM & Automation)
+   Before/After comparison with staggered IntersectionObserver
+   reveal driven by .is-visible on .pf-flow.
+   ============================================================ */
+.pf-flow {
+  --pf-flow-bad: #C0392B;
+  --pf-flow-good: #2D6BE4;
+  --pf-flow-stagger: 150ms;
+  --pf-flow-col-delay: 400ms;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 2.5rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.pf-flow-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.pf-flow-col-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+.pf-flow-col-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+}
+.pf-flow-col--good .pf-flow-col-eyebrow {
+  color: var(--pf-flow-good);
+}
+.pf-flow-col-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin: 0;
+  color: rgba(255,255,255,.55);
+}
+.pf-flow-col--good .pf-flow-col-title {
+  color: #fff;
+}
+
+/* Divider — vertical line + centered VS badge */
+.pf-flow-divider {
+  position: relative;
+  width: 1px;
+  background: #2a2a2a;
+  align-self: stretch;
+}
+.pf-flow-vs {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+
+/* Step list */
+.pf-flow-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  position: relative;
+}
+
+/* Animated chain line on the "good" column */
+.pf-flow-list--chain::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(45, 107, 228, 0)   0%,
+    rgba(45, 107, 228, .55) 50%,
+    rgba(45, 107, 228, 0)   100%
+  );
+  background-size: 100% 220%;
+  opacity: 0;
+  pointer-events: none;
+}
+.pf-flow.is-visible .pf-flow-list--chain::before {
+  opacity: 1;
+  animation: pf-flow-chain 2.6s linear 800ms infinite;
+}
+@keyframes pf-flow-chain {
+  0%   { background-position: 0 100%; }
+  100% { background-position: 0 -100%; }
+}
+
+/* Step card */
+.pf-flow-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid rgba(192, 57, 43, 0.55);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 520ms ease,
+    transform 520ms cubic-bezier(.22,.61,.36,1),
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.pf-flow-col--good .pf-flow-step {
+  border-left-color: rgba(45, 107, 228, 0.65);
+}
+
+/* Reveal — Without MTM (left), each step staggered */
+.pf-flow.is-visible .pf-flow-col--bad .pf-flow-step {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--pf-flow-stagger) * var(--i, 0));
+}
+/* Reveal — With MTM (right), starts after the col-delay */
+.pf-flow.is-visible .pf-flow-col--good .pf-flow-step {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--pf-flow-col-delay) + var(--pf-flow-stagger) * var(--i, 0));
+}
+
+.pf-flow-step-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0c;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(255,255,255,.85);
+}
+.pf-flow-col--good .pf-flow-step-icon {
+  border-color: rgba(45, 107, 228, 0.4);
+  color: #fff;
+}
+
+.pf-flow-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pf-flow-step-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.pf-flow-col--bad .pf-flow-step-label {
+  color: rgba(255,255,255,.78);
+}
+.pf-flow-step-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.5);
+}
+
+/* Final-step emphasis */
+.pf-flow-col--bad .pf-flow-step--final {
+  border-left-color: var(--pf-flow-bad);
+}
+.pf-flow.is-visible .pf-flow-col--bad .pf-flow-step--final {
+  animation: pf-flow-pulse-bad 2.4s ease-in-out 1100ms infinite;
+}
+@keyframes pf-flow-pulse-bad {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(192, 57, 43, 0);
+    border-left-color: rgba(192, 57, 43, .65);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.12);
+    border-left-color: var(--pf-flow-bad);
+  }
+}
+
+.pf-flow-col--good .pf-flow-step--final {
+  border-left-color: var(--pf-flow-good);
+}
+.pf-flow.is-visible .pf-flow-col--good .pf-flow-step--final {
+  animation: pf-flow-glow-good 2.6s ease-in-out 1600ms infinite;
+}
+@keyframes pf-flow-glow-good {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(45, 107, 228, 0),
+      0 0 0 0 rgba(45, 107, 228, 0) inset;
+  }
+  50% {
+    box-shadow:
+      0 0 22px 0 rgba(45, 107, 228, 0.28),
+      0 0 0 1px rgba(45, 107, 228, 0.35) inset;
+  }
+}
+
+/* Honor reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .pf-flow-step {
+    transition: opacity 200ms ease;
+    transform: none;
+  }
+  .pf-flow.is-visible .pf-flow-list--chain::before,
+  .pf-flow.is-visible .pf-flow-col--bad .pf-flow-step--final,
+  .pf-flow.is-visible .pf-flow-col--good .pf-flow-step--final {
+    animation: none;
+  }
+}
+
+/* Responsive — collapse to single column on tablet portrait & below */
+@media (max-width: 768px) {
+  .pf-flow {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .pf-flow-divider {
+    width: 100%;
+    height: 1px;
+    background: #2a2a2a;
+  }
+  /* VS badge stays centered on the now-horizontal line */
+  .pf-flow-vs {
+    top: 50%;
+    left: 50%;
+  }
+  .pf-flow-col-title { font-size: 22px; }
+  .pf-flow-step-label { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  .pf-flow { gap: 1.5rem; }
+  .pf-flow-col-title { font-size: 20px; }
+  .pf-flow-list { gap: 0.7rem; }
+  .pf-flow-step { padding: 0.8rem 0.9rem; gap: 0.7rem; }
+  .pf-flow-step-icon { width: 26px; height: 26px; font-size: 13px; }
+  .pf-flow-step-sub { font-size: 12px; }
+}

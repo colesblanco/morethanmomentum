@@ -1235,3 +1235,38 @@ function setLeadBtn(btn, state, originalText) {
     });
   }
 })();
+
+/* ============================================================
+   AUTOMATION FLOW (Section 02) — IntersectionObserver reveal.
+   Adds .is-visible to .pf-flow once it enters the viewport.
+   Step stagger is driven by --i set per .pf-flow-step; left
+   column fires immediately, right column waits via CSS delay.
+   ============================================================ */
+(function () {
+  const flow = document.getElementById('pfFlow');
+  if (!flow) return;
+
+  flow.querySelectorAll('.pf-flow-col').forEach(col => {
+    col.querySelectorAll('.pf-flow-step').forEach((step, i) => {
+      step.style.setProperty('--i', String(i));
+    });
+  });
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduceMotion) {
+    flow.classList.add('is-visible');
+    return;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        flow.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
+
+  io.observe(flow);
+})();
