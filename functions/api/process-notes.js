@@ -595,7 +595,7 @@ Return this exact JSON schema:
 }
 
 async function cleanTranscriptOnly(transcript, apiKey) {
-  const systemPrompt = `Clean this transcript — remove only filler words (um, uh, false starts, pure social filler like 'yeah totally'). Keep every substantive sentence. Bold speaker labels formatted as SPEAKER: text. Return only the cleaned transcript text, nothing else.`;
+  const systemPrompt = `Clean this transcript — remove only filler words (um, uh, false starts, pure social filler like 'yeah totally'). Keep every substantive sentence. Prefix each line with the speaker name in all caps followed by a colon and a space, like: COLE: text on this line. Return only the cleaned transcript text, nothing else.`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
