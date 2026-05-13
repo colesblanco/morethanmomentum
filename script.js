@@ -345,14 +345,14 @@ function initVideoCarousel() {
   ];
 
   const STATES = {
-    entering:       { tx: '-740px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
-    'far-left':     { tx: '-510px', tz: '-240px', ry: '52deg',  scale: 0.72, opacity: 0.42, zi: 2 },
-    left:           { tx: '-310px', tz: '-160px', ry: '42deg',  scale: 0.86, opacity: 0.7,  zi: 3 },
+    entering:       { tx: '-980px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
+    'far-left':     { tx: '-720px', tz: '-240px', ry: '52deg',  scale: 0.72, opacity: 0.42, zi: 2 },
+    left:           { tx: '-360px', tz: '-160px', ry: '42deg',  scale: 0.86, opacity: 0.7,  zi: 3 },
     center:         { tx: '0px',    tz: '0px',    ry: '0deg',   scale: 1,    opacity: 1,    zi: 5 },
-    right:          { tx: '310px',  tz: '-160px', ry: '-42deg', scale: 0.86, opacity: 0.7,  zi: 3 },
-    'far-right':    { tx: '510px',  tz: '-240px', ry: '-52deg', scale: 0.72, opacity: 0.42, zi: 2 },
-    exiting:        { tx: '740px',  tz: '-340px', ry: '-68deg', scale: 0.55, opacity: 0,    zi: 1 },
-    'exiting-left': { tx: '-740px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
+    right:          { tx: '360px',  tz: '-160px', ry: '-42deg', scale: 0.86, opacity: 0.7,  zi: 3 },
+    'far-right':    { tx: '720px',  tz: '-240px', ry: '-52deg', scale: 0.72, opacity: 0.42, zi: 2 },
+    exiting:        { tx: '980px',  tz: '-340px', ry: '-68deg', scale: 0.55, opacity: 0,    zi: 1 },
+    'exiting-left': { tx: '-980px', tz: '-340px', ry: '68deg',  scale: 0.55, opacity: 0,    zi: 1 },
   };
 
   function applyState(el, stateName, animate) {

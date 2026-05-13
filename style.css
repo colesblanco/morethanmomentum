@@ -2132,25 +2132,6 @@ footer {
   margin: 0;
   flex-shrink: 0;
 }
-.pf-badge {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-.pf-badge-live {
-  background: #1a3a2a;
-  color: #4ade80;
-}
-.pf-badge-soon {
-  background: #1a1a1a;
-  color: #555;
-}
-
 /* ── Grid layouts ──────────────────────────────────────────── */
 .pf-grid {
   display: grid;
@@ -2376,39 +2357,172 @@ footer {
   transform: scale(1.15);
 }
 
-/* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  .pf {
-    padding: 5rem 2.5rem;
-  }
-  .pf-grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .pf-site-track .pf-preview {
-    height: 470px;
-  }
-  .pf-site-row {
-    gap: 16px;
+/* ── Responsive ────────────────────────────────────────────────
+   Breakpoints: 1920+ / 1440 (default) / 1280 / 1024 / 768 / 480 / 375.
+   Video carousel card-count strategy (JS STATES translateX is pixel-fixed
+   at ±360 / ±720 / ±980, so we hide outer slots via CSS rather than
+   recompute them):
+     ≥1440  → 5 cards (default)
+     641–1439 → 3 cards (hide far-left, far-right, entering, exiting)
+     ≤640   → 1 card  (also hide left/right via the existing 640 rule)
+   ─────────────────────────────────────────────────────────── */
+
+/* Large desktop — more breathing room */
+@media (min-width: 1920px) {
+  .pf { padding: 8rem 6rem; }
+  .pf-section-num { font-size: 12px; }
+  .pf-section-title { font-size: 26px; }
+  .pf-site-track .pf-preview { height: 580px; }
+  .pf-site-track .pf-card-name { font-size: 20px; }
+  .pf-placeholder-title { font-size: 20px; }
+  .pf-placeholder-desc { font-size: 14px; }
+}
+
+/* Anything narrower than 1440 — drop the far cards (carousel renders 3 wide).
+   ±720 tx puts the far cards mostly past the carousel edge below 1440. */
+@media (max-width: 1439px) {
+  .video-slot-3d[data-state="far-left"],
+  .video-slot-3d[data-state="far-right"],
+  .video-slot-3d[data-state="entering"],
+  .video-slot-3d[data-state="exiting"],
+  .video-slot-3d[data-state="exiting-left"] {
+    opacity: 0 !important;
+    pointer-events: none;
   }
 }
+
+/* Smaller desktop — modest reduction */
+@media (max-width: 1280px) {
+  .pf { padding: 6rem 4rem; }
+  .pf-inner { gap: 70px; }
+  .pf-section-title { font-size: 21px; }
+  .pf-site-track .pf-preview { height: 470px; }
+  .pf-site-track .pf-card-name { font-size: 17px; }
+  .video-track { height: 510px; }
+  .video-slot-3d {
+    width: 270px;
+    height: 480px;
+    left: calc(50% - 135px);
+    top: calc(50% - 240px);
+  }
+}
+
+/* Tablet landscape — hide outermost carousel cards (only 3 visible) */
+@media (max-width: 1024px) {
+  .pf { padding: 5rem 2.5rem; }
+  .pf-inner { gap: 64px; }
+  .pf-section-head { gap: 0.9rem; margin-bottom: 1.75rem; }
+  .pf-section-title { font-size: 20px; }
+  .pf-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pf-card-meta { padding: 12px 14px 14px; }
+  .pf-card-name { font-size: 13px; }
+  .pf-preview { height: 165px; }
+  .pf-site-track .pf-preview { height: 420px; }
+  .pf-site-track .pf-card-meta { padding: 16px 18px 18px; }
+  .pf-site-track .pf-card-name { font-size: 16px; }
+  .pf-site-row { gap: 16px; }
+  .pf-placeholder-card { padding: 1.8rem 1.6rem; }
+  .pf-placeholder-title { font-size: 17px; }
+  .video-track { height: 460px; }
+  .video-slot-3d {
+    width: 240px;
+    height: 426px;
+    left: calc(50% - 120px);
+    top: calc(50% - 213px);
+  }
+  /* Far cards already hidden by the @media (max-width: 1439px) rule above */
+}
+
+/* Tablet portrait — single-column grids; only center carousel card */
 @media (max-width: 768px) {
-  .pf {
-    padding: 4rem 1.5rem;
-  }
-  .pf-inner {
-    gap: 60px;
-  }
+  .pf { padding: 4rem 1.5rem; }
+  .pf-inner { gap: 52px; }
+  .pf-section-head { gap: 0.75rem; margin-bottom: 1.5rem; }
+  .pf-section-num { font-size: 10px; }
+  .pf-section-title { font-size: 18px; }
   .pf-grid-3,
-  .pf-grid-2 {
-    grid-template-columns: 1fr;
+  .pf-grid-2 { grid-template-columns: 1fr; }
+  .pf-card-meta { padding: 12px 14px 14px; }
+  .pf-card-name { font-size: 13px; }
+  .pf-preview { height: 155px; }
+  .pf-site-track .pf-preview { height: 360px; }
+  .pf-site-track .pf-card-meta { padding: 14px 16px 16px; }
+  .pf-site-track .pf-card-name { font-size: 15px; }
+  .pf-site-row { gap: 10px; }
+  .pf-placeholder-card { padding: 1.6rem 1.4rem; }
+  .pf-placeholder-title { font-size: 16px; }
+  .pf-placeholder-desc { font-size: 12.5px; }
+  .video-track { height: 410px; }
+  .video-slot-3d {
+    width: 210px;
+    height: 373px;
+    left: calc(50% - 105px);
+    top: calc(50% - 186.5px);
   }
-  .pf-section-title {
-    font-size: 18px;
+  /* Tablets still show 3 cards (left/center/right). The existing
+     @media (max-width: 640px) rule at style.css:850 hides left/right
+     to drop to just the center card on phones. */
+}
+
+/* Large mobile */
+@media (max-width: 480px) {
+  .pf { padding: 3.5rem 1.2rem; }
+  .pf-inner { gap: 44px; }
+  .pf-section-head { gap: 0.65rem; margin-bottom: 1.25rem; }
+  .pf-section-title { font-size: 16px; }
+  .pf-card-meta { padding: 10px 12px 12px; }
+  .pf-card-name { font-size: 12.5px; }
+  .pf-preview { height: 140px; }
+  .pf-site-track .pf-preview { height: 280px; }
+  .pf-site-track .pf-card-meta { padding: 12px 14px 14px; }
+  .pf-site-track .pf-card-name { font-size: 14px; }
+  .pf-site-row { gap: 6px; }
+  .pf-placeholder-card { padding: 1.4rem 1.2rem; }
+  .pf-placeholder-title { font-size: 15px; }
+  .pf-placeholder-desc { font-size: 12px; }
+  .video-track { height: 360px; }
+  .video-slot-3d {
+    width: 190px;
+    height: 338px;
+    left: calc(50% - 95px);
+    top: calc(50% - 169px);
   }
-  .pf-site-track .pf-preview {
-    height: 420px;
+}
+
+/* Standard mobile */
+@media (max-width: 375px) {
+  .pf { padding: 3rem 1rem; }
+  .pf-inner { gap: 36px; }
+  .pf-section-head { gap: 0.55rem; margin-bottom: 1rem; }
+  .pf-section-num { font-size: 9px; }
+  .pf-section-title { font-size: 15px; }
+  .pf-card-name { font-size: 12px; }
+  .pf-preview { height: 125px; }
+  .pf-site-track .pf-preview { height: 240px; }
+  .pf-site-track .pf-card-name { font-size: 13px; }
+  .pf-site-row { gap: 4px; }
+  .pf-placeholder-title { font-size: 14px; }
+  .pf-placeholder-desc { font-size: 11.5px; }
+  .video-track { height: 320px; }
+  .video-slot-3d {
+    width: 170px;
+    height: 302px;
+    left: calc(50% - 85px);
+    top: calc(50% - 151px);
   }
-  .pf-site-row {
-    gap: 12px;
+}
+
+/* ============================================================
+   LARGE-DESKTOP SITE-WIDE OVERRIDES — applies to every page.
+   The homepage hero uses min-height: 100vh with bottom-anchored
+   content (justify-content: flex-end). On 1900+px-tall monitors
+   that creates a huge empty band above the headline. Cap the
+   hero at 1080px so the rhythm matches what's been visually
+   tuned at 1080p; the next section (ticker/stats) starts under
+   the hero earlier on tall displays.
+   ============================================================ */
+@media (min-width: 1920px) {
+  .hero {
+    min-height: min(100vh, 1080px);
   }
 }
