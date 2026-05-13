@@ -2761,6 +2761,20 @@ function downloadCallPDF(index) {
   if (!call) { alert('Call not found.'); return; }
   if (!window.jspdf) { alert('PDF library still loading. Try again in a moment.'); return; }
 
+  // Diagnostic — exact shape of what's stored in KV for this call, so we can
+  // see whether intelligence fields are missing vs. nested vs. renamed.
+  console.group('downloadCallPDF — KV record');
+  console.log('full call:', call);
+  console.log('fields:', call.fields);
+  console.log('fields.error:', call.fields?.error);
+  console.log('fields.meta:', call.fields?.meta);
+  console.log('fields.top_highlights:', call.fields?.top_highlights);
+  console.log('fields.pain_points:', call.fields?.pain_points);
+  console.log('fields.key_quotes:', call.fields?.key_quotes);
+  console.log('fields.action_items:', call.fields?.action_items);
+  console.log('fields.cleaned_transcript length:', call.fields?.cleaned_transcript?.length || 0);
+  console.groupEnd();
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, H = 297, ml = 18, mr = 18, cw = W - ml - mr;

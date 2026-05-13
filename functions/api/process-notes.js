@@ -456,21 +456,43 @@ async function extractCallFields(transcript, apiKey) {
   }
 
   const trimmed = trimTranscriptForExtraction(transcript);
+  console.log('extractCallFields — input transcript length:', transcript.length, '| trimmed:', trimmed.length);
 
   const [intelSettled, cleanSettled] = await Promise.allSettled([
     extractIntelligenceOnly(trimmed, apiKey),
     cleanTranscriptOnly(trimmed, apiKey),
   ]);
 
-  if (intelSettled.status === 'rejected') console.error('Intel call rejected:', intelSettled.reason?.message);
-  if (cleanSettled.status === 'rejected') console.error('Clean call rejected:', cleanSettled.reason?.message);
+  console.log('extractCallFields — intelSettled status:', intelSettled.status,
+              '| reason:', intelSettled.reason?.message || 'n/a',
+              '| valueKeys:', (intelSettled.status === 'fulfilled' && intelSettled.value && typeof intelSettled.value === 'object')
+                ? Object.keys(intelSettled.value).join(',') : 'n/a');
+  console.log('extractCallFields — cleanSettled status:', cleanSettled.status,
+              '| reason:', cleanSettled.reason?.message || 'n/a',
+              '| length:', cleanSettled.status === 'fulfilled' ? String(cleanSettled.value || '').length : 0);
 
-  const intel    = intelSettled.status === 'fulfilled' ? intelSettled.value : null;
-  const cleaned  = cleanSettled.status === 'fulfilled' ? cleanSettled.value : '';
+  const intel   = intelSettled.status === 'fulfilled' ? intelSettled.value : null;
+  const cleaned = cleanSettled.status === 'fulfilled' ? cleanSettled.value : '';
 
-  if (!intel) {
-    return { error: 'Intelligence extraction failed', rawTranscript: transcript.slice(0, 500), cleaned_transcript: cleaned || '' };
+  // "Success but empty {}" counts as a failure — otherwise the renderer shows
+  // a blank page 1 with no meta or highlights and no error trail to debug from.
+  const intelHasContent = intel && typeof intel === 'object' && (
+       (intel.meta && Object.keys(intel.meta).length)
+    || (Array.isArray(intel.top_highlights) && intel.top_highlights.length)
+    || (Array.isArray(intel.pain_points)    && intel.pain_points.length)
+    || (Array.isArray(intel.key_quotes)     && intel.key_quotes.length)
+  );
+
+  if (!intelHasContent) {
+    console.warn('extractCallFields — intel missing or empty, returning fallback. intel was:', JSON.stringify(intel).slice(0, 300));
+    return {
+      error: intel ? 'Intelligence extraction returned empty object' : 'Intelligence extraction failed',
+      rawTranscript: transcript.slice(0, 500),
+      cleaned_transcript: cleaned || '',
+    };
   }
+
+  console.log('intel result:', JSON.stringify(intel).slice(0, 500));
 
   const merged = { ...intel, cleaned_transcript: cleaned || '' };
   merged.claude_context_block = buildClaudeContextBlock(merged, cleaned || '');
@@ -580,7 +602,7 @@ Return this exact JSON schema:
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: 6000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }]
     }),
@@ -591,7 +613,19 @@ Return this exact JSON schema:
     throw new Error(`Intel call HTTP ${resp.status}`);
   }
   const text = data.content?.[0]?.text || '{}';
-  return JSON.parse(text.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim());
+  const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+  console.log('Intel call — stop_reason:', data.stop_reason, '| output chars:', cleaned.length);
+  try {
+    const parsed = JSON.parse(cleaned);
+    console.log('Intel call — parsed top-level keys:', Object.keys(parsed).join(','));
+    return parsed;
+  } catch (e) {
+    console.error('Intel call — JSON.parse failed:', e.message);
+    console.error('Intel call — stop_reason was:', data.stop_reason, '(max_tokens => truncated mid-output)');
+    console.error('Intel call — raw text head (800):', cleaned.slice(0, 800));
+    console.error('Intel call — raw text tail (400):', cleaned.slice(-400));
+    throw e;
+  }
 }
 
 async function cleanTranscriptOnly(transcript, apiKey) {
