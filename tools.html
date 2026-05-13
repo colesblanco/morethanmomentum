@@ -2472,26 +2472,37 @@ function renderCallHistory() {
     const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     const f = call.fields || {};
-    const callType = f.callType || 'other';
-    const isDiscovery = callType === 'discovery';
-    const typeBadge = {
-      discovery: { label: 'Discovery', bg: 'rgba(45,107,228,.12)', border: 'rgba(45,107,228,.25)', color: 'var(--accent-light)' },
-      'check-in': { label: 'Check-In', bg: 'rgba(74,222,128,.1)', border: 'rgba(74,222,128,.25)', color: 'var(--green)' },
-      review: { label: 'Review', bg: 'rgba(245,197,24,.1)', border: 'rgba(245,197,24,.25)', color: 'var(--yellow)' },
-      internal: { label: 'Internal', bg: 'rgba(255,255,255,.04)', border: 'var(--border)', color: 'var(--gray)' },
-      other: { label: 'Meeting', bg: 'rgba(255,255,255,.04)', border: 'var(--border)', color: 'var(--gray)' },
-    }[callType] || { label: 'Meeting', bg: 'rgba(255,255,255,.04)', border: 'var(--border)', color: 'var(--gray)' };
+    const meta = f.meta || {};
+    const signal = String(meta.deal_signal || '').toUpperCase();
+    const legacyCallType = f.callType || '';
+    const isDiscovery = signal === 'HOT' || signal === 'WARM' || legacyCallType === 'discovery';
 
-    const summaryHTML = f.summary ? `<div style="font-size:12px;color:var(--gray);line-height:1.5;margin-top:8px;">${esc(f.summary)}</div>` : '';
+    const signalBadge = ({
+      HOT:     { label: 'Hot',     bg: 'rgba(208,72,72,.12)',   border: 'rgba(208,72,72,.28)',   color: '#ff8a8a' },
+      WARM:    { label: 'Warm',    bg: 'rgba(226,140,40,.12)',  border: 'rgba(226,140,40,.28)',  color: '#f0a14a' },
+      COLD:    { label: 'Cold',    bg: 'rgba(130,170,255,.08)', border: 'rgba(130,170,255,.2)',  color: 'var(--accent-light)' },
+      UNKNOWN: { label: 'Meeting', bg: 'rgba(255,255,255,.04)', border: 'var(--border)',         color: 'var(--gray)' },
+    }[signal]) || (legacyCallType === 'discovery'
+      ? { label: 'Discovery', bg: 'rgba(45,107,228,.12)', border: 'rgba(45,107,228,.25)', color: 'var(--accent-light)' }
+      : { label: 'Meeting',   bg: 'rgba(255,255,255,.04)', border: 'var(--border)',       color: 'var(--gray)' });
+
+    const firstHighlight = Array.isArray(f.top_highlights) ? f.top_highlights[0] : null;
+    const previewText = (firstHighlight && (firstHighlight.detail || firstHighlight.headline))
+      || meta.deal_signal_reasoning
+      || f.summary
+      || '';
+    const summaryHTML = previewText ? `<div style="font-size:12px;color:var(--gray);line-height:1.5;margin-top:8px;">${esc(previewText)}</div>` : '';
+
+    const titleText = meta.business_name || call.meetingTitle || 'Untitled Call';
 
     return `
       <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s;" onmouseenter="this.style.borderColor='rgba(45,107,228,.3)'" onmouseleave="this.style.borderColor='var(--border)'">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-family:var(--speed);font-weight:700;font-size:16px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(call.meetingTitle || 'Untitled Call')}</div>
+            <div style="font-family:var(--speed);font-weight:700;font-size:16px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(titleText)}</div>
             <div style="font-size:12px;color:var(--gray);margin-top:3px;">${esc(dateStr)} · ${esc(timeStr)}</div>
           </div>
-          <span style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;background:${typeBadge.bg};border:1px solid ${typeBadge.border};color:${typeBadge.color};">${typeBadge.label}</span>
+          <span style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;background:${signalBadge.bg};border:1px solid ${signalBadge.border};color:${signalBadge.color};">${signalBadge.label}</span>
         </div>
         ${summaryHTML}
         <div style="display:flex;gap:8px;margin-top:2px;">
@@ -2551,12 +2562,17 @@ async function loadFromTool2() {
     const res = await fetch('/api/get-call-notes');
     const data = await res.json();
     if (data.success && data.calls && data.calls.length > 0) {
-      // Find the most recent discovery call, or fall back to latest
-      const discoveryCall = data.calls.find(c => (c.fields?.callType || '') === 'discovery') || data.calls[0];
+      // Prefer HOT/WARM deal signals, then legacy callType='discovery', then most recent
+      const isDiscoveryLike = c => {
+        const sig = String(c.fields?.meta?.deal_signal || '').toUpperCase();
+        return sig === 'HOT' || sig === 'WARM' || (c.fields?.callType === 'discovery');
+      };
+      const discoveryCall = data.calls.find(isDiscoveryLike) || data.calls[0];
       if (discoveryCall.fields) {
         fillProposalFormFromFields(discoveryCall.fields);
         const banner = document.getElementById('propLoadBanner');
-        if (banner) banner.innerHTML = `<div style="font-size:13px;color:var(--green);">✅ Loaded from "${esc(discoveryCall.meetingTitle)}" · ${new Date(discoveryCall.date).toLocaleDateString()}. Review and adjust below.</div>`;
+        const title = discoveryCall.fields?.meta?.business_name || discoveryCall.meetingTitle;
+        if (banner) banner.innerHTML = `<div style="font-size:13px;color:var(--green);">✅ Loaded from "${esc(title)}" · ${new Date(discoveryCall.date).toLocaleDateString()}. Review and adjust below.</div>`;
       } else {
         alert('No call fields found. Run Tool 02 first.');
       }
@@ -2576,12 +2592,14 @@ function downloadCallPDF(index) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, H = 297, ml = 18, mr = 18, cw = W - ml - mr;
   let y = 0;
-  const BLUE=[45,107,228], WHITE=[244,244,242], GRAY=[130,130,130], LIGHT=[225,225,222], BLACK=[12,12,12], GREEN=[74,222,128];
+  const BLUE=[45,107,228], LIGHTBLUE=[232,242,255], WHITE=[244,244,242], GRAY=[130,130,130], DARKGRAY=[70,70,70], LIGHT=[225,225,222], BLACK=[12,12,12], GREEN=[74,222,128], RED=[208,72,72], ORANGE=[226,140,40], QUOTEBG=[245,247,253], CARDBG=[250,250,248], BOXBG=[248,248,246];
   const sf = (style, size, rgb) => { doc.setFont('helvetica',style); doc.setFontSize(size); doc.setTextColor(...(rgb||BLACK)); };
+  const sfMono = (style, size, rgb) => { doc.setFont('courier',style); doc.setFontSize(size); doc.setTextColor(...(rgb||BLACK)); };
   const rule = yy => { doc.setDrawColor(...LIGHT); doc.line(ml,yy,W-mr,yy); return yy+5; };
   function mnp(needed) { if (y + needed > H - 16) { doc.addPage(); y = 18; } }
 
   const f = call.fields || {};
+  const meta = f.meta || {};
   const d = new Date(call.date);
   const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -2589,118 +2607,369 @@ function downloadCallPDF(index) {
   // ── HEADER BAR ──
   doc.setFillColor(...BLUE); doc.rect(0, 0, W, 20, 'F');
   sf('bold', 13, WHITE); doc.text('MORE THAN MOMENTUM', ml, 9);
-  sf('normal', 7.5, [180,205,245]); doc.text('Call Intelligence Summary  ·  morethanmomentum.com', ml, 15.5);
+  sf('normal', 7.5, [180,205,245]); doc.text('Call Intelligence  ·  Verbatim Highlights + Cleaned Transcript', ml, 15.5);
   y = 28;
 
-  // ── MEETING TITLE ──
+  // ── TITLE (business name preferred) + DATE ──
+  const headline = meta.business_name || call.meetingTitle || 'Untitled Call';
   sf('bold', 18, BLACK);
-  const titleLines = doc.splitTextToSize(call.meetingTitle || 'Untitled Call', cw);
+  const titleLines = doc.splitTextToSize(headline, cw - 50);
   doc.text(titleLines, ml, y);
-  y += titleLines.length * 8 + 2;
+  const titleBlockBottom = y + titleLines.length * 8;
 
-  sf('normal', 10, GRAY); doc.text(`${dateStr}  ·  ${timeStr}`, ml, y); y += 6;
+  // ── DEAL SIGNAL BADGE (top-right) ──
+  const ds = String(meta.deal_signal || 'UNKNOWN').toUpperCase();
+  const dsColor = ds === 'HOT' ? RED : ds === 'WARM' ? ORANGE : ds === 'COLD' ? GRAY : GRAY;
+  const badgeW = 38, badgeH = 8;
+  doc.setFillColor(...dsColor); doc.roundedRect(W - mr - badgeW, y - 5, badgeW, badgeH, 1.5, 1.5, 'F');
+  sf('bold', 8.5, WHITE); doc.text(`${ds}`, W - mr - badgeW/2, y + 0.5, { align: 'center' });
 
-  // Call type badge
-  const typeLabel = (f.callType || 'meeting').charAt(0).toUpperCase() + (f.callType || 'meeting').slice(1);
-  sf('bold', 8, BLUE); doc.text(`Call Type: ${typeLabel}`, ml, y); y += 8;
+  y = titleBlockBottom + 2;
+  sf('normal', 10, GRAY); doc.text(`${dateStr}  ·  ${timeStr}`, ml, y); y += 7;
+
+  // ── META BLOCK ──
+  const metaRows = [
+    ['Owner',         meta.owner_name],
+    ['Business Type', meta.business_type],
+    ['Location',      meta.location],
+    ['Call Date',     meta.call_date],
+    ['Duration',      meta.call_duration_estimate],
+  ].filter(([,v]) => v && v !== 'null' && String(v).trim() !== '');
+
+  if (metaRows.length) {
+    metaRows.forEach(([k, v]) => {
+      mnp(6);
+      sf('bold', 7.5, GRAY); doc.text(k.toUpperCase(), ml, y);
+      sf('normal', 9, BLACK);
+      const lines = doc.splitTextToSize(String(v), cw - 36);
+      doc.text(lines, ml + 34, y);
+      y += Math.max(5, lines.length * 4.5);
+    });
+    y += 1;
+  }
+
+  if (meta.deal_signal_reasoning) {
+    mnp(14);
+    sf('bold', 7.5, GRAY); doc.text('WHY THIS SIGNAL', ml, y); y += 4.5;
+    sf('italic', 9, BLACK);
+    const reasonLines = doc.splitTextToSize(meta.deal_signal_reasoning, cw - 4);
+    mnp(reasonLines.length * 4.5 + 3);
+    doc.text(reasonLines, ml + 2, y); y += reasonLines.length * 4.5 + 2;
+  }
   y = rule(y);
 
-  // ── SUMMARY ──
-  if (f.summary) {
-    mnp(20);
-    sf('bold', 10, BLUE); doc.text('SUMMARY', ml, y); y += 6;
-    sf('normal', 9, BLACK);
-    const sumLines = doc.splitTextToSize(f.summary, cw - 4);
-    mnp(sumLines.length * 4.5 + 4);
-    doc.text(sumLines, ml + 2, y); y += sumLines.length * 4.5 + 4;
-    y = rule(y);
-  }
-
-  // ── EXTRACTED FIELDS ──
-  const fieldMap = [
-    ['Business Name', f.businessName], ['Contact Name', f.contactName], ['City', f.city],
-    ['Business Type', f.businessType],
-    ['Avg Customer Value', f.avgCustomerValue ? '$' + Number(f.avgCustomerValue).toLocaleString() : null],
-    ['Budget Before Results', f.budgetBeforeResults ? '$' + Number(f.budgetBeforeResults).toLocaleString() : null],
-    ['Current Mkt Spend', f.currentMarketingSpend ? '$' + Number(f.currentMarketingSpend).toLocaleString() + '/mo' : null],
-    ['#1 Pain Point', f.painPoint], ['Desired Outcome', f.desiredOutcome],
-    ['Tried Before', f.triedBefore], ['Social Goal', f.socialGoal],
-    ['Meeting Cadence', f.meetingCadence],
-    ['Website Traffic', f.currentWebsiteTraffic ? Number(f.currentWebsiteTraffic).toLocaleString() + ' visitors/mo' : null],
-    ['Leads/Month', f.currentLeadsPerMonth ? Number(f.currentLeadsPerMonth).toLocaleString() : null],
-    ['Instagram', f.currentInstagramFollowers ? Number(f.currentInstagramFollowers).toLocaleString() + ' followers' : null],
-    ['Facebook', f.currentFacebookFollowers ? Number(f.currentFacebookFollowers).toLocaleString() + ' followers' : null],
-    ['Google Reviews', f.currentGoogleReviews ? Number(f.currentGoogleReviews).toLocaleString() : null],
-  ].filter(([,v]) => v != null && v !== '');
-
-  if (fieldMap.length > 0) {
+  // ── TOP HIGHLIGHTS (cards) ──
+  const highlights = Array.isArray(f.top_highlights) ? f.top_highlights : [];
+  if (highlights.length) {
     mnp(14);
-    sf('bold', 10, BLUE); doc.text('EXTRACTED DETAILS', ml, y); y += 7;
-    fieldMap.forEach(([label, val]) => {
-      mnp(8);
-      sf('bold', 8, GRAY); doc.text(label, ml + 2, y);
-      sf('normal', 9, BLACK); doc.text(String(val), ml + 52, y);
-      y += 5.5;
+    sf('bold', 11, BLUE); doc.text('TOP HIGHLIGHTS', ml, y); y += 7;
+
+    highlights.forEach(h => {
+      if (!h || (!h.headline && !h.detail)) return;
+      const imp = String(h.importance || 'MEDIUM').toUpperCase();
+      const accent = imp === 'CRITICAL' ? RED : imp === 'HIGH' ? BLUE : GRAY;
+
+      const headlineLines = doc.splitTextToSize(h.headline || '', cw - 22);
+      const detailLines   = h.detail ? doc.splitTextToSize(h.detail, cw - 10) : [];
+      const cardHeight    = headlineLines.length * 5.2 + detailLines.length * 4.5 + 8;
+      mnp(cardHeight + 3);
+
+      const cardTop = y - 3;
+      doc.setFillColor(...CARDBG);
+      doc.rect(ml, cardTop, cw, cardHeight, 'F');
+      doc.setFillColor(...accent);
+      doc.rect(ml, cardTop, 1.6, cardHeight, 'F');
+
+      // Importance label top-right
+      sf('bold', 6.5, accent);
+      doc.text(imp, ml + cw - 2, cardTop + 4, { align: 'right' });
+
+      // Headline
+      sf('bold', 9.7, BLACK);
+      doc.text(headlineLines, ml + 5, y + 1);
+      y += headlineLines.length * 5.2 + 1;
+
+      if (detailLines.length) {
+        sf('normal', 8.7, DARKGRAY);
+        doc.text(detailLines, ml + 5, y + 1);
+        y += detailLines.length * 4.5;
+      }
+      y += 6;
     });
-    y += 3;
     y = rule(y);
   }
 
-  // ── SERVICES OF INTEREST ──
-  const si = f.serviceInterests || {};
-  const svcs = [];
-  if (si.website) svcs.push('Website');
-  if (si.backend) svcs.push('CRM + Automation');
-  if (si.social) svcs.push('Social Media');
-  if (svcs.length > 0) {
+  // ── PAIN POINTS (exact language in italics) ──
+  const pains = Array.isArray(f.pain_points) ? f.pain_points : [];
+  if (pains.length) {
     mnp(14);
-    sf('bold', 10, BLUE); doc.text('SERVICES OF INTEREST', ml, y); y += 6;
-    sf('normal', 9, BLACK); doc.text(svcs.join('  ·  '), ml + 2, y); y += 7;
+    sf('bold', 11, BLUE); doc.text('PAIN POINTS', ml, y); y += 7;
+
+    pains.forEach(p => {
+      if (!p || !p.title) return;
+      const titleLines = doc.splitTextToSize(p.title, cw - 6);
+      mnp(titleLines.length * 5 + 12);
+
+      sf('bold', 9.5, BLACK); doc.text(titleLines, ml + 2, y);
+      y += titleLines.length * 5;
+
+      if (p.severity) {
+        const sev = String(p.severity).toLowerCase();
+        const sevColor = sev === 'critical' ? RED : sev === 'high' ? ORANGE : sev === 'medium' ? [180,140,30] : GRAY;
+        sf('bold', 7, sevColor); doc.text(`SEVERITY: ${String(p.severity).toUpperCase()}`, ml + 2, y);
+        y += 4.5;
+      }
+
+      if (p.exact_language) {
+        sf('italic', 8.7, DARKGRAY);
+        const langLines = doc.splitTextToSize(`"${p.exact_language}"`, cw - 8);
+        mnp(langLines.length * 4.5 + 2);
+        doc.text(langLines, ml + 4, y);
+        y += langLines.length * 4.5 + 1;
+      }
+
+      if (p.business_impact) {
+        sf('normal', 8.5, GRAY);
+        const impLines = doc.splitTextToSize(`Impact: ${p.business_impact}`, cw - 6);
+        mnp(impLines.length * 4 + 2);
+        doc.text(impLines, ml + 2, y);
+        y += impLines.length * 4 + 1;
+      }
+
+      y += 3;
+    });
     y = rule(y);
   }
 
-  // ── ACTION ITEMS ──
-  // actionItems is now an array of { item, owner, dueDate }.
-  // Plain-string fallback preserved for legacy KV records written before the schema change.
-  const actions = f.actionItems || [];
-  if (actions.length > 0) {
+  // ── KEY QUOTES (styled quote blocks) ──
+  const quotes = Array.isArray(f.key_quotes) ? f.key_quotes : [];
+  if (quotes.length) {
     mnp(14);
-    sf('bold', 10, BLUE); doc.text('ACTION ITEMS', ml, y); y += 7;
-    actions.forEach(a => {
-      const text = typeof a === 'string' ? a : (a?.item || '');
-      if (!text) return;
-      const owner = typeof a === 'object' ? a?.owner : null;
-      const dueDate = typeof a === 'object' ? a?.dueDate : null;
-      const meta = [owner && `Owner: ${owner}`, dueDate && `Due: ${dueDate}`].filter(Boolean).join('  ·  ');
+    sf('bold', 11, BLUE); doc.text('KEY QUOTES', ml, y); y += 7;
 
-      const lines = doc.splitTextToSize(text, cw - 14);
-      const metaLines = meta ? doc.splitTextToSize(meta, cw - 14) : [];
-      mnp(lines.length * 4.5 + metaLines.length * 4 + 4);
+    quotes.forEach(q => {
+      if (!q || !q.quote) return;
+      const speakerStr = q.speaker || 'Speaker';
+      const quoteLines = doc.splitTextToSize(`"${q.quote}"`, cw - 12);
+      const whyLines   = q.why_it_matters ? doc.splitTextToSize(q.why_it_matters, cw - 12) : [];
+      const block      = quoteLines.length * 5 + whyLines.length * 4 + 11;
+      mnp(block + 3);
 
-      sf('bold', 8, GREEN); doc.text('✓', ml + 2, y);
-      sf('normal', 8.5, BLACK);
-      doc.text(lines, ml + 10, y);
-      y += lines.length * 4.5;
+      const blockTop = y - 2;
+      doc.setFillColor(...QUOTEBG);
+      doc.rect(ml, blockTop, cw, block, 'F');
+      doc.setFillColor(...BLUE);
+      doc.rect(ml, blockTop, 1.6, block, 'F');
 
-      if (metaLines.length) {
+      sf('italic', 9.5, BLACK);
+      doc.text(quoteLines, ml + 6, y + 2);
+      y += quoteLines.length * 5 + 1;
+
+      sf('bold', 7.5, BLUE);
+      doc.text(`— ${speakerStr}`, ml + 6, y + 1);
+      y += 4;
+
+      if (whyLines.length) {
         sf('normal', 7.5, GRAY);
-        doc.text(metaLines, ml + 10, y + 1);
-        y += metaLines.length * 4 + 1;
+        doc.text(whyLines, ml + 6, y + 1);
+        y += whyLines.length * 4;
+      }
+      y += 6;
+    });
+    y = rule(y);
+  }
+
+  // ── ACTION ITEMS (table) ──
+  const actions = Array.isArray(f.action_items) ? f.action_items : [];
+  if (actions.length) {
+    mnp(18);
+    sf('bold', 11, BLUE); doc.text('ACTION ITEMS', ml, y); y += 7;
+
+    sf('bold', 7.5, GRAY);
+    doc.text('OWNER',  ml + 2,  y);
+    doc.text('DUE',    ml + 28, y);
+    doc.text('ACTION', ml + 54, y);
+    y += 3.5;
+    doc.setDrawColor(...LIGHT); doc.line(ml, y, W - mr, y); y += 3.5;
+
+    actions.forEach(a => {
+      if (!a || !a.action) return;
+      const owner   = a.owner || '—';
+      const due     = a.due   || 'ASAP';
+      const actLines = doc.splitTextToSize(a.action, cw - 56);
+      const vcLines  = a.verbatim_commitment ? doc.splitTextToSize(`"${a.verbatim_commitment}"`, cw - 56) : [];
+      const block   = Math.max(actLines.length * 4.5 + vcLines.length * 4 + 2, 6);
+      mnp(block + 2);
+
+      sf('bold', 8, BLACK);   doc.text(String(owner), ml + 2,  y);
+      sf('normal', 8, GRAY);  doc.text(String(due),   ml + 28, y);
+      sf('normal', 8.5, BLACK); doc.text(actLines,    ml + 54, y);
+      y += actLines.length * 4.5;
+
+      if (vcLines.length) {
+        sf('italic', 7.5, [90,90,90]);
+        doc.text(vcLines, ml + 54, y);
+        y += vcLines.length * 4;
       }
       y += 2.5;
     });
-    y += 2;
     y = rule(y);
   }
 
-  // ── DISCOVERY NOTES ──
-  if (f.discoveryNotes) {
-    mnp(18);
-    sf('bold', 10, BLUE); doc.text('ADDITIONAL NOTES', ml, y); y += 6;
-    sf('normal', 9, BLACK);
-    const noteLines = doc.splitTextToSize(f.discoveryNotes, cw - 4);
-    mnp(noteLines.length * 4.5 + 4);
-    doc.text(noteLines, ml + 2, y); y += noteLines.length * 4.5 + 4;
+  // ── NEXT STEPS AGREED (highlighted box) ──
+  if (f.next_steps_agreed) {
+    mnp(22);
+    sf('bold', 11, BLUE); doc.text('NEXT STEPS AGREED', ml, y); y += 7;
+
+    const nsLines = doc.splitTextToSize(f.next_steps_agreed, cw - 8);
+    const block   = nsLines.length * 5 + 7;
+    mnp(block + 2);
+
+    doc.setFillColor(...LIGHTBLUE);
+    doc.rect(ml, y - 2, cw, block, 'F');
+    doc.setDrawColor(...BLUE);
+    doc.setLineWidth(0.4);
+    doc.rect(ml, y - 2, cw, block);
+    doc.setLineWidth(0.2);
+
+    sf('normal', 9.5, BLACK);
+    doc.text(nsLines, ml + 4, y + 3);
+    y += block + 4;
+    y = rule(y);
+  }
+
+  // ── DESIRED OUTCOMES ──
+  const outcomes = Array.isArray(f.desired_outcomes) ? f.desired_outcomes : [];
+  if (outcomes.length) {
+    mnp(14);
+    sf('bold', 11, BLUE); doc.text('DESIRED OUTCOMES', ml, y); y += 6;
+
+    outcomes.forEach(o => {
+      if (!o || (!o.outcome && !o.their_words)) return;
+      const text   = o.outcome || '';
+      const tlines = doc.splitTextToSize(`• ${text}`, cw - 6);
+      const qlines = o.their_words ? doc.splitTextToSize(`"${o.their_words}"`, cw - 14) : [];
+      mnp(tlines.length * 4.5 + qlines.length * 4 + 3);
+
+      sf('normal', 9, BLACK); doc.text(tlines, ml + 2, y);
+      y += tlines.length * 4.5;
+
+      if (qlines.length) {
+        sf('italic', 8, GRAY); doc.text(qlines, ml + 8, y);
+        y += qlines.length * 4;
+      }
+      y += 2;
+    });
+    y = rule(y);
+  }
+
+  // ── OBJECTIONS RAISED ──
+  const objections = Array.isArray(f.objections_raised) ? f.objections_raised : [];
+  if (objections.length) {
+    mnp(14);
+    sf('bold', 11, BLUE); doc.text('OBJECTIONS RAISED', ml, y); y += 6;
+
+    objections.forEach(o => {
+      if (!o || !o.objection) return;
+      const olines = doc.splitTextToSize(o.objection, cw - 6);
+      const ctxLines   = o.context ? doc.splitTextToSize(`Context: ${o.context}`, cw - 6) : [];
+      const handlLines = o.how_it_was_handled ? doc.splitTextToSize(`Handled: ${o.how_it_was_handled}`, cw - 6) : [];
+      mnp(olines.length * 5 + ctxLines.length * 4 + handlLines.length * 4 + 4);
+
+      sf('bold', 9, BLACK); doc.text(olines, ml + 2, y);
+      y += olines.length * 5;
+
+      if (ctxLines.length)   { sf('normal', 8, GRAY); doc.text(ctxLines,   ml + 2, y); y += ctxLines.length * 4; }
+      if (handlLines.length) { sf('normal', 8, GRAY); doc.text(handlLines, ml + 2, y); y += handlLines.length * 4; }
+      y += 2;
+    });
+    y = rule(y);
+  }
+
+  // ── OPEN QUESTIONS ──
+  const opens = Array.isArray(f.open_questions) ? f.open_questions : [];
+  if (opens.length) {
+    mnp(14);
+    sf('bold', 11, BLUE); doc.text('OPEN QUESTIONS', ml, y); y += 6;
+    opens.forEach(q => {
+      if (!q) return;
+      sf('normal', 9, BLACK);
+      const lines = doc.splitTextToSize(`? ${q}`, cw - 6);
+      mnp(lines.length * 4.5 + 2);
+      doc.text(lines, ml + 2, y);
+      y += lines.length * 4.5 + 1;
+    });
+    y = rule(y);
+  }
+
+  // ── CLEANED TRANSCRIPT (own section, starts on a new page) ──
+  if (f.cleaned_transcript) {
+    doc.addPage(); y = 18;
+    sf('bold', 14, BLUE); doc.text('CLEANED TRANSCRIPT — For Claude Context', ml, y); y += 6;
+    sf('italic', 8.5, GRAY);
+    const note = 'Filler removed. All substantive content preserved. Paste into Claude for full call context.';
+    const noteLines = doc.splitTextToSize(note, cw);
+    doc.text(noteLines, ml, y); y += noteLines.length * 4 + 3;
+    y = rule(y);
+
+    const transcriptLines = String(f.cleaned_transcript).split('\n');
+    transcriptLines.forEach(rawLine => {
+      const line = rawLine.replace(/\r/g, '');
+      if (!line.trim()) { y += 2; return; }
+
+      const m = line.match(/^([A-Z][A-Za-z0-9 .\-_'’]{0,40}):\s*(.*)$/);
+      if (m) {
+        const speaker = m[1] + ':';
+        const text    = m[2];
+        sf('bold', 8.5, BLUE);
+        const speakerW = doc.getTextWidth(speaker + ' ');
+        mnp(5);
+        doc.text(speaker, ml, y);
+        sf('normal', 9, BLACK);
+        const wrapped = doc.splitTextToSize(text, cw - speakerW);
+        if (wrapped.length) {
+          doc.text(wrapped[0], ml + speakerW, y);
+          for (let i = 1; i < wrapped.length; i++) {
+            y += 4.7; mnp(5);
+            doc.text(wrapped[i], ml, y);
+          }
+        }
+        y += 5.5;
+      } else {
+        sf('normal', 9, BLACK);
+        const lines = doc.splitTextToSize(line, cw);
+        lines.forEach(l => {
+          mnp(5);
+          doc.text(l, ml, y);
+          y += 4.7;
+        });
+        y += 0.5;
+      }
+    });
+  }
+
+  // ── CLAUDE CONTEXT BLOCK (own section, starts on a new page) ──
+  if (f.claude_context_block) {
+    doc.addPage(); y = 18;
+    sf('bold', 14, BLUE); doc.text('CLAUDE CONTEXT BLOCK — Copy & Paste', ml, y); y += 6;
+    sf('italic', 8.5, GRAY);
+    const note = 'Select all text below and paste into a new Claude conversation for full call context.';
+    const noteLines = doc.splitTextToSize(note, cw);
+    doc.text(noteLines, ml, y); y += noteLines.length * 4 + 4;
+
+    const blockText  = String(f.claude_context_block);
+    const blockLines = doc.splitTextToSize(blockText, cw - 6);
+
+    sfMono('normal', 8, BLACK);
+    const lineH = 3.7;
+    for (const ln of blockLines) {
+      mnp(lineH + 2);
+      doc.setFillColor(...BOXBG);
+      doc.rect(ml, y - 3, cw, lineH + 1, 'F');
+      sfMono('normal', 8, BLACK);
+      doc.text(ln, ml + 3, y);
+      y += lineH;
+    }
   }
 
   // ── FOOTER ALL PAGES ──
@@ -2709,11 +2978,12 @@ function downloadCallPDF(index) {
     doc.setPage(i);
     doc.setFillColor(245,245,243); doc.rect(0, H-11, W, 11, 'F');
     sf('normal', 7, GRAY);
-    doc.text('More Than Momentum  ·  Call Intelligence Summary  ·  Confidential', ml, H-4);
+    doc.text('More Than Momentum  ·  Call Intelligence  ·  Confidential', ml, H-4);
     doc.text(`${i} / ${np}`, W - mr, H - 4, { align: 'right' });
   }
 
-  const slug = (call.meetingTitle || 'call').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 40);
+  const slugSrc = (meta.business_name || call.meetingTitle || 'call');
+  const slug = slugSrc.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 40);
   const dateSlug = d.toISOString().slice(0,10);
   doc.save(`MTM-Call-${slug}-${dateSlug}.pdf`);
 }
@@ -2834,29 +3104,42 @@ async function generateProspectSlides() {
 }
 
 function fillProposalFormFromFields(f) {
-  // Text/number fields
+  if (!f) return;
+  const meta = f.meta || {};
+  const firstOutcome = (Array.isArray(f.desired_outcomes) && f.desired_outcomes[0]) || {};
+  const firstPain    = (Array.isArray(f.pain_points)      && f.pain_points[0])      || {};
+
+  // Text/number fields — new schema first, legacy fields kept as fallback for old KV records.
   const map = {
-    propBizName: f.businessName, propContact: f.contactName, propCity: f.city,
-    propCustValue: f.avgCustomerValue, propBudget: f.budgetBeforeResults,
-    propMktSpend: f.currentMarketingSpend, propOutcome: f.desiredOutcome,
-    propMetricTraffic: f.currentWebsiteTraffic, propMetricLeads: f.currentLeadsPerMonth,
-    propMetricIG: f.currentInstagramFollowers, propMetricFB: f.currentFacebookFollowers,
-    propMetricTT: f.currentTiktokFollowers, propMetricReviews: f.currentGoogleReviews,
+    propBizName:  meta.business_name || f.businessName,
+    propContact:  meta.owner_name    || f.contactName,
+    propCity:     meta.location      || f.city,
+    propOutcome:  firstOutcome.outcome || f.desiredOutcome,
+    propCustValue:     f.avgCustomerValue,
+    propBudget:        f.budgetBeforeResults,
+    propMktSpend:      f.currentMarketingSpend,
+    propMetricTraffic: f.currentWebsiteTraffic,
+    propMetricLeads:   f.currentLeadsPerMonth,
+    propMetricIG:      f.currentInstagramFollowers,
+    propMetricFB:      f.currentFacebookFollowers,
+    propMetricTT:      f.currentTiktokFollowers,
+    propMetricReviews: f.currentGoogleReviews,
   };
   for (const [id, val] of Object.entries(map)) {
     const el = document.getElementById(id);
-    if (el && val != null) el.value = val;
+    if (el && val != null && val !== '') el.value = val;
   }
   // Selects
   const selects = {
-    propBizType: f.businessType, propPain: f.painPoint,
-    propTriedBefore: f.triedBefore, propMeetingCadence: f.meetingCadence,
-    propSocialGoal: f.socialGoal,
+    propBizType:        meta.business_type || f.businessType,
+    propPain:           firstPain.title    || f.painPoint,
+    propTriedBefore:    f.triedBefore,
+    propMeetingCadence: f.meetingCadence,
+    propSocialGoal:     f.socialGoal,
   };
   for (const [id, val] of Object.entries(selects)) {
     const el = document.getElementById(id);
     if (el && val) {
-      // Try to find matching option
       for (const opt of el.options) {
         if (opt.value.toLowerCase().includes((val+'').toLowerCase()) || (val+'').toLowerCase().includes(opt.value.toLowerCase())) {
           el.value = opt.value; break;
@@ -2864,12 +3147,21 @@ function fillProposalFormFromFields(f) {
       }
     }
   }
-  // Service checkboxes from interests
-  if (f.serviceInterests) {
-    if (f.serviceInterests.website != null) document.getElementById('chkWeb').checked = !!f.serviceInterests.website;
+  // Service checkboxes — derive from services_discussed (new schema) if present, else legacy serviceInterests.
+  const servicesText = Array.isArray(f.services_discussed) ? f.services_discussed.join(' ').toLowerCase() : '';
+  if (servicesText) {
+    const chkWeb = document.getElementById('chkWeb');
+    const chkBack = document.getElementById('chkBack');
+    const chkSoc = document.getElementById('chkSoc');
+    if (chkWeb)  chkWeb.checked  = /web|site|landing/.test(servicesText);
+    if (chkBack) chkBack.checked = /crm|automation|backend|funnel|email|follow.?up|nurture|pipeline/.test(servicesText);
+    if (chkSoc)  chkSoc.checked  = /social|instagram|facebook|tiktok|\big\b|\bfb\b|content/.test(servicesText);
+    if (typeof toggleServiceSections === 'function') toggleServiceSections();
+  } else if (f.serviceInterests) {
+    if (f.serviceInterests.website != null) document.getElementById('chkWeb').checked  = !!f.serviceInterests.website;
     if (f.serviceInterests.backend != null) document.getElementById('chkBack').checked = !!f.serviceInterests.backend;
-    if (f.serviceInterests.social != null) document.getElementById('chkSoc').checked = !!f.serviceInterests.social;
-    toggleServiceSections();
+    if (f.serviceInterests.social  != null) document.getElementById('chkSoc').checked  = !!f.serviceInterests.social;
+    if (typeof toggleServiceSections === 'function') toggleServiceSections();
   }
 }
 

@@ -452,57 +452,89 @@ async function extractCallFields(transcript, apiKey) {
     return { error: 'ANTHROPIC_API_KEY not configured', rawTranscript: transcript.slice(0, 500) };
   }
 
-  const prompt = `You are analyzing a meeting transcript for More Than Momentum (MTM), a digital marketing agency.
+  const systemPrompt = `You are a call intelligence analyst for More Than Momentum (MTM), a digital marketing agency. You process raw sales discovery call transcripts and extract two things:
 
-Determine the call type and extract all relevant information. Return ONLY a JSON object. Use null for fields not mentioned, and use empty arrays ([]) for list fields with no content.
+1. Structured intelligence — specific, verbatim-level detail. Never paraphrase vaguely. If the prospect said "my employees refuse to collect emails," write that. If they gave a number, include the number. If they described a specific scenario, quote it. Generic summaries ("wants more leads") are useless — specific language ("losing customers because nobody follows up after a walk-in") is what we need.
 
-{
-  "callType": "discovery | check-in | review | internal | other",
-  "summary": "2-3 sentence overview of the call — key topics, decisions made, and next steps",
-  "participants": [
-    { "name": "speaker name if detectable from transcript", "role": "their role or affiliation (e.g. 'MTM team', 'prospect', 'client owner', 'unknown') if inferable" }
-  ],
-  "actionItems": [
-    { "item": "the explicit next step", "owner": "person responsible if stated, else null", "dueDate": "if stated, else null" }
-  ],
-  "decisionsMade": ["array of explicit conclusions, agreements, or decisions reached during the call"],
-  "personalContext": ["array of personal / casual details mentioned — hobbies, family, life updates, weekend plans, small talk, anything non-work that came up"],
-  "toneAndEnergy": "1-2 sentences describing how the call felt — energy level, humor, stress, enthusiasm, friction, rapport",
-  "topicsMentionedInPassing": ["array of ideas, products, names, or topics brought up briefly that did NOT become formal action items but may be worth remembering"],
-  "additionalNotes": "anything else worth capturing that doesn't fit other fields (max 500 chars)",
-  "businessName": "prospect or client business name",
-  "contactName": "prospect or client contact name",
-  "city": "their city and state",
-  "businessType": "type of business (HVAC, Plumbing, Gym, etc.)",
-  "avgCustomerValue": "average job/customer value in dollars (number only, no $)",
-  "budgetBeforeResults": "how much they're willing to spend before seeing results (number only)",
-  "currentMarketingSpend": "current monthly marketing spend (number only)",
-  "painPoint": "their #1 pain — pick closest: 'Losing leads — no follow-up system' | 'Website doesn\\'t reflect business quality' | 'No online presence at all' | 'Inconsistent or zero social media' | 'Need more leads / customers' | 'Bad experience with previous agency' | 'Don\\'t have time to manage marketing' | 'Other'",
-  "desiredOutcome": "what outcome they said would make them say yes",
-  "triedBefore": "pick closest: 'Nothing' | 'DIY social media' | 'Hired an agency before' | 'Hired a freelancer' | 'Ran paid ads' | 'Built own website' | 'Multiple things'",
-  "socialGoal": "'leads' | 'brand' | 'both'",
-  "meetingCadence": "'weekly' | 'biweekly' | 'monthly_email'",
-  "currentWebsiteTraffic": "monthly visitors (number only)",
-  "currentLeadsPerMonth": "leads per month (number only)",
-  "currentInstagramFollowers": "Instagram followers (number only)",
-  "currentFacebookFollowers": "Facebook followers (number only)",
-  "currentGoogleReviews": "Google review count (number only)",
-  "serviceInterests": { "website": true/false, "backend": true/false, "social": true/false },
-  "discoveryNotes": "any other important context (max 300 chars)"
-}
+2. A cleaned transcript — the full conversation with only true filler removed (ums, ahs, repeated false starts, pleasantries like "yeah totally" and "sounds good"). Every substantive sentence stays. Every specific detail stays. The goal is a version of the transcript that takes 20% less time to read but loses 0% of the meaning. Do not summarize. Do not collapse paragraphs. Preserve the back-and-forth.
 
-Extraction guidance:
-- participants: include everyone who speaks; infer role from context (introductions, what they discuss, who they represent). Use "unknown" for role if not inferable.
-- actionItems: only include EXPLICIT next steps that someone committed to. If owner isn't stated, set to null — don't guess.
-- decisionsMade: capture only actual agreements/conclusions, not topics discussed. "We decided to launch in March" is a decision; "we talked about launch timing" is not.
-- personalContext: capture non-work humanizing details — kids, pets, vacations, hobbies, sports, health, weather chat — anything that helps remember the person.
-- toneAndEnergy: be honest and specific. "Light and joking throughout, lots of laughter" or "Tense early on around pricing, warmed up by the end".
-- topicsMentionedInPassing: ideas floated but not committed to. Future-feature wishes, competitor names, books/tools mentioned, "we should look into X someday".
+Return ONLY valid JSON. No markdown fences. No preamble. No explanation.`;
+
+  const userMessage = `Here is the full transcript. Extract structured intelligence AND return a cleaned version of the transcript.
 
 TRANSCRIPT:
-${transcript.slice(0, 4000)}
+${transcript.slice(0, 80000)}
 
-Return ONLY valid JSON. No markdown. No backticks. No explanation.`;
+Return this exact JSON schema:
+
+{
+  "meta": {
+    "business_name": "string — from transcript, not inferred",
+    "owner_name": "string",
+    "business_type": "string",
+    "location": "string — city/state if mentioned",
+    "call_date": "string",
+    "call_duration_estimate": "string",
+    "deal_signal": "HOT | WARM | COLD | UNKNOWN",
+    "deal_signal_reasoning": "string — specific reason based on what was actually said"
+  },
+  "top_highlights": [
+    {
+      "headline": "string — 10 words max, specific (e.g. 'Owner manages remotely, 2 hrs away, visits twice/month')",
+      "detail": "string — 1-3 sentences of specific detail. Quote the prospect directly if possible.",
+      "importance": "CRITICAL | HIGH | MEDIUM"
+    }
+  ],
+  "pain_points": [
+    {
+      "title": "string — specific, not generic",
+      "severity": "Critical | High | Medium | Low",
+      "exact_language": "string — quote or close paraphrase of how they described this problem",
+      "business_impact": "string — what it's actually costing them (revenue, time, customers)"
+    }
+  ],
+  "desired_outcomes": [
+    {
+      "outcome": "string — what they said they want, specifically",
+      "their_words": "string — direct quote if available"
+    }
+  ],
+  "key_quotes": [
+    {
+      "speaker": "string",
+      "quote": "string — verbatim or near-verbatim",
+      "why_it_matters": "string"
+    }
+  ],
+  "contacts": [
+    {
+      "name": "string",
+      "role": "string",
+      "what_they_said": "string — specific things this person said or that were said about them",
+      "approach": "string — how to handle this person specifically"
+    }
+  ],
+  "services_discussed": ["string — exactly as discussed, not repackaged into MTM product names"],
+  "objections_raised": [
+    {
+      "objection": "string — what they actually said",
+      "context": "string — what prompted it",
+      "how_it_was_handled": "string — or null if it wasn't"
+    }
+  ],
+  "action_items": [
+    {
+      "action": "string — specific task",
+      "owner": "Cole | Prospect | Both",
+      "due": "string — if mentioned, otherwise 'ASAP'",
+      "verbatim_commitment": "string — quote of the commitment made if one was made"
+    }
+  ],
+  "next_steps_agreed": "string — exactly what was agreed at the end of the call",
+  "open_questions": ["string — things that came up but weren't resolved"],
+  "cleaned_transcript": "string — the full cleaned transcript, preserving all speaker labels and the back-and-forth structure. Remove only: filler words (um, uh, like, you know), repeated false starts, pure social filler (yeah totally, sounds good, for sure, absolutely) when they add no meaning. Keep everything substantive. Format as: SPEAKER: [text]\\nSPEAKER: [text]",
+  "claude_context_block": "string — a block starting with 'PROSPECT CONTEXT — [BUSINESS NAME]' that includes: the top highlights as bullet points with their exact language, the 3-5 most important quotes verbatim, all action items, and then the instruction: 'Full cleaned transcript follows — read it before responding.' Then paste the cleaned transcript inline."
+}`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -514,8 +546,9 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
-        messages: [{ role: 'user', content: prompt }]
+        max_tokens: 32000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
       }),
     });
     const data = await resp.json();
