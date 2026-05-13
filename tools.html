@@ -3089,53 +3089,9 @@ function downloadCallPDF(index) {
     y = rule(y);
   }
 
-  // ── CLEANED TRANSCRIPT (own section, starts on a new page) ──
-  if (f.cleaned_transcript) {
-    doc.addPage(); y = 18;
-    sf('bold', 14, BLUE); doc.text('CLEANED TRANSCRIPT — For Claude Context', ml, y); y += 6;
-    sf('italic', 8.5, GRAY);
-    const note = 'Filler removed. All substantive content preserved. Paste into Claude for full call context.';
-    const noteLines = doc.splitTextToSize(note, cw);
-    doc.text(noteLines, ml, y); y += noteLines.length * 4 + 3;
-    y = rule(y);
-
-    const transcriptLines = String(f.cleaned_transcript).split('\n');
-    transcriptLines.forEach(rawLine => {
-      const line = rawLine.replace(/\r/g, '');
-      if (!line.trim()) { y += 2; return; }
-
-      const m = line.match(/^([A-Z][A-Za-z0-9 .\-_'’]{0,40}):\s*(.*)$/);
-      if (m) {
-        const speaker = m[1] + ':';
-        const text    = m[2];
-        sf('bold', 8.5, BLUE);
-        const speakerW = doc.getTextWidth(speaker + ' ');
-        mnp(5);
-        doc.text(speaker, ml, y);
-        sf('normal', 9, BLACK);
-        const wrapped = doc.splitTextToSize(text, cw - speakerW);
-        if (wrapped.length) {
-          doc.text(wrapped[0], ml + speakerW, y);
-          for (let i = 1; i < wrapped.length; i++) {
-            y += 4.7; mnp(5);
-            doc.text(wrapped[i], ml, y);
-          }
-        }
-        y += 5.5;
-      } else {
-        sf('normal', 9, BLACK);
-        const lines = doc.splitTextToSize(line, cw);
-        lines.forEach(l => {
-          mnp(5);
-          doc.text(l, ml, y);
-          y += 4.7;
-        });
-        y += 0.5;
-      }
-    });
-  }
-
   // ── CLAUDE CONTEXT BLOCK (own section, starts on a new page) ──
+  // Note: standalone cleaned transcript section removed — the context block
+  // below already contains the full cleaned transcript inline.
   if (f.claude_context_block) {
     doc.addPage(); y = 18;
     sf('bold', 14, BLUE); doc.text('CLAUDE CONTEXT BLOCK — Copy & Paste', ml, y); y += 6;
