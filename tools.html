@@ -655,6 +655,19 @@
         <button onclick="processNotesTranscript()" class="panel-run-btn" style="margin:0;">Extract from Text →</button>
       </div>
 
+      <!-- Small "or" between paste and upload -->
+      <div style="display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:11px;color:var(--mid);">or</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+
+      <!-- Upload Recall.ai JSON -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-light);">📁 Upload Recall.ai JSON</div>
+        <div style="font-size:12px;color:var(--gray);line-height:1.5;">Download the JSON export from Recall.ai and upload it here.</div>
+        <input type="file" id="recallJsonInput" accept=".json,application/json" style="display:none;" onchange="processRecallJSONFile(this)">
+        <button onclick="document.getElementById('recallJsonInput').click()" class="panel-run-btn" style="margin:0;">Choose JSON File →</button>
+        <div id="recallJsonFileName" style="display:none;font-size:12px;color:var(--gray);"></div>
+        <div id="recallJsonErr" style="display:none;font-size:12px;color:#ff8a8a;line-height:1.5;"></div>
+      </div>
+
       <!-- Loading state for paste extraction -->
       <div class="panel-loading" id="notesLoadingEl">
         <div class="loading-spinner"></div>
@@ -2542,6 +2555,163 @@ async function processNotesTranscript() {
     loadEl.classList.remove('show');
     alert('Connection error.');
   }
+}
+
+/* ── RECALL.AI JSON UPLOAD ─────────────────────────────────────────────
+   Client-side flatten of a Recall.ai JSON export into SPEAKER: text lines,
+   then POST through the same /api/process-notes manual_paste path. The
+   server flow (KV write, Claude extraction, dedup, history rotation) is
+   identical to the textarea path from that point forward. */
+
+async function processRecallJSONFile(inputEl) {
+  const errEl  = document.getElementById('recallJsonErr');
+  const nameEl = document.getElementById('recallJsonFileName');
+  errEl.style.display  = 'none';
+  nameEl.style.display = 'none';
+
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+
+  nameEl.textContent = `Selected: ${file.name}`;
+  nameEl.style.display = 'block';
+
+  let raw;
+  try { raw = await file.text(); }
+  catch (e) { return showRecallError(`Could not read file: ${e.message}`, inputEl); }
+
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (e) { return showRecallError(`Not valid JSON: ${e.message}`, inputEl); }
+
+  // Log the raw shape so we can iterate on the field mapping if Recall ships a new format.
+  console.group('Recall.ai JSON upload — raw shape');
+  console.log('Top-level type:', Array.isArray(data) ? 'array' : typeof data);
+  console.log('Top-level keys:', Array.isArray(data) ? `[array length ${data.length}]` : Object.keys(data || {}));
+  for (const key of ['transcript', 'segments', 'utterances', 'results']) {
+    const v = data?.[key];
+    if (Array.isArray(v) && v.length) console.log(`Sample ${key}[0]:`, v[0]);
+  }
+  if (Array.isArray(data) && data.length) console.log('Sample [0]:', data[0]);
+  console.log('Full payload:', data);
+  console.groupEnd();
+
+  const transcript = flattenRecallTranscript(data);
+  const meta       = extractRecallMeta(data);
+  console.log('Recall.ai upload — extracted meta:', meta);
+  console.log('Recall.ai upload — flattened transcript length:', transcript.length);
+
+  if (!transcript || transcript.length < 30) {
+    return showRecallError('Could not find transcript content in this file. Check the browser console for the raw shape — a new field mapping may be needed.', inputEl);
+  }
+
+  // Prepend a metadata header so the Claude extractor can pre-populate
+  // business_name / owner_name / call_date from meeting context.
+  const headerLines = [];
+  if (meta.meetingTitle) headerLines.push(`MEETING TITLE: ${meta.meetingTitle}`);
+  if (meta.startedAt)    headerLines.push(`STARTED AT: ${meta.startedAt}`);
+  if (Array.isArray(meta.participants) && meta.participants.length) {
+    const names = meta.participants
+      .map(p => typeof p === 'string' ? p : (p?.name || p?.display_name || p?.user?.name))
+      .filter(Boolean);
+    if (names.length) headerLines.push(`PARTICIPANTS: ${names.join(', ')}`);
+  }
+  const payloadTranscript = (headerLines.length ? headerLines.join('\n') + '\n\n' : '') + transcript;
+
+  const loadEl = document.getElementById('notesLoadingEl');
+  loadEl.classList.add('show');
+  document.getElementById('notesLoadingMsg').textContent = 'Processing Recall.ai transcript...';
+
+  try {
+    const res = await fetch('/api/process-notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: 'manual_paste', data: { transcript: payloadTranscript } }),
+    });
+    const json = await res.json();
+    loadEl.classList.remove('show');
+    inputEl.value = '';
+
+    if (json.success) {
+      nameEl.style.display = 'none';
+      await loadCallHistory();
+    } else {
+      showRecallError(json.error || 'Extraction failed. Try again.', inputEl);
+    }
+  } catch (e) {
+    loadEl.classList.remove('show');
+    inputEl.value = '';
+    showRecallError(`Connection error: ${e.message}`, inputEl);
+  }
+}
+
+function showRecallError(msg, inputEl) {
+  const errEl = document.getElementById('recallJsonErr');
+  errEl.textContent = msg;
+  errEl.style.display = 'block';
+  if (inputEl) inputEl.value = '';
+}
+
+function flattenRecallTranscript(data) {
+  const candidates = [
+    Array.isArray(data) ? data : null,
+    Array.isArray(data?.transcript) ? data.transcript : null,
+    Array.isArray(data?.segments)   ? data.segments   : null,
+    Array.isArray(data?.utterances) ? data.utterances : null,
+    Array.isArray(data?.results)    ? data.results    : null,
+    Array.isArray(data?.data?.transcript) ? data.data.transcript : null,
+    Array.isArray(data?.data?.segments)   ? data.data.segments   : null,
+    Array.isArray(data?.transcript?.segments) ? data.transcript.segments : null,
+  ];
+  for (const arr of candidates) {
+    if (!arr || !arr.length) continue;
+    const lines = arr.map(recallLineFromItem).filter(Boolean);
+    if (lines.length) return lines.join('\n');
+  }
+  if (typeof data === 'string')             return data;
+  if (typeof data?.transcript === 'string') return data.transcript;
+  return '';
+}
+
+function recallLineFromItem(item) {
+  if (!item || typeof item !== 'object') return '';
+  const speaker =
+       item.speaker_name
+    || (typeof item.speaker === 'string' ? item.speaker : item.speaker?.name)
+    || item.participant?.name
+    || (typeof item.participant === 'string' ? item.participant : null)
+    || item.user?.name
+    || item.user?.display_name
+    || 'Speaker';
+
+  let text = '';
+  if      (typeof item.text       === 'string') text = item.text;
+  else if (typeof item.content    === 'string') text = item.content;
+  else if (typeof item.transcript === 'string') text = item.transcript;
+  else if (Array.isArray(item.words))  text = item.words.map(w => w.word || w.text || '').join(' ');
+  else if (Array.isArray(item.tokens)) text = item.tokens.map(t => t.text || t.word || '').join(' ');
+
+  text = String(text || '').trim();
+  if (!text) return '';
+  return `${speaker}: ${text}`;
+}
+
+function extractRecallMeta(data) {
+  const md = data?.meeting_metadata || data?.metadata || {};
+  return {
+    meetingTitle:
+         md.title || md.meeting_title
+      || data?.meeting_title || data?.title
+      || data?.calendar_meeting?.title
+      || null,
+    startedAt:
+         data?.started_at || data?.start_time
+      || md.started_at    || md.start_time
+      || null,
+    participants:
+         data?.participants || md.participants
+      || data?.attendees    || md.attendees
+      || [],
+  };
 }
 
 async function sendCallToProposal(callId) {
