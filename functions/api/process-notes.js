@@ -446,24 +446,61 @@ async function fetchTranscriptFromRecall(botId, apiKey) {
 }
 
 // ── CLAUDE FIELD EXTRACTION ───────────────────────────────────────────────────
+// Split into two parallel calls so the Pages Function returns well under
+// Cloudflare's 100s edge limit. Single-call max_tokens=32000 was timing out
+// (524) on hour-long transcripts; each half here caps at 4k / 8k tokens.
 
 async function extractCallFields(transcript, apiKey) {
   if (!apiKey) {
     return { error: 'ANTHROPIC_API_KEY not configured', rawTranscript: transcript.slice(0, 500) };
   }
 
-  const systemPrompt = `You are a call intelligence analyst for More Than Momentum (MTM), a digital marketing agency. You process raw sales discovery call transcripts and extract two things:
+  const trimmed = trimTranscriptForExtraction(transcript);
 
-1. Structured intelligence — specific, verbatim-level detail. Never paraphrase vaguely. If the prospect said "my employees refuse to collect emails," write that. If they gave a number, include the number. If they described a specific scenario, quote it. Generic summaries ("wants more leads") are useless — specific language ("losing customers because nobody follows up after a walk-in") is what we need.
+  const [intelSettled, cleanSettled] = await Promise.allSettled([
+    extractIntelligenceOnly(trimmed, apiKey),
+    cleanTranscriptOnly(trimmed, apiKey),
+  ]);
 
-2. A cleaned transcript — the full conversation with only true filler removed (ums, ahs, repeated false starts, pleasantries like "yeah totally" and "sounds good"). Every substantive sentence stays. Every specific detail stays. The goal is a version of the transcript that takes 20% less time to read but loses 0% of the meaning. Do not summarize. Do not collapse paragraphs. Preserve the back-and-forth.
+  if (intelSettled.status === 'rejected') console.error('Intel call rejected:', intelSettled.reason?.message);
+  if (cleanSettled.status === 'rejected') console.error('Clean call rejected:', cleanSettled.reason?.message);
+
+  const intel    = intelSettled.status === 'fulfilled' ? intelSettled.value : null;
+  const cleaned  = cleanSettled.status === 'fulfilled' ? cleanSettled.value : '';
+
+  if (!intel) {
+    return { error: 'Intelligence extraction failed', rawTranscript: transcript.slice(0, 500), cleaned_transcript: cleaned || '' };
+  }
+
+  const merged = { ...intel, cleaned_transcript: cleaned || '' };
+  merged.claude_context_block = buildClaudeContextBlock(merged, cleaned || '');
+  return merged;
+}
+
+// Keep first 10k + last 10k chars when transcripts run long. The middle of a
+// 60-minute discovery call is mostly mid-conversation context that the
+// extractor handles fine without; the open and close carry the most signal.
+function trimTranscriptForExtraction(transcript) {
+  if (typeof transcript !== 'string') return '';
+  const MAX = 20000;
+  const HALF = 10000;
+  if (transcript.length <= MAX) return transcript;
+  const head = transcript.slice(0, HALF);
+  const tail = transcript.slice(transcript.length - HALF);
+  return head + '\n\n[... middle of transcript trimmed for length ...]\n\n' + tail;
+}
+
+async function extractIntelligenceOnly(transcript, apiKey) {
+  const systemPrompt = `You are a call intelligence analyst for More Than Momentum (MTM), a digital marketing agency. You process raw sales discovery call transcripts and extract structured intelligence with verbatim-level detail.
+
+Never paraphrase vaguely. If the prospect said "my employees refuse to collect emails," write that. If they gave a number, include the number. If they described a specific scenario, quote it. Generic summaries ("wants more leads") are useless — specific language ("losing customers because nobody follows up after a walk-in") is what we need.
 
 Return ONLY valid JSON. No markdown fences. No preamble. No explanation.`;
 
-  const userMessage = `Here is the full transcript. Extract structured intelligence AND return a cleaned version of the transcript.
+  const userMessage = `Here is the call transcript. Extract structured intelligence.
 
 TRANSCRIPT:
-${transcript.slice(0, 80000)}
+${transcript}
 
 Return this exact JSON schema:
 
@@ -531,33 +568,106 @@ Return this exact JSON schema:
     }
   ],
   "next_steps_agreed": "string — exactly what was agreed at the end of the call",
-  "open_questions": ["string — things that came up but weren't resolved"],
-  "cleaned_transcript": "string — the full cleaned transcript, preserving all speaker labels and the back-and-forth structure. Remove only: filler words (um, uh, like, you know), repeated false starts, pure social filler (yeah totally, sounds good, for sure, absolutely) when they add no meaning. Keep everything substantive. Format as: SPEAKER: [text]\\nSPEAKER: [text]",
-  "claude_context_block": "string — a block starting with 'PROSPECT CONTEXT — [BUSINESS NAME]' that includes: the top highlights as bullet points with their exact language, the 3-5 most important quotes verbatim, all action items, and then the instruction: 'Full cleaned transcript follows — read it before responding.' Then paste the cleaned transcript inline."
+  "open_questions": ["string — things that came up but weren't resolved"]
 }`;
 
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 32000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }]
-      }),
-    });
-    const data = await resp.json();
-    const text = data.content?.[0]?.text || '{}';
-    return JSON.parse(text.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim());
-  } catch (err) {
-    console.error('Claude extraction error:', err.message);
-    return { error: 'Extraction failed', rawTranscript: transcript.slice(0, 500) };
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }]
+    }),
+  });
+  const data = await resp.json();
+  if (!resp.ok) {
+    console.error('Intel call HTTP', resp.status, JSON.stringify(data).slice(0, 300));
+    throw new Error(`Intel call HTTP ${resp.status}`);
   }
+  const text = data.content?.[0]?.text || '{}';
+  return JSON.parse(text.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim());
+}
+
+async function cleanTranscriptOnly(transcript, apiKey) {
+  const systemPrompt = `Clean this transcript — remove only filler words (um, uh, false starts, pure social filler like 'yeah totally'). Keep every substantive sentence. Bold speaker labels formatted as SPEAKER: text. Return only the cleaned transcript text, nothing else.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: transcript }]
+    }),
+  });
+  const data = await resp.json();
+  if (!resp.ok) {
+    console.error('Clean call HTTP', resp.status, JSON.stringify(data).slice(0, 300));
+    throw new Error(`Clean call HTTP ${resp.status}`);
+  }
+  return String(data.content?.[0]?.text || '').trim();
+}
+
+function buildClaudeContextBlock(intel, cleanedTranscript) {
+  const meta = intel?.meta || {};
+  const businessName = meta.business_name || 'CALL';
+  const lines = [];
+  lines.push(`PROSPECT CONTEXT — ${String(businessName).toUpperCase()}`);
+  lines.push('');
+
+  const highlights = Array.isArray(intel?.top_highlights) ? intel.top_highlights : [];
+  if (highlights.length) {
+    lines.push('TOP HIGHLIGHTS:');
+    for (const h of highlights) {
+      if (!h) continue;
+      const headline = h.headline || '';
+      const detail = h.detail || '';
+      lines.push(`• ${headline}${detail ? ' — ' + detail : ''}`);
+    }
+    lines.push('');
+  }
+
+  const quotes = Array.isArray(intel?.key_quotes) ? intel.key_quotes : [];
+  if (quotes.length) {
+    lines.push('KEY QUOTES:');
+    for (const q of quotes.slice(0, 5)) {
+      if (!q?.quote) continue;
+      const sp = q.speaker || 'Speaker';
+      lines.push(`${sp}: "${q.quote}"`);
+    }
+    lines.push('');
+  }
+
+  const actions = Array.isArray(intel?.action_items) ? intel.action_items : [];
+  if (actions.length) {
+    lines.push('ACTION ITEMS:');
+    for (const a of actions) {
+      if (!a?.action) continue;
+      const owner = a.owner || 'TBD';
+      const due = a.due || 'ASAP';
+      lines.push(`• ${owner} / ${due}: ${a.action}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('Full cleaned transcript follows — read it before responding.');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+  lines.push(cleanedTranscript || '');
+
+  return lines.join('\n');
 }
 
 // ── ROLLING CALL HISTORY ──────────────────────────────────────────────────────
