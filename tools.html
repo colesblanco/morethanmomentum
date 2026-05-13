@@ -2475,7 +2475,10 @@ function renderCallHistory() {
     const meta = f.meta || {};
     const signal = String(meta.deal_signal || '').toUpperCase();
     const legacyCallType = f.callType || '';
-    const isDiscovery = signal === 'HOT' || signal === 'WARM' || legacyCallType === 'discovery';
+    // Show Build Proposal whenever there's enough data to seed the form. New-schema
+    // calls put the business name at meta.business_name; legacy records used the
+    // un-nested camelCase / snake_case variants. Any one of these is enough.
+    const canBuildProposal = !!(meta.business_name || f.business_name || f.businessName);
 
     const signalBadge = ({
       HOT:     { label: 'Hot',     bg: 'rgba(208,72,72,.12)',   border: 'rgba(208,72,72,.28)',   color: '#ff8a8a' },
@@ -2506,8 +2509,8 @@ function renderCallHistory() {
         </div>
         ${summaryHTML}
         <div style="display:flex;gap:8px;margin-top:2px;">
-          ${isDiscovery ? `<button onclick="sendCallToProposal('${esc(call.id)}')" style="flex:1;background:var(--accent);color:var(--white);border:none;border-radius:6px;padding:9px 14px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;" onmouseenter="this.style.background='#2460cc'" onmouseleave="this.style.background='var(--accent)'">Build Proposal →</button>` : ''}
-          <button onclick="downloadCallPDF(${i})" style="${isDiscovery ? '' : 'flex:1;'}background:transparent;border:1px solid var(--border);color:var(--gray);border-radius:6px;padding:9px 14px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:border-color .2s, color .2s;" onmouseenter="this.style.borderColor='var(--gray)';this.style.color='var(--white)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">⬇ Download PDF</button>
+          ${canBuildProposal ? `<button onclick="sendCallToProposal('${esc(call.id)}')" style="flex:1;background:var(--accent);color:var(--white);border:none;border-radius:6px;padding:9px 14px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;" onmouseenter="this.style.background='#2460cc'" onmouseleave="this.style.background='var(--accent)'">Build Proposal →</button>` : ''}
+          <button onclick="downloadCallPDF(${i})" style="${canBuildProposal ? '' : 'flex:1;'}background:transparent;border:1px solid var(--border);color:var(--gray);border-radius:6px;padding:9px 14px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:border-color .2s, color .2s;" onmouseenter="this.style.borderColor='var(--gray)';this.style.color='var(--white)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">⬇ Download PDF</button>
         </div>
       </div>`;
   }).join('');
