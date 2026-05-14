@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>More Than Momentum</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +15,7 @@
 
     html, body {
       width: 100%;
+      max-width: 100vw;
       height: 100%;
       background: #0C0C0C;
       overflow: hidden;
@@ -21,6 +24,10 @@
     .stage {
       position: fixed;
       inset: 0;
+      width: 100%;
+      max-width: 100vw;
+      box-sizing: border-box;
+      padding: 0 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -29,7 +36,7 @@
     }
 
     .logo {
-      width: 300px;
+      width: clamp(100px, 25vw, 200px);
       height: auto;
       display: block;
       opacity: 0;
@@ -49,13 +56,13 @@
       transition: width 300ms ease;
     }
     .accent.visible {
-      width: 48px;
+      width: clamp(32px, 6vw, 48px);
     }
 
     .wordmark {
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 800;
-      font-size: 42px;
+      font-size: clamp(24px, 7vw, 48px);
       color: #FFFFFF;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -85,23 +92,31 @@
 </head>
 <body>
   <div class="stage">
-    <img id="logo" class="logo" src="images/whiteguylogo.png" alt="More Than Momentum">
+    <img id="logo" class="logo" src="/images/whiteguylogo.png" alt="More Than Momentum">
     <div id="accent" class="accent"></div>
     <div id="wordmark" class="wordmark">More Than Momentum</div>
   </div>
   <div id="overlay"></div>
 
   <script>
-    const logo = document.getElementById('logo');
-    const accent = document.getElementById('accent');
-    const wordmark = document.getElementById('wordmark');
-    const overlay = document.getElementById('overlay');
+    function runIntro() {
+      var logo = document.getElementById('logo');
+      var accent = document.getElementById('accent');
+      var wordmark = document.getElementById('wordmark');
+      var overlay = document.getElementById('overlay');
 
-    setTimeout(() => logo.classList.add('visible'), 100);
-    setTimeout(() => accent.classList.add('visible'), 400);
-    setTimeout(() => wordmark.classList.add('visible'), 600);
-    setTimeout(() => overlay.classList.add('visible'), 2200);
-    setTimeout(() => { window.location.href = 'links.html'; }, 2700);
+      setTimeout(function () { logo.classList.add('visible'); }, 100);
+      setTimeout(function () { accent.classList.add('visible'); }, 400);
+      setTimeout(function () { wordmark.classList.add('visible'); }, 600);
+      setTimeout(function () { overlay.classList.add('visible'); }, 2200);
+      setTimeout(function () { window.location.href = '/links.html'; }, 2700);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', runIntro);
+    } else {
+      runIntro();
+    }
   </script>
 </body>
 </html>
