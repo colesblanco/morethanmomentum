@@ -27,12 +27,12 @@
       width: 100%;
       max-width: 100vw;
       box-sizing: border-box;
-      padding: 0 24px;
+      padding: clamp(60px, 18vh, 220px) 24px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      justify-content: flex-start;
+      gap: clamp(14px, 3.5vw, 30px);
     }
 
     .logo {
@@ -52,7 +52,6 @@
       width: 0;
       height: 2px;
       background: #2D6BE4;
-      margin-top: -70px;
       transition: width 300ms ease;
     }
     .accent.visible {
