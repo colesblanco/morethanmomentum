@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <title>More Than Momentum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #0C0C0C;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      display: block;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+    .logo.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .accent {
+      width: 0;
+      height: 2px;
+      background: #2D6BE4;
+      transition: width 300ms ease;
+    }
+    .accent.visible {
+      width: 48px;
+    }
+
+    .wordmark {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 42px;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+    .wordmark.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #0C0C0C;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 500ms ease;
+    }
+    #overlay.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <img id="logo" class="logo" src="images/whiteguylogo.png" alt="More Than Momentum">
+    <div id="accent" class="accent"></div>
+    <div id="wordmark" class="wordmark">More Than Momentum</div>
+  </div>
+  <div id="overlay"></div>
+
+  <script>
+    const logo = document.getElementById('logo');
+    const accent = document.getElementById('accent');
+    const wordmark = document.getElementById('wordmark');
+    const overlay = document.getElementById('overlay');
+
+    setTimeout(() => logo.classList.add('visible'), 100);
+    setTimeout(() => accent.classList.add('visible'), 400);
+    setTimeout(() => wordmark.classList.add('visible'), 600);
+    setTimeout(() => overlay.classList.add('visible'), 2200);
+    setTimeout(() => { window.location.href = 'links.html'; }, 2700);
+  </script>
+</body>
+</html>
