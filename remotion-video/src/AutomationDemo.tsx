@@ -55,7 +55,7 @@ export const AutomationDemo: React.FC = () => {
       <Sequence from={SCENE_FROM.scene01} durationInFrames={SCENE_DURATIONS.scene01}>
         <Scene01 sceneDuration={SCENE_DURATIONS.scene01} />
       </Sequence>
-      <Sequence from={SCENE_FROM.scene02} durationInFrames={SCENE_DURATIONS.scene02}>
+      <Sequence from={SCENE_FROM.scene02} durationInFrames={SCENE_DURATIONS.scene02} layout="none" startFrom={28}>
         <Scene02 sceneDuration={SCENE_DURATIONS.scene02} />
       </Sequence>
       <Sequence from={SCENE_FROM.scene03} durationInFrames={SCENE_DURATIONS.scene03}>
