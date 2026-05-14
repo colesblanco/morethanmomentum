@@ -392,6 +392,12 @@ function initVideoCarousel() {
       }, 400);
     });
 
+    const customCursor = document.getElementById('cursor');
+    if (customCursor) {
+      div.addEventListener('mouseenter', () => { customCursor.style.opacity = '0'; });
+      div.addEventListener('mouseleave', () => { customCursor.style.opacity = '1'; });
+    }
+
     applyState(div, stateName, false);
     return div;
   }

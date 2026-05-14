@@ -58,7 +58,7 @@ body {
 
 /* --- CURSOR --- */
 * { cursor: none !important; }
-a, a *, button, button *, .nav-cta, .nav-cta *, .plan-cta, .btn-primary, .btn-primary *, .btn-ghost, .social-link, select { cursor: pointer !important; }
+a, a *, button, button *, .nav-cta, .nav-cta *, .plan-cta, .btn-primary, .btn-primary *, .btn-ghost, .social-link, .video-slot-3d, .video-slot-3d *, select { cursor: pointer !important; }
 input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="search"], textarea { cursor: text !important; }
 .cursor {
   position: fixed;
@@ -389,7 +389,7 @@ nav.scrolled .nav-hamburger span { background: var(--black); }
   top: calc(50% - 266.5px);
   border-radius: 20px;
   overflow: hidden;
-  cursor: none;
+  cursor: pointer;
   will-change: transform, opacity;
   backface-visibility: hidden;
   background: #111;
@@ -2750,7 +2750,7 @@ footer {
 .pf-flow-col--good .pf-flow-step--final {
   border-left-color: var(--pf-flow-good);
 }
-.pf-flow.is-visible .pf-flow-col--good .pf-flow-step--final {
+.pf-flow.is-visible .pf-flow-col--good .pf-flow-step {
   animation: pf-flow-glow-good 2.6s ease-in-out 1600ms infinite;
 }
 @keyframes pf-flow-glow-good {
@@ -2774,7 +2774,7 @@ footer {
   }
   .pf-flow.is-visible .pf-flow-list--chain::before,
   .pf-flow.is-visible .pf-flow-col--bad .pf-flow-step--final,
-  .pf-flow.is-visible .pf-flow-col--good .pf-flow-step--final {
+  .pf-flow.is-visible .pf-flow-col--good .pf-flow-step {
     animation: none;
   }
 }
@@ -2806,4 +2806,52 @@ footer {
   .pf-flow-step { padding: 0.8rem 0.9rem; gap: 0.7rem; }
   .pf-flow-step-icon { width: 26px; height: 26px; font-size: 13px; }
   .pf-flow-step-sub { font-size: 12px; }
+}
+
+/* ----- Section 02 two-column layout (flow + video) ----- */
+.pf-automation-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 48px;
+  width: 100%;
+}
+.pf-automation-col {
+  min-width: 0;
+}
+.pf-automation-col--flow {
+  flex: 0 0 55%;
+  max-width: 55%;
+  padding-left: 48px;
+}
+.pf-automation-col--video {
+  flex: 0 0 45%;
+  max-width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 1.25rem;
+  padding-right: 100px;
+}
+.pf-automation-video {
+  width: auto;
+  max-width: 420px;
+  max-height: 620px;
+  align-self: flex-end;
+  display: block;
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgba(45, 107, 228, 0.22);
+}
+
+@media (max-width: 1024px) {
+  .pf-automation-col--video {
+    display: none;
+  }
+  .pf-automation-col--flow {
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100%;
+    padding-left: 0;
+  }
 }
