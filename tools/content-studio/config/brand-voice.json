@@ -1,0 +1,25 @@
+{
+  "voice_summary": "Smart enough to teach you something. Relatable enough that you actually listen.",
+  "personality": ["knowledgeable", "relatable", "genuinely funny"],
+  "avoid": ["corporate speak", "vague promises", "jargon", "fake urgency"],
+  "content_pillars": [
+    {
+      "name": "Small Business Growth Mindset",
+      "weight": 0.40,
+      "description": "Operational truths and reframes for solo founders and small-team owners — the unglamorous stuff that compounds: lead response time, follow-up rhythm, knowing your numbers, deciding what to stop doing. Tone is honest and specific, not motivational."
+    },
+    {
+      "name": "AI Tools & Automation",
+      "weight": 0.35,
+      "description": "How real businesses use AI today, not in five years — concrete GHL workflows, Claude/ChatGPT prompts that move a needle, automations that save an actual afternoon. Always with the setup cost and the trade-off shown, never as a magic-button pitch."
+    },
+    {
+      "name": "Relatable Business Skits",
+      "weight": 0.25,
+      "description": "Short character-driven scenes that land a business lesson by being funny first. Founder vs. founder, owner vs. tool, old-school vs. new-school — the laugh earns the takeaway. Never preachy, never punching down."
+    }
+  ],
+  "platforms": ["instagram", "facebook", "linkedin", "tiktok"],
+  "tenant_id": "mtm",
+  "version": "1.0.0"
+}

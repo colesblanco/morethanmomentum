@@ -1,0 +1,19 @@
+name = "mtm-social-analytics-worker"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Deploy with:  npx wrangler deploy
+# Set secrets (each one prompts for value):
+#   npx wrangler secret put IG_ACCESS_TOKEN
+#   npx wrangler secret put IG_BUSINESS_ACCOUNT_ID
+#   npx wrangler secret put FB_PAGE_ACCESS_TOKEN
+#   npx wrangler secret put FB_PAGE_ID
+#   npx wrangler secret put MTM_SHARED_SECRET
+#
+# After deploy, copy the workers.dev URL and set it as
+# SOCIAL_ANALYTICS_WORKER_URL in the main Pages project env vars.
+# Also set MTM_SHARED_SECRET (same value as above) in the Pages env vars.
+
+# Phase 1.5: enable cron to roll daily snapshots into D1
+# [triggers]
+# crons = ["0 8 * * *"]   # 08:00 UTC daily
