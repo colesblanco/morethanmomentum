@@ -1,0 +1,205 @@
+/* PRODUCTION view — scoped .cs-prod-*. Uses tokens from studio.css. */
+
+.cs-prod-section {
+  margin-bottom: 24px;
+}
+
+/* ── Upload zone ───────────────────────────────────────────────────────── */
+.cs-prod-drop {
+  border: 2px dashed var(--cs-border);
+  border-radius: var(--cs-radius);
+  background: var(--cs-surface-1);
+  padding: 36px 24px;
+  text-align: center;
+  color: var(--cs-text-muted);
+  transition: border-color 120ms ease, background 120ms ease;
+  cursor: pointer;
+}
+.cs-prod-drop.is-drag {
+  border-color: var(--cs-power);
+  background: rgba(45, 107, 228, 0.08);
+  color: var(--cs-text);
+}
+.cs-prod-drop-icon {
+  font-family: var(--cs-font-head);
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: var(--cs-text-dim);
+  margin-bottom: 8px;
+}
+.cs-prod-drop-title {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cs-text);
+}
+.cs-prod-drop-sub {
+  font-size: 12px;
+  margin-top: 8px;
+}
+.cs-prod-drop-browse {
+  display: inline-block;
+  margin-top: 12px;
+  background: var(--cs-power);
+  color: var(--cs-offwhite);
+  padding: 9px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  border: none;
+}
+.cs-prod-drop-browse:hover { background: var(--cs-electric); }
+
+/* ── Queue + asset cards ───────────────────────────────────────────────── */
+.cs-prod-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.cs-prod-card {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-left: 3px solid var(--cs-text-dim);
+  border-radius: var(--cs-radius-sm);
+  padding: 12px;
+  display: flex; flex-direction: column;
+  gap: 10px;
+}
+.cs-prod-card[data-status="processing"] { border-left-color: var(--cs-electric); }
+.cs-prod-card[data-status="ready"]      { border-left-color: var(--cs-power); }
+.cs-prod-card[data-status="approved"]   { border-left-color: var(--cs-yellow); }
+.cs-prod-card[data-status="failed"]     { border-left-color: #ff8a8a; }
+
+.cs-prod-card-head {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cs-prod-card-name {
+  font-family: var(--cs-font-body);
+  font-size: 12px;
+  color: var(--cs-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 70%;
+}
+.cs-prod-card-badge {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--cs-surface-3);
+  color: var(--cs-text-muted);
+}
+.cs-prod-card-badge.is-uploading  { background: rgba(91,143,240,0.18); color: var(--cs-electric); }
+.cs-prod-card-badge.is-processing { background: rgba(91,143,240,0.18); color: var(--cs-electric); }
+.cs-prod-card-badge.is-ready      { background: rgba(45,107,228,0.20); color: var(--cs-power); }
+.cs-prod-card-badge.is-approved   { background: rgba(245,197,24,0.20); color: var(--cs-yellow); }
+.cs-prod-card-badge.is-failed     { background: rgba(255,138,138,0.18); color: #ff8a8a; }
+
+.cs-prod-card-meta {
+  font-size: 11px;
+  color: var(--cs-text-dim);
+}
+.cs-prod-card-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--cs-surface-3);
+  border-radius: var(--cs-radius-sm);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.cs-prod-card-thumb img,
+.cs-prod-card-thumb video {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.cs-prod-card-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--cs-surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cs-prod-card-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--cs-power);
+  width: 0%;
+  transition: width 120ms ease;
+}
+
+.cs-prod-card-actions {
+  display: flex; gap: 6px;
+  margin-top: 4px;
+}
+.cs-prod-card-actions button {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: var(--cs-radius-sm);
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border: 1px solid var(--cs-border);
+  background: transparent;
+  color: var(--cs-text);
+}
+.cs-prod-card-actions .is-primary {
+  background: var(--cs-power);
+  color: var(--cs-offwhite);
+  border-color: transparent;
+}
+.cs-prod-card-actions .is-primary:hover { background: var(--cs-electric); }
+.cs-prod-card-actions button[disabled]  { opacity: 0.5; cursor: not-allowed; }
+.cs-prod-card-actions .is-danger        { color: #ff8a8a; }
+
+.cs-prod-card-error {
+  font-size: 11px;
+  color: #ff8a8a;
+}
+
+/* ── Auto-link suggestion ──────────────────────────────────────────────── */
+.cs-prod-suggest {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(245,197,24,0.06);
+  border: 1px solid rgba(245,197,24,0.25);
+  border-radius: var(--cs-radius-sm);
+  font-size: 11px;
+  color: var(--cs-text);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.cs-prod-suggest .cs-sc-btn {
+  font-size: 10px; padding: 4px 8px;
+}
+
+/* ── Generate panel (no-upload graphics) ───────────────────────────────── */
+.cs-prod-gen-row {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cs-border);
+}
+.cs-prod-gen-row:last-child { border-bottom: none; }
+.cs-prod-gen-row-info  { font-size: 13px; color: var(--cs-text); flex: 1; min-width: 0; }
+.cs-prod-gen-row-info b { font-family: var(--cs-font-head); font-weight: 700; }
+.cs-prod-gen-row-meta  { font-size: 11px; color: var(--cs-text-muted); margin-top: 2px; }
+
+.cs-prod-empty {
+  padding: 18px;
+  text-align: center;
+  color: var(--cs-text-dim);
+  font-size: 13px;
+  border: 1px dashed var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+}

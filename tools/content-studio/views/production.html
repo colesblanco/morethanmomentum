@@ -1,17 +1,53 @@
 <header class="cs-view-header">
   <div>
     <h1 class="cs-view-title">Production</h1>
-    <div class="cs-view-sub">Capture · tag · stitch · approve</div>
+    <div class="cs-view-sub">Upload raw · Opus Clip + Canva MCP process · approve for GHL push</div>
   </div>
 </header>
 
-<div class="cs-banner">
-  <span class="cs-banner-tag">Phase 2+</span>
-  <span class="cs-banner-text">Production tools — raw upload bucket, Claude-tagged asset library, brief-to-asset matcher — coming after the Strategist Agent ships.</span>
-</div>
-
-<div class="cs-panel">
-  <div class="cs-empty-state">
-    <p>Phase 2+ will add the upload pipeline, the auto-tagger, and the asset → brief matcher here.</p>
+<section class="cs-panel cs-prod-section">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Upload Zone</h2>
+    <span class="cs-panel-sub">Video → Opus Clip · Photo → Canva brand kit</span>
   </div>
-</div>
+
+  <div class="cs-prod-drop" id="cs-prod-drop" tabindex="0" role="button" aria-label="Drop files to upload">
+    <div class="cs-prod-drop-icon">⇪</div>
+    <div class="cs-prod-drop-title">Drop files here</div>
+    <div class="cs-prod-drop-sub">
+      Video: MP4 or MOV up to 500&nbsp;MB · Images: PNG, JPG, WEBP up to 20&nbsp;MB
+    </div>
+    <button class="cs-prod-drop-browse" type="button" id="cs-prod-browse">Browse files</button>
+    <input type="file" id="cs-prod-file" accept="video/mp4,video/quicktime,image/png,image/jpeg,image/webp" multiple hidden />
+  </div>
+</section>
+
+<section class="cs-panel cs-prod-section">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Processing Queue</h2>
+    <span class="cs-panel-sub" id="cs-prod-queue-meta">—</span>
+  </div>
+  <div id="cs-prod-queue" class="cs-prod-list">
+    <div class="cs-prod-empty">Nothing in flight. Drop a file above or generate a graphic below.</div>
+  </div>
+</section>
+
+<section class="cs-panel cs-prod-section">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Generate Graphic</h2>
+    <span class="cs-panel-sub">For posts that don't need filming · routes through Canva MCP</span>
+  </div>
+  <div id="cs-prod-generate">
+    <div class="cs-loading"><div class="cs-spinner"></div><p>Loading this week's posts…</p></div>
+  </div>
+</section>
+
+<section class="cs-panel cs-prod-section">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Approved Assets</h2>
+    <span class="cs-panel-sub">Ready for Phase 5 · GHL Social Planner push</span>
+  </div>
+  <div id="cs-prod-approved" class="cs-prod-list">
+    <div class="cs-prod-empty">No approved assets yet.</div>
+  </div>
+</section>

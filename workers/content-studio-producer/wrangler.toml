@@ -1,0 +1,34 @@
+name = "content-studio-producer"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Same D1 binding as the other workers + Pages Functions.
+[[d1_databases]]
+binding       = "CONTENT_STUDIO_DB"
+database_name = "mtm_content_studio"
+database_id   = "0132db87-99c9-44f9-8c07-51a6d59443ed"
+
+# R2 bucket for raw + processed assets.
+# Create one-time:  npx wrangler r2 bucket create mtm-content-studio-assets
+[[r2_buckets]]
+binding     = "ASSETS_BUCKET"
+bucket_name = "mtm-content-studio-assets"
+
+[vars]
+TENANT_ID              = "mtm"
+CANVA_MCP_URL          = "https://mcp.canva.com/mcp"
+GOOGLE_DRIVE_ENABLED   = "false"
+PAGES_BASE_URL         = "https://morethanmomentum.com"
+# Override Claude model without code changes:
+# PRODUCER_MODEL       = "claude-sonnet-4-6"
+
+# Secrets to set after deploy (each prompts):
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put MTM_INTERNAL_SECRET
+#   npx wrangler secret put OPUS_API_KEY
+#   npx wrangler secret put CANVA_MCP_TOKEN
+#
+# Phase 4.5 (when Drive setup is ready):
+#   npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_JSON
+#   npx wrangler secret put GOOGLE_DRIVE_FOLDER_ID
+#   then flip GOOGLE_DRIVE_ENABLED to "true" above and redeploy.

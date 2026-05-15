@@ -1,0 +1,15 @@
+{
+  "name": "content-studio-producer",
+  "version": "4.0.0",
+  "private": true,
+  "description": "MTM Content Studio Producer Agent — Opus Clip video pipeline + Canva MCP graphics + R2 storage + Drive archive.",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
