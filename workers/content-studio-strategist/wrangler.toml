@@ -4,7 +4,7 @@ compatibility_date = "2025-05-01"
 
 # Sunday 20:00 UTC = 16:00 ET (4pm Eastern). Generates the upcoming week's plan.
 [triggers]
-crons = ["0 20 * * 0"]
+crons = ["0 20 * * SUN"]
 
 # D1: bind the same database used by the Pages Functions.
 # Replace database_id with the value `wrangler d1 create mtm_content_studio` printed.
