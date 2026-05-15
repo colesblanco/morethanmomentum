@@ -42,7 +42,7 @@
         <div class="cs-stat"><span class="cs-stat-label">New Leads</span><span class="cs-stat-value">${fmtInt(p.totalLeads)}</span><span class="cs-stat-meta">${esc(data.period?.label || '')}</span></div>
         <div class="cs-stat"><span class="cs-stat-label">Won Deals</span><span class="cs-stat-value">${fmtInt(p.wonDeals)}</span><span class="cs-stat-meta">${fmtMoney(p.wonRevenue)} revenue</span></div>
         <div class="cs-stat"><span class="cs-stat-label">Open Pipeline</span><span class="cs-stat-value">${fmtMoney(p.openPipelineValue)}</span><span class="cs-stat-meta">${fmtInt(p.openDeals)} deals</span></div>
-        <div class="cs-stat"><span class="cs-stat-label">Top Source</span><span class="cs-stat-value" style="font-size:20px;">${esc(data.topSource || '—')}</span><span class="cs-stat-meta">this month</span></div>
+        <div class="cs-stat"><span class="cs-stat-label">Top Source</span><span class="cs-stat-value" style="font-size:20px;">${esc(data.topSource && data.topSource !== '—' ? data.topSource : 'No leads yet')}</span><span class="cs-stat-meta">this month</span></div>
       </div>
       ${sources.length ? `
         <div style="margin-top:20px;">

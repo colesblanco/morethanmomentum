@@ -67,7 +67,7 @@ export async function onRequestGet(context) {
         wonRevenue:        snap.wonRevenue        ?? snap.totalWonRevenue    ?? 0,
         lostDeals:         snap.lostDeals         ?? 0,
         openDeals:         snap.openDeals         ?? snap.openOpportunities  ?? 0,
-        openPipelineValue: snap.openPipelineValue ?? snap.pipelineValue      ?? 0,
+        openPipelineValue: (v => isNaN(v) ? 0 : v)(Number(snap.openPipelineValue ?? snap.pipelineValue ?? 0)),
       },
       leadSources: src.sources || src.leadSources || [],
       topSource:   snap.topSource || (src.sources?.[0]?.source) || '—',
