@@ -1,0 +1,226 @@
+/* Scout UI — Format Capture (Settings) + Trend Digest (Insights).
+   Scoped .cs-sc-*. Uses tokens from studio.css. */
+
+/* ── Format Capture form ──────────────────────────────────────────────── */
+.cs-sc-capture {
+  background: var(--cs-surface-1);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.cs-sc-capture-head {
+  font-family: var(--cs-font-head);
+  font-weight: 700; font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 6px;
+}
+.cs-sc-capture-sub {
+  color: var(--cs-text-muted);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.cs-sc-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.cs-sc-field-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--cs-text-muted);
+}
+.cs-sc-field input, .cs-sc-field textarea {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  color: var(--cs-text);
+  font-family: var(--cs-font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 100%;
+  resize: vertical;
+}
+.cs-sc-field textarea { min-height: 110px; }
+.cs-sc-field input:focus, .cs-sc-field textarea:focus {
+  outline: 1px solid var(--cs-electric);
+  border-color: var(--cs-electric);
+}
+
+.cs-sc-btn {
+  background: var(--cs-power);
+  color: var(--cs-offwhite);
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--cs-radius-sm);
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+.cs-sc-btn:hover { background: var(--cs-electric); }
+.cs-sc-btn:disabled { opacity: 0.55; cursor: wait; }
+.cs-sc-btn.is-accent { background: var(--cs-electric); }
+.cs-sc-btn.is-accent:hover { background: var(--cs-power); }
+.cs-sc-btn.is-secondary {
+  background: transparent;
+  border: 1px solid var(--cs-border);
+  color: var(--cs-text);
+}
+.cs-sc-btn.is-secondary:hover { background: var(--cs-surface-2); }
+
+/* Form layout used by settings.html capture form */
+.cs-sc-form { display: flex; flex-direction: column; gap: 12px; }
+.cs-sc-form > div { display: flex; flex-direction: column; gap: 4px; }
+.cs-sc-form label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cs-text-muted);
+}
+.cs-sc-form input,
+.cs-sc-form textarea {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  color: var(--cs-text);
+  font-family: var(--cs-font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 100%;
+  resize: vertical;
+}
+.cs-sc-form textarea { min-height: 110px; }
+.cs-sc-form input:focus,
+.cs-sc-form textarea:focus {
+  outline: 1px solid var(--cs-electric);
+  border-color: var(--cs-electric);
+}
+.cs-sc-actions {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.cs-sc-btn-note {
+  font-size: 11px;
+  color: var(--cs-text-dim);
+  letter-spacing: 0.2px;
+}
+
+.cs-sc-result {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-left: 3px solid var(--cs-yellow);
+  border-radius: var(--cs-radius-sm);
+}
+.cs-sc-result-foot {
+  margin-top: 10px;
+  display: flex; justify-content: space-between;
+  font-size: 11px;
+  color: var(--cs-text-dim);
+}
+.cs-sc-result-foot a {
+  color: var(--cs-electric);
+  text-decoration: none;
+}
+.cs-sc-result-foot a:hover { text-decoration: underline; }
+
+/* ── Scout config panel ───────────────────────────────────────────────── */
+.cs-sc-config {
+  background: var(--cs-surface-1);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.cs-sc-config-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--cs-border);
+}
+.cs-sc-config-row:last-of-type { border-bottom: none; }
+.cs-sc-config-label { color: var(--cs-text-muted); }
+.cs-sc-config-value { font-weight: 600; }
+
+.cs-sc-source-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--cs-surface-3);
+  color: var(--cs-text-muted);
+  margin-left: 6px;
+}
+.cs-sc-source-pill.is-live    { color: #4ade80; background: rgba(74, 222, 128, 0.10); }
+.cs-sc-source-pill.is-pending { color: var(--cs-yellow); background: rgba(245, 197, 24, 0.10); }
+
+.cs-sc-callout {
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: rgba(245, 197, 24, 0.06);
+  border-left: 4px solid var(--cs-yellow);
+  border-radius: var(--cs-radius-sm);
+  font-size: 13px;
+  color: var(--cs-text-muted);
+}
+.cs-sc-callout-title {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--cs-yellow);
+  margin-bottom: 6px;
+}
+
+/* ── Trend Digest panel ───────────────────────────────────────────────── */
+.cs-sc-digest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.cs-sc-digest-col {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 16px;
+}
+.cs-sc-digest-head {
+  font-family: var(--cs-font-head);
+  font-weight: 700; font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+.cs-sc-digest-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--cs-border);
+  font-size: 12px;
+}
+.cs-sc-digest-row:last-child { border-bottom: none; }
+.cs-sc-digest-label { color: var(--cs-text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-sc-digest-meta  { color: var(--cs-text-dim); font-size: 11px; }
+.cs-sc-pillar-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+.cs-sc-pillar-tag.pillar_01 { background: rgba(45,107,228,0.16); color: var(--cs-power); }
+.cs-sc-pillar-tag.pillar_02 { background: rgba(91,143,240,0.16); color: var(--cs-electric); }
+.cs-sc-pillar-tag.pillar_03 { background: rgba(245,197,24,0.18); color: var(--cs-yellow); }
+
+.cs-sc-digest-foot {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--cs-border);
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  display: flex; justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .cs-sc-digest-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,30 @@
+name = "content-studio-scout"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Friday 20:30 UTC = 16:30 ET (4:30pm Eastern).
+[triggers]
+crons = ["30 20 * * FRI"]
+
+# Same D1 binding as Strategist + Pages Functions.
+[[d1_databases]]
+binding       = "CONTENT_STUDIO_DB"
+database_name = "mtm_content_studio"
+database_id   = "0132db87-99c9-44f9-8c07-51a6d59443ed"
+
+[vars]
+TENANT_ID               = "mtm"
+INSTAGRAM_SCOUT_ENABLED = "false"
+# PAGES_BASE_URL only used by the decomposer if we ever fetch brand-voice.json.
+PAGES_BASE_URL          = "https://morethanmomentum.com"
+# Override Claude model without code changes:
+# STRATEGIST_MODEL = "claude-sonnet-4-6"
+
+# Secrets to set after deploy:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put MTM_INTERNAL_SECRET
+#
+# Phase 3b activation (when Meta tokens are ready):
+#   npx wrangler secret put IG_ACCESS_TOKEN
+#   npx wrangler secret put IG_BUSINESS_ACCOUNT_ID
+#   Then flip INSTAGRAM_SCOUT_ENABLED to "true" above and redeploy.

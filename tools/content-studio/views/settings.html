@@ -1,17 +1,69 @@
 <header class="cs-view-header">
   <div>
     <h1 class="cs-view-title">Settings</h1>
-    <div class="cs-view-sub">Brand voice · platforms · agent configuration</div>
+    <div class="cs-view-sub">Format Capture · Scout configuration · brand voice</div>
   </div>
 </header>
 
-<div class="cs-banner">
-  <span class="cs-banner-tag">Phase 2+</span>
-  <span class="cs-banner-text">Edit brand voice, content pillars, platform toggles, and Strategist Agent parameters from this screen — coming after Phase 2.</span>
-</div>
-
-<div class="cs-panel">
-  <div class="cs-empty-state">
-    <p>Phase 1 reads brand voice from <code>./config/brand-voice.json</code> — edit that file directly for now.</p>
+<section class="cs-panel">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Format Capture</h2>
+    <span class="cs-panel-sub">Claude decomposes a format you saw — adds it to your library.</span>
   </div>
-</div>
+
+  <form class="cs-sc-form" id="cs-sc-capture-form">
+    <div>
+      <label for="cs-sc-url">URL (optional)</label>
+      <input id="cs-sc-url" name="url" type="url" placeholder="https://www.instagram.com/reel/..." />
+    </div>
+    <div>
+      <label for="cs-sc-description">Description</label>
+      <textarea id="cs-sc-description" name="description" placeholder="Describe the format: hook, structure, what happened, why you think it worked..."></textarea>
+    </div>
+    <div>
+      <label for="cs-sc-account">Source account (optional)</label>
+      <input id="cs-sc-account" name="source_account" type="text" placeholder="@accounthandle" />
+    </div>
+    <div class="cs-sc-actions">
+      <button id="cs-sc-capture-btn" class="cs-sc-btn" type="submit">Capture</button>
+      <span class="cs-sc-btn-note">Provide a URL or a description. Both are even better.</span>
+    </div>
+  </form>
+
+  <div id="cs-sc-capture-result"></div>
+</section>
+
+<section class="cs-panel">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Trend Scout</h2>
+    <span class="cs-panel-sub">Friday 4:30pm ET cron · public trend sources, no API tokens required</span>
+  </div>
+
+  <div id="cs-sc-status">
+    <div class="cs-loading"><div class="cs-spinner"></div><p>Loading scout status…</p></div>
+  </div>
+
+  <div class="cs-sc-actions" style="margin-top:16px;">
+    <button id="cs-sc-run-now" class="cs-sc-btn is-secondary" type="button">Run Scout Now</button>
+    <span class="cs-sc-btn-note">Manual run — same pipeline as the Friday cron. Takes ~30s.</span>
+  </div>
+
+  <div id="cs-sc-run-result"></div>
+
+  <div class="cs-sc-callout">
+    <div class="cs-sc-callout-title">Instagram account monitoring — Coming Phase 3b</div>
+    Currently watching: TikTok Creative Center + Google Trends (automated).<br>
+    Pending activation: 10 inspiration accounts including @grantbeans, @hormozi, @devinjatho…<br>
+    To activate: complete Meta token setup, then set <code>INSTAGRAM_SCOUT_ENABLED=true</code> in the Scout worker env vars.
+  </div>
+</section>
+
+<section class="cs-panel">
+  <div class="cs-panel-head">
+    <h2 class="cs-panel-title">Brand Voice</h2>
+    <span class="cs-panel-sub">Edit directly in <code>tools/content-studio/config/brand-voice.json</code></span>
+  </div>
+  <div style="font-size:13px; color:var(--cs-text-muted);">
+    Phase 1 reads brand voice from the JSON file directly. A UI editor lands in a later phase.
+  </div>
+</section>

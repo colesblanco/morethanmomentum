@@ -1,0 +1,15 @@
+{
+  "name": "content-studio-scout",
+  "version": "3.0.0",
+  "private": true,
+  "description": "MTM Content Studio — Trend Scout (TikTok Creative Center + Google Trends; Instagram account monitoring scaffolded for Phase 3b).",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
