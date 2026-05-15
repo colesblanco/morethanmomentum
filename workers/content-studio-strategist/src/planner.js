@@ -13,7 +13,7 @@ import { buildSystemPrompt, buildUserPrompt } from './prompts.js';
 
 const ANTHROPIC_URL  = 'https://api.anthropic.com/v1/messages';
 const DEFAULT_MODEL  = 'claude-sonnet-4-6';
-const MAX_TOKENS     = 4000;
+const MAX_TOKENS     = 8000;
 const TENANT_ID      = 'mtm';
 
 /* ─── Brand voice fetcher ────────────────────────────────────────────────── */
