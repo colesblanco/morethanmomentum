@@ -1,0 +1,27 @@
+name = "content-studio-strategist"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Sunday 20:00 UTC = 16:00 ET (4pm Eastern). Generates the upcoming week's plan.
+[triggers]
+crons = ["0 20 * * 0"]
+
+# D1: bind the same database used by the Pages Functions.
+# Replace database_id with the value `wrangler d1 create mtm_content_studio` printed.
+[[d1_databases]]
+binding       = "CONTENT_STUDIO_DB"
+database_name = "mtm_content_studio"
+database_id   = "0132db87-99c9-44f9-8c07-51a6d59443ed"
+
+[vars]
+TENANT_ID      = "mtm"
+PAGES_BASE_URL = "https://morethanmomentum.com"
+# Override the Claude model without code changes if needed:
+# STRATEGIST_MODEL = "claude-sonnet-4-6"
+
+# Set secrets after deploy (each one prompts):
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put MTM_INTERNAL_SECRET
+#
+# After deploy, copy the workers.dev URL and set as
+# CONTENT_STUDIO_STRATEGIST_URL in the Pages project env vars (Production).

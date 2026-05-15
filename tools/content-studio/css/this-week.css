@@ -1,0 +1,323 @@
+/* THIS WEEK view — scoped to .cs-tw-* so it can't bleed into the rest of Studio.
+   Uses tokens from studio.css; no token redefinition.
+*/
+
+.cs-tw-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.cs-tw-week-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  padding: 4px;
+}
+.cs-tw-week-btn {
+  background: transparent;
+  border: none;
+  color: var(--cs-text);
+  font-family: var(--cs-font-body);
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: var(--cs-radius-sm);
+}
+.cs-tw-week-btn:hover { background: var(--cs-surface-3); }
+.cs-tw-week-label {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0 6px;
+}
+
+.cs-tw-action {
+  background: var(--cs-power);
+  color: var(--cs-offwhite);
+  border: none;
+  padding: 9px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+.cs-tw-action:hover { background: var(--cs-electric); }
+.cs-tw-action.is-secondary {
+  background: transparent;
+  border: 1px solid var(--cs-border);
+  color: var(--cs-text);
+}
+.cs-tw-action.is-secondary:hover { background: var(--cs-surface-2); }
+.cs-tw-action[disabled] { opacity: 0.5; cursor: wait; }
+
+.cs-tw-summary, .cs-tw-brief {
+  background: var(--cs-surface-1);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.cs-tw-summary-head, .cs-tw-brief-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--cs-font-head);
+  font-weight: 700; font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--cs-text);
+  cursor: pointer;
+}
+.cs-tw-summary-body, .cs-tw-brief-body {
+  margin-top: 10px;
+  color: var(--cs-text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.cs-tw-brief-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--cs-yellow);
+  color: var(--cs-black);
+  letter-spacing: 0.4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.cs-tw-shot-list { margin: 6px 0 0 18px; padding: 0; }
+.cs-tw-shot-list li { margin: 4px 0; }
+
+.cs-tw-cascade-banner {
+  border: 1px solid var(--cs-electric);
+  background: rgba(91, 143, 240, 0.10);
+  color: var(--cs-text);
+  padding: 12px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex; gap: 12px; align-items: center;
+}
+.cs-tw-cascade-banner .cs-spinner { width: 18px; height: 18px; border-width: 2px; }
+
+.cs-tw-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(180px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.cs-tw-col {
+  display: flex; flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+.cs-tw-col-head {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+  padding: 4px 2px;
+  border-bottom: 1px solid var(--cs-border);
+  display: flex; justify-content: space-between;
+}
+.cs-tw-col-day  { color: var(--cs-text); }
+.cs-tw-col-date { color: var(--cs-text-dim); font-size: 11px; font-weight: 500; }
+
+.cs-tw-col-empty {
+  border: 1px dashed var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  padding: 14px;
+  text-align: center;
+  color: var(--cs-text-dim);
+  font-size: 11px;
+  min-height: 120px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Post card ─────────────────────────────────────────────────────────── */
+.cs-tw-card {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-left: 3px solid var(--cs-text-dim);
+  border-radius: var(--cs-radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  transition: transform 100ms ease, border-color 100ms ease;
+}
+.cs-tw-card:hover { transform: translateY(-1px); border-color: var(--cs-electric); }
+.cs-tw-card[data-pillar="pillar_01"] { border-left-color: var(--cs-power); }
+.cs-tw-card[data-pillar="pillar_02"] { border-left-color: var(--cs-electric); }
+.cs-tw-card[data-pillar="pillar_03"] { border-left-color: var(--cs-yellow); }
+
+.cs-tw-card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cs-text-muted);
+}
+.cs-tw-card-platform { font-weight: 700; }
+.cs-tw-card-time     { font-family: var(--cs-font-head); font-size: 11px; }
+
+.cs-tw-card-hook {
+  font-family: var(--cs-font-head);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cs-text);
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.cs-tw-card-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10px;
+  color: var(--cs-text-dim);
+  margin-top: 2px;
+}
+.cs-tw-card-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--cs-surface-3);
+  color: var(--cs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.cs-tw-card-badge.is-filming {
+  background: rgba(245, 197, 24, 0.18);
+  color: var(--cs-yellow);
+}
+
+.cs-tw-state-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--cs-text-dim);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.cs-tw-state-dot.is-green  { background: #4ade80; }
+.cs-tw-state-dot.is-yellow { background: var(--cs-yellow); }
+.cs-tw-state-dot.is-locked { background: var(--cs-power); }
+
+/* ── Side panel ────────────────────────────────────────────────────────── */
+.cs-tw-side {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw);
+  background: var(--cs-surface-1);
+  border-left: 1px solid var(--cs-border);
+  box-shadow: -8px 0 24px rgba(0,0,0,0.4);
+  transform: translateX(100%);
+  transition: transform 220ms ease;
+  z-index: 50;
+  display: flex; flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+.cs-tw-side.is-open { transform: translateX(0); }
+
+.cs-tw-side-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.cs-tw-side-title {
+  font-family: var(--cs-font-head);
+  font-weight: 700; font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0;
+}
+.cs-tw-side-close {
+  background: transparent; border: none; color: var(--cs-text);
+  font-size: 22px; cursor: pointer;
+}
+
+.cs-tw-field {
+  display: flex; flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.cs-tw-field-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cs-text-muted);
+  display: flex; align-items: center;
+}
+.cs-tw-field input, .cs-tw-field textarea, .cs-tw-field select {
+  background: var(--cs-surface-2);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  color: var(--cs-text);
+  font-family: var(--cs-font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 100%;
+  resize: vertical;
+}
+.cs-tw-field textarea { min-height: 90px; }
+.cs-tw-field input:focus, .cs-tw-field textarea:focus, .cs-tw-field select:focus {
+  outline: 1px solid var(--cs-electric);
+  border-color: var(--cs-electric);
+}
+
+.cs-tw-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cs-tw-decision {
+  font-style: italic;
+  color: var(--cs-text-muted);
+  font-size: 12px;
+  background: var(--cs-surface-2);
+  border-left: 2px solid var(--cs-electric);
+  padding: 10px 12px;
+  border-radius: var(--cs-radius-sm);
+  margin-bottom: 14px;
+}
+
+.cs-tw-side-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--cs-border);
+}
+.cs-tw-cascade-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  margin-left: auto;
+}
+
+.cs-tw-saving {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border: 2px solid var(--cs-border);
+  border-top-color: var(--cs-power);
+  border-radius: 50%;
+  animation: cs-spin 800ms linear infinite;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+@media (max-width: 900px) {
+  .cs-tw-grid { grid-template-columns: repeat(7, 60vw); }
+  .cs-tw-side { width: 100vw; }
+}
