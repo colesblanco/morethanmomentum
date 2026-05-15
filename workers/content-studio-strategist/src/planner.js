@@ -109,14 +109,25 @@ async function callClaude(env, system, userPrompt) {
   const text = data?.content?.[0]?.text;
   if (!text) throw new Error('Empty Anthropic response');
 
-  // Strip accidental markdown fences before parsing.
-  const stripped = text.trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/i, '');
+  // Sanitize the raw text before parsing. Claude occasionally emits smart
+  // quotes / em-dashes / ellipsis inside string values — JSON.parse handles
+  // those fine in well-formed strings, but they corrupt downstream rendering
+  // and (more importantly) UTF-8 transport through some intermediaries.
+  // Strip markdown fences and normalize the offenders to ASCII equivalents.
+  const sanitized = text
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .replace(/[‘’]/g, "'")   // smart single quotes → straight
+    .replace(/[“”]/g, '"')   // smart double quotes → straight
+    .replace(/—/g, '--')          // em dash
+    .replace(/–/g, '-')           // en dash
+    .replace(/…/g, '...')         // ellipsis
+    .trim();
+
   try {
-    return { plan: JSON.parse(stripped), usage: data.usage || null, model };
+    return { plan: JSON.parse(sanitized), usage: data.usage || null, model };
   } catch (err) {
-    throw new Error(`Plan JSON parse failed: ${err.message}. Raw head: ${stripped.slice(0, 200)}`);
+    throw new Error(`Plan JSON parse failed: ${err.message}. Raw head: ${sanitized.slice(0, 200)}`);
   }
 }
 

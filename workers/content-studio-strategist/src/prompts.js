@@ -122,7 +122,9 @@ export function buildSystemPrompt(brand) {
     `  ]`,
     `}`,
     ``,
-    `Generate exactly 7 posts — one per day, Monday through Sunday — unless the user prompt says you are in CASCADE mode, in which case generate only the days listed in TARGET_DAYS.`,
+    `Generate exactly 7 posts -- one per day, Monday through Sunday -- unless the user prompt says you are in CASCADE mode, in which case generate only the days listed in TARGET_DAYS.`,
+    ``,
+    `IMPORTANT: Return only valid ASCII-safe JSON. Use -- instead of em dashes, use straight quotes only, no smart quotes, no ellipsis character. No text outside the JSON object.`,
   ].filter(line => line !== null && line !== undefined).join('\n');
 }
 
