@@ -1,25 +1,215 @@
 {
-  "voice_summary": "Smart enough to teach you something. Relatable enough that you actually listen.",
-  "personality": ["knowledgeable", "relatable", "genuinely funny"],
-  "avoid": ["corporate speak", "vague promises", "jargon", "fake urgency"],
+  "tenant_id": "mtm",
+  "version": "1.0",
+  "source": "MTM Brand Identity Guide v1.0 · 2026",
+
+  "identity": {
+    "name": "More Than Momentum",
+    "slug": "mtm",
+    "positioning": "More Than Momentum builds the AI-powered digital infrastructure small and mid-size businesses need to grow — starting with a website and automation, scaling into content and full growth management.",
+    "mission": "Give small and mid-size businesses the digital infrastructure they need to grow — consistently, intelligently, without figuring it out themselves.",
+    "voice_in_one_line": "Smart enough to teach you something. Relatable enough that you actually listen.",
+    "personality_archetypes": ["Educator", "Entertainer", "Innovator", "Real Person"]
+  },
+
+  "audience": {
+    "primary": "Small local business owners who are too busy to DIY",
+    "profile": "1–20 employees, $150K–$1M annual revenue, losing leads because no follow-up system exists, little to no digital presence, owner makes all decisions",
+    "inner_dialogue": [
+      "Our business is great but nobody knows we exist online.",
+      "We had a lead call us, we forgot to follow up, they went with a competitor.",
+      "Our website looks like it was built in 2015.",
+      "We tried hiring a marketing agency before — they overpromised and underdelivered.",
+      "If someone could just handle this for me, I would pay well for it."
+    ]
+  },
+
+  "voice": {
+    "traits": ["knowledgeable", "relatable", "genuinely funny", "direct", "warm", "confident"],
+    "tone_summary": "Direct, warm, confident. Educates AND entertains. Talks like a smart friend who has figured it out — not a consultant.",
+    "do": [
+      "Your competitor is getting leads right now. Are you?",
+      "Automation doesn't replace you — it just makes sure no lead goes cold.",
+      "Honestly? Most small businesses are invisible online. Let's fix that.",
+      "If your website was built in 2015, your competitors thank you.",
+      "You didn't lose that client to a better product. You lost them to a faster follow-up.",
+      "78% of customers go with the business that responds first. Not the best one."
+    ],
+    "dont": [
+      "Our robust omnichannel solutions drive synergistic growth.",
+      "We leverage AI to optimize your customer acquisition funnel at scale.",
+      "We provide comprehensive digital marketing packages for SMBs.",
+      "Outdated web presence negatively impacts conversion rate metrics."
+    ],
+    "avoid_always": [
+      "corporate speak",
+      "vague promises",
+      "jargon overload",
+      "fake urgency",
+      "passive voice on hooks",
+      "question marks at end of CTAs that should be statements"
+    ]
+  },
+
   "content_pillars": [
     {
+      "id": "pillar_01",
       "name": "Small Business Growth Mindset",
+      "label": "Growth Mindset",
       "weight": 0.40,
-      "description": "Operational truths and reframes for solo founders and small-team owners — the unglamorous stuff that compounds: lead response time, follow-up rhythm, knowing your numbers, deciding what to stop doing. Tone is honest and specific, not motivational."
+      "role": "The WHY behind what we do",
+      "description": "Content that speaks directly to the owner mentality — the grind, the wins, the invisible problems that cost real money. This is the heart of the brand.",
+      "goal": "Build trust. Make owners feel seen.",
+      "formats": [
+        "Hook post — call out the invisible problem",
+        "Truth bomb — reframe a painful business moment",
+        "Stat post — open with a specific shocking number",
+        "Story — real scenario with a dollar figure, then the fix",
+        "CTA post — anchor on what one new client is worth"
+      ],
+      "example_hooks": [
+        "The best businesses I know are invisible online. That's the problem.",
+        "You didn't lose that client to a better product. You lost them to a faster follow-up.",
+        "78% of customers go with the business that responds first. Not the best one.",
+        "A local HVAC owner lost $12k this summer because no one followed up on leads. Here's the fix.",
+        "What does one new client mean in revenue for you? That's your marketing budget."
+      ]
     },
     {
+      "id": "pillar_02",
       "name": "AI Tools & Automation",
+      "label": "AI & Automation",
       "weight": 0.35,
-      "description": "How real businesses use AI today, not in five years — concrete GHL workflows, Claude/ChatGPT prompts that move a needle, automations that save an actual afternoon. Always with the setup cost and the trade-off shown, never as a magic-button pitch."
+      "role": "The HOW — our expertise made accessible",
+      "description": "We demystify AI and automation for non-tech business owners. Practical, specific, always tied to a real outcome. MTM is the translator between tech and business.",
+      "goal": "Establish authority. Trigger curiosity.",
+      "formats": [
+        "Tutorial — numbered list of specific tools or steps",
+        "Demo clip — show the automation firing in real time",
+        "Before/After — contrast the manual vs automated state",
+        "Myth bust — correct a common AI misconception",
+        "Tool spotlight — one tool explained in 60 seconds for non-tech owners"
+      ],
+      "example_hooks": [
+        "5 AI tools I'd give every local business owner today (and they're not ChatGPT)",
+        "This automation sends a follow-up text in 60 seconds. Watch it.",
+        "Before: 0 leads followed up. After: every single one. Here's what changed.",
+        "AI won't replace you. But the owner using AI will. Here's how to use it.",
+        "GoHighLevel explained in 60 seconds for people who hate tech."
+      ]
     },
     {
+      "id": "pillar_03",
       "name": "Relatable Business Skits",
+      "label": "Skits",
       "weight": 0.25,
-      "description": "Short character-driven scenes that land a business lesson by being funny first. Founder vs. founder, owner vs. tool, old-school vs. new-school — the laugh earns the takeaway. Never preachy, never punching down."
+      "role": "The HOOK — entertainment with a message",
+      "description": "Short-form video content that is funny, relatable, and secretly educational. Skits recreate the painful moments every business owner has lived through — then show the smarter path.",
+      "goal": "Stop the scroll. Drive shares.",
+      "formats": [
+        "POV skit — first-person cringe moment every owner recognizes",
+        "Character — recurring business owner archetype",
+        "Reaction — Cole reacting to a common bad business take",
+        "Day-in-the-life — timestamped with business lesson at each beat",
+        "Skit series — recurring format with a consistent structure"
+      ],
+      "example_hooks": [
+        "POV: A lead texts you and you see it... 4 hours later.",
+        "Types of business owners: The 'I'll figure out social media later' guy.",
+        "Me when someone says 'we don't need a website, we have Facebook.'",
+        "24 hours running a local business vs. 24 hours with automation set up.",
+        "What your marketing looks like vs. what it could look like."
+      ]
     }
   ],
-  "platforms": ["instagram", "facebook", "linkedin", "tiktok"],
-  "tenant_id": "mtm",
-  "version": "1.0.0"
+
+  "content_mix": {
+    "pillar_01_growth_mindset": 0.40,
+    "pillar_02_ai_automation": 0.35,
+    "pillar_03_skits": 0.25,
+    "note": "Over any rolling 4-week window, the mix should approximate these weights. Single weeks can vary — a filming-heavy week may skew toward Pillar 03."
+  },
+
+  "platforms": {
+    "instagram": {
+      "enabled": true,
+      "content_types": ["Reels", "Carousels", "Single image"],
+      "best_post_times": ["Tuesday 10am", "Wednesday 11am", "Friday 9am"],
+      "caption_style": "Hook in first line (no truncation), value in middle, soft CTA at end. 3–5 hashtags max, placed at end.",
+      "hashtag_pool": ["#smallbusiness", "#businessowner", "#automation", "#localservice", "#marketingtips", "#aitools", "#growthmindset", "#entrepreneur", "#smallbiz", "#digitalmarketing", "#morethanmomentum"]
+    },
+    "facebook": {
+      "enabled": true,
+      "content_types": ["Reels", "Single image", "Link posts"],
+      "best_post_times": ["Wednesday 9am", "Thursday 1pm", "Friday 10am"],
+      "caption_style": "Slightly longer than Instagram. Can include a question at end to drive comments. Same hook-first structure.",
+      "hashtag_pool": ["#smallbusiness", "#automation", "#localservice", "#businessgrowth", "#morethanmomentum"]
+    },
+    "linkedin": {
+      "enabled": false,
+      "phase": "1.5",
+      "content_types": ["Text posts", "Carousels", "Short video"],
+      "caption_style": "More professional tone while keeping the direct voice. Lead with insight, not promotion."
+    },
+    "tiktok": {
+      "enabled": false,
+      "phase": "1.5",
+      "content_types": ["Short video"],
+      "caption_style": "Shortest captions. Hook is everything. Text overlay on video carries the message."
+    }
+  },
+
+  "visual_identity": {
+    "colors": {
+      "primary_bg": "#0C0C0C",
+      "cta_primary": "#2D6BE4",
+      "accent": "#5B8FF0",
+      "highlight": "#F5C518",
+      "light_surface": "#F4F4F2",
+      "divider": "#E6E6E4",
+      "card_bg": "#1A1A1A",
+      "secondary_bg": "#111111",
+      "body_text_dark": "#888888"
+    },
+    "typography": {
+      "display_headline": "Barlow Condensed ExtraBold, uppercase, tracking +20",
+      "subheading": "Barlow SemiBold, mixed case, tracking 0",
+      "body": "Inter Regular / Helvetica Neue, 16px, 1.6 line height"
+    },
+    "design_philosophy": "Dark-first. Authority, trust, bold clarity. Never generic AI aesthetic."
+  },
+
+  "what_we_are_not": [
+    "A social media agency",
+    "A web design shop",
+    "An AI chatbot company",
+    "An overpriced retainer trap"
+  ],
+
+  "what_we_are": [
+    "A full-stack digital growth partner",
+    "Transparent and modular pricing",
+    "AI-powered, human-led strategy",
+    "The system that runs without you"
+  ],
+
+  "strategist_instructions": {
+    "weekly_plan_rules": [
+      "Every week must hit the 40/35/25 pillar split across 7 posts. Single-post rounding is fine; the weekly total must be approximately 3 Growth Mindset, 2–3 AI/Automation, 1–2 Skits.",
+      "Instagram and Facebook are the two live platforms in Phase 1. Plan for both. Cross-post where format fits; differentiate caption length and hashtags per platform.",
+      "Every hook must pass the scroll-stop test: would this make a tired business owner stop at 11pm? If not, rewrite it.",
+      "Captions lead with the hook, deliver value in the middle, end with a soft CTA or open loop. Never end with 'Follow us for more.'",
+      "Hashtags: 3–5 per post on Instagram, 2–3 on Facebook. Pull from the platform hashtag pools. Never use generic ones like #marketing alone.",
+      "Post times are the best-performing windows from the platform config. The Strategist may deviate by 30 minutes based on audience data — never more than 1 hour.",
+      "Every post gets a decision_log: one paragraph explaining why this hook, this platform, this format, this time. Be specific. 'Tuesday 10am because MTM's audience indexes high on Tuesday morning engagement based on current baseline' — not 'this time works well.'",
+      "The filming brief must list only what needs to be physically shot. Graphics and carousels do not belong in the filming brief — they go to Canva. Skits and talking-head videos belong in the filming brief.",
+      "Wednesday filming is optional. Only include it if Monday's brief alone cannot fulfill the week's video requirements."
+    ],
+    "tone_reminders": [
+      "Write every caption as if Cole is texting a business owner friend — not presenting to a boardroom.",
+      "Humor is allowed and encouraged, especially in Pillar 03 content. Never forced. Never at the expense of clarity.",
+      "Specific numbers always outperform vague claims. '78% of customers' beats 'most customers' every time.",
+      "The brand punches at problems, not at competitors. Never name a competitor brand."
+    ]
+  }
 }
