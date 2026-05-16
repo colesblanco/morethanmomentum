@@ -4513,6 +4513,7 @@ async function downloadWebsiteZip() {
       <button class="ls-tab" data-pane="upload" onclick="lsSwitchPane('upload')">Upload</button>
       <button class="ls-tab" data-pane="score" onclick="lsSwitchPane('score')">Score Queue<span class="ls-tab-badge" id="ls-badge-unscored">0</span></button>
       <button class="ls-tab" data-pane="rank" onclick="lsSwitchPane('rank')">Ranked Leads<span class="ls-tab-badge" id="ls-badge-total">0</span></button>
+      <button class="ls-tab" data-pane="playbook" onclick="lsSwitchPane('playbook')" style="margin-left:auto;color:var(--yellow)">📋 Playbook</button>
     </div>
 
 
@@ -4685,7 +4686,560 @@ async function downloadWebsiteZip() {
           </tbody>
         </table>
       </div>
-    </div>
+    </div><!-- end ls-pane-rank -->
+
+    <!-- ──────────── PLAYBOOK PANE ──────────── -->
+    <div class="ls-pane" id="ls-pane-playbook" style="padding:0;gap:0">
+      <style>
+        /* All playbook styles scoped under #ls-pane-playbook to avoid collisions. */
+        #ls-pane-playbook .pb-wrap { padding: 0 28px 40px; }
+
+        #ls-pane-playbook .pb-hero {
+          background: linear-gradient(135deg, rgba(45,107,228,.18), rgba(45,107,228,.04));
+          border-bottom: 1px solid var(--border);
+          padding: 28px;
+        }
+        #ls-pane-playbook .pb-hero-tag {
+          font-size: 11px; font-weight: 500; letter-spacing: .12em;
+          text-transform: uppercase; color: var(--accent-light); margin-bottom: 8px;
+        }
+        #ls-pane-playbook .pb-hero-title {
+          font-family: var(--speed); font-weight: 700; font-size: 28px;
+          color: var(--white); letter-spacing: .02em; line-height: 1.1; margin-bottom: 8px;
+        }
+        #ls-pane-playbook .pb-hero-sub { font-size: 13px; color: var(--gray); max-width: 640px; line-height: 1.6; }
+
+        #ls-pane-playbook .pb-toc {
+          display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 28px;
+          border-bottom: 1px solid var(--border); background: var(--dark);
+          position: sticky; top: 0; z-index: 5;
+        }
+        #ls-pane-playbook .pb-toc-btn {
+          background: var(--card); border: 1px solid var(--border);
+          border-radius: 999px; padding: 6px 12px; font-size: 12px;
+          color: var(--gray); cursor: pointer; transition: all .15s;
+          font-family: var(--sans);
+        }
+        #ls-pane-playbook .pb-toc-btn:hover { color: var(--white); border-color: var(--gray); }
+        #ls-pane-playbook .pb-toc-btn.hot   { color: #f87171; border-color: rgba(245,90,90,.3); }
+        #ls-pane-playbook .pb-toc-btn.warm  { color: var(--yellow); border-color: rgba(245,197,24,.3); }
+        #ls-pane-playbook .pb-toc-btn.cold  { color: var(--green);  border-color: rgba(74,222,128,.3); }
+        #ls-pane-playbook .pb-toc-btn:hover { background: rgba(255,255,255,.04); }
+
+        #ls-pane-playbook .pb-section { margin-top: 32px; }
+        #ls-pane-playbook .pb-section-header {
+          display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+        }
+        #ls-pane-playbook .pb-section-dot {
+          width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        }
+        #ls-pane-playbook .pb-section-label {
+          font-family: var(--speed); font-weight: 700; font-size: 18px;
+          letter-spacing: .06em; text-transform: uppercase; color: var(--white);
+        }
+        #ls-pane-playbook .pb-section-meta {
+          font-size: 11px; color: var(--gray); letter-spacing: .06em;
+          text-transform: uppercase; margin-left: auto;
+        }
+
+        #ls-pane-playbook .pb-touch {
+          background: var(--card); border: 1px solid var(--border);
+          border-radius: 10px; margin-bottom: 12px; overflow: hidden;
+        }
+        #ls-pane-playbook .pb-touch-header {
+          display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+          cursor: pointer; transition: background .15s;
+        }
+        #ls-pane-playbook .pb-touch-header:hover { background: rgba(255,255,255,.03); }
+        #ls-pane-playbook .pb-touch-day {
+          font-size: 10px; font-weight: 500; letter-spacing: .08em;
+          text-transform: uppercase; color: var(--gray); min-width: 48px;
+        }
+        #ls-pane-playbook .pb-touch-type {
+          font-size: 10px; font-weight: 500; letter-spacing: .08em;
+          text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+        }
+        #ls-pane-playbook .pb-type-email {
+          background: rgba(45,107,228,.15); color: var(--accent-light);
+          border: 1px solid rgba(45,107,228,.3);
+        }
+        #ls-pane-playbook .pb-type-sms {
+          background: rgba(74,222,128,.12); color: var(--green);
+          border: 1px solid rgba(74,222,128,.3);
+        }
+        #ls-pane-playbook .pb-touch-subject { font-size: 13px; color: var(--white); flex: 1; }
+        #ls-pane-playbook .pb-touch-chevron {
+          color: var(--gray); font-size: 12px; transition: transform .2s;
+        }
+        #ls-pane-playbook .pb-touch.open .pb-touch-chevron { transform: rotate(180deg); }
+
+        #ls-pane-playbook .pb-touch-body { display: none; padding: 0 16px 16px; }
+        #ls-pane-playbook .pb-touch.open .pb-touch-body { display: block; }
+
+        #ls-pane-playbook .pb-subject-line {
+          font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+          color: var(--gray); margin: 8px 0 6px;
+        }
+
+        #ls-pane-playbook .pb-message-box {
+          background: var(--dark); border: 1px solid var(--border);
+          border-radius: 8px; padding: 14px 16px; font-size: 13px;
+          color: var(--white); line-height: 1.65; white-space: pre-wrap;
+          position: relative; font-family: var(--sans);
+        }
+        #ls-pane-playbook .pb-copy-btn {
+          position: absolute; top: 10px; right: 10px;
+          background: var(--card); border: 1px solid var(--border);
+          border-radius: 6px; padding: 4px 10px; font-size: 11px;
+          color: var(--gray); cursor: pointer; transition: all .15s;
+          font-family: var(--sans);
+        }
+        #ls-pane-playbook .pb-copy-btn:hover { color: var(--white); border-color: var(--gray); }
+        #ls-pane-playbook .pb-copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,.4); }
+
+        #ls-pane-playbook .pb-note {
+          border-left: 2px solid var(--yellow);
+          background: rgba(245,197,24,.06);
+          padding: 10px 14px; margin-top: 10px;
+          font-size: 12px; color: var(--gray); line-height: 1.55; font-style: italic;
+        }
+
+        #ls-pane-playbook .pb-cat-grid {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        #ls-pane-playbook .pb-cat-card {
+          background: var(--card); border: 1px solid var(--border);
+          border-radius: 10px; padding: 16px 18px;
+        }
+        #ls-pane-playbook .pb-cat-title {
+          font-family: var(--speed); font-weight: 700; font-size: 16px;
+          color: var(--white); letter-spacing: .04em; margin-bottom: 10px;
+        }
+        #ls-pane-playbook .pb-cat-item {
+          font-size: 12px; color: var(--gray); line-height: 1.6;
+          padding: 8px 0; border-bottom: 1px solid var(--border);
+        }
+        #ls-pane-playbook .pb-cat-item:last-child { border-bottom: none; }
+        #ls-pane-playbook .pb-cat-item strong { color: var(--white); font-weight: 500; }
+
+        #ls-pane-playbook .pb-rule-list { display: flex; flex-direction: column; gap: 8px; }
+        #ls-pane-playbook .pb-rule {
+          display: flex; gap: 12px; align-items: flex-start;
+          background: var(--card); border: 1px solid var(--border);
+          border-radius: 8px; padding: 12px 14px;
+        }
+        #ls-pane-playbook .pb-rule::before {
+          content: ''; width: 6px; height: 6px; border-radius: 50%;
+          background: var(--accent); flex-shrink: 0; margin-top: 7px;
+        }
+        #ls-pane-playbook .pb-rule-text { font-size: 13px; color: var(--gray); line-height: 1.55; }
+      </style>
+
+      <!-- Hero -->
+      <div class="pb-hero">
+        <div class="pb-hero-tag">More Than Momentum · Internal Reference</div>
+        <div class="pb-hero-title">Outreach Sequence Playbook</div>
+        <div class="pb-hero-sub">Pre-built email and SMS sequences for Hot, Warm, and Cold leads. Reference these copy blocks when setting up GHL workflows or running manual outreach. Personalize using the lead's score_reason, category, and business_name fields.</div>
+      </div>
+
+      <!-- Quick-jump nav -->
+      <div class="pb-toc">
+        <button class="pb-toc-btn hot"  onclick="return pbScrollTo('pb-hot')">🔥 Hot Sequence</button>
+        <button class="pb-toc-btn warm" onclick="return pbScrollTo('pb-warm')">⚡ Warm Sequence</button>
+        <button class="pb-toc-btn cold" onclick="return pbScrollTo('pb-cold')">❄️ Cold Sequence</button>
+        <button class="pb-toc-btn"      onclick="return pbScrollTo('pb-rules')">📐 Rules</button>
+        <button class="pb-toc-btn"      onclick="return pbScrollTo('pb-cats')">🏷 Categories</button>
+      </div>
+
+      <div class="pb-wrap">
+
+        <!-- Rules -->
+        <div class="pb-section" id="pb-rules">
+          <div class="pb-section-header">
+            <span class="pb-section-dot" style="background:var(--accent)"></span>
+            <span class="pb-section-label">📐 Operating Rules</span>
+            <span class="pb-section-meta">Read first · 5 rules</span>
+          </div>
+          <div class="pb-rule-list">
+            <div class="pb-rule"><div class="pb-rule-text">Never send the Hot sequence to a Cold lead. Wrong temperature = dead sequence.</div></div>
+            <div class="pb-rule"><div class="pb-rule-text">SMS is only in Hot and Warm sequences. Do not cold-SMS a cold lead.</div></div>
+            <div class="pb-rule"><div class="pb-rule-text">If a lead responds at any point, remove from active sequence and move to human follow-up immediately.</div></div>
+            <div class="pb-rule"><div class="pb-rule-text">The breakup email always goes out regardless of response status. It closes the loop and often converts.</div></div>
+            <div class="pb-rule"><div class="pb-rule-text">Unsubscribe tag: any "stop" or "unsubscribe" reply → tag the contact and remove from all sequences.</div></div>
+          </div>
+        </div>
+
+        <!-- HOT SEQUENCE -->
+        <div class="pb-section" id="pb-hot">
+          <div class="pb-section-header">
+            <span class="pb-section-dot" style="background:#f87171"></span>
+            <span class="pb-section-label">🔥 Hot Sequence</span>
+            <span class="pb-section-meta">Score 70–100 · 5 touches · 14 days · Email + SMS</span>
+          </div>
+
+          <!-- Hot Touch 1 -->
+          <div class="pb-touch" id="pb-hot-t1">
+            <div class="pb-touch-header" onclick="pbToggle('pb-hot-t1')">
+              <span class="pb-touch-day">Day 0</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">I made something for [Business Name]</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-hot-t1-subj">I made something for [Business Name]<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t1-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-hot-t1-body">Hey [First Name],
+
+My name is Cole, I run an agency called More Than Momentum out of Keene, NH.
+
+I was looking at businesses like yours in [City] and noticed [Business Name] doesn't have a website — or the one you have isn't doing you any favors online.
+
+For a business doing quality work, that's costing you real leads. Customers search, they don't find you, and they go with whoever shows up first.
+
+I put together a quick concept for what a site for [Business Name] could look like. No charge, no commitment — I just wanted you to see what's possible before we ever talked.
+
+[ATTACH OR LINK DEMO CONCEPT]
+
+If you like what you see, I'd love to jump on a 15-minute call. If not, no hard feelings.
+
+Cole Blanco
+More Than Momentum
+morethanmomentum.com<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t1-body', this)">Copy</button></div>
+              <div class="pb-note">Attach a Claude Design mockup specific to their category. Reference their specific situation using the score_reason field. Keep subject lowercase.</div>
+            </div>
+          </div>
+
+          <!-- Hot Touch 2 -->
+          <div class="pb-touch" id="pb-hot-t2">
+            <div class="pb-touch-header" onclick="pbToggle('pb-hot-t2')">
+              <span class="pb-touch-day">Day 1</span>
+              <span class="pb-touch-type pb-type-sms">SMS</span>
+              <span class="pb-touch-subject">Reference the email — short and direct</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Message</div>
+              <div class="pb-message-box" id="pb-hot-t2-body">Hey [First Name], Cole here from More Than Momentum. Sent you an email about [Business Name]'s online presence — worth a quick look. No pitch, just something I made for you.<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t2-body', this)">Copy</button></div>
+              <div class="pb-note">Send within 24 hours. Keep under 160 characters so it doesn't split on older phones.</div>
+            </div>
+          </div>
+
+          <!-- Hot Touch 3 -->
+          <div class="pb-touch" id="pb-hot-t3">
+            <div class="pb-touch-header" onclick="pbToggle('pb-hot-t3')">
+              <span class="pb-touch-day">Day 4</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">what happened when a [category] company got online</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-hot-t3-subj">what happened when a [category] company got online<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t3-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-hot-t3-body">Hey [First Name],
+
+Following up from my email a few days ago.
+
+Here's a quick story: A local HVAC company in southern NH had no website and was losing leads every week to competitors who showed up on Google. We built them a site with a lead capture system, and in the first 30 days they had 12 form submissions they would have never gotten before.
+
+[Swap this example for whatever category fits. Use a real client story as soon as you have one.]
+
+Not every business needs a marketing agency. But every business that does good work deserves to be found.
+
+Still happy to show you what this could look like for [Business Name] — no obligation.
+
+Cole Blanco
+More Than Momentum
+morethanmomentum.com<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t3-body', this)">Copy</button></div>
+              <div class="pb-note">Swap for a real client story as soon as you have one. Specific numbers ("12 form submissions") are 10x more compelling than general claims.</div>
+            </div>
+          </div>
+
+          <!-- Hot Touch 4 -->
+          <div class="pb-touch" id="pb-hot-t4">
+            <div class="pb-touch-header" onclick="pbToggle('pb-hot-t4')">
+              <span class="pb-touch-day">Day 7</span>
+              <span class="pb-touch-type pb-type-sms">SMS</span>
+              <span class="pb-touch-subject">Direct ask for a call</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Message</div>
+              <div class="pb-message-box" id="pb-hot-t4-body">[First Name] — any interest in a quick 15-min call this week? Happy to walk you through what I built for [Business Name]. No sales pitch, just want to show you. — Cole<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t4-body', this)">Copy</button></div>
+              <div class="pb-note">Direct ask. If they respond with any interest at all, move to human follow-up immediately.</div>
+            </div>
+          </div>
+
+          <!-- Hot Touch 5 -->
+          <div class="pb-touch" id="pb-hot-t5">
+            <div class="pb-touch-header" onclick="pbToggle('pb-hot-t5')">
+              <span class="pb-touch-day">Day 14</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">closing out [Business Name]</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-hot-t5-subj">closing out [Business Name]<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t5-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-hot-t5-body">Hey [First Name],
+
+I've reached out a few times over the past two weeks and I don't want to keep filling your inbox.
+
+I'm going to close out your file on Friday. If the timing ever works in the future — new season, slow period, whenever — you can always reach me at cole@morethanmomentum.com or just reply to this email.
+
+I built the concept for [Business Name] with real attention, and I still think there's something here worth talking about. But I respect your time.
+
+Wishing you a busy season.
+
+Cole
+More Than Momentum<button class="pb-copy-btn" onclick="pbCopy('pb-hot-t5-body', this)">Copy</button></div>
+              <div class="pb-note">The breakup email converts surprisingly well. "Closing your file Friday" creates genuine urgency. Short and human wins — don't oversell.</div>
+            </div>
+          </div>
+        </div><!-- end #pb-hot -->
+
+        <!-- WARM SEQUENCE -->
+        <div class="pb-section" id="pb-warm">
+          <div class="pb-section-header">
+            <span class="pb-section-dot" style="background:var(--yellow)"></span>
+            <span class="pb-section-label">⚡ Warm Sequence</span>
+            <span class="pb-section-meta">Score 40–69 · 4 touches · 21 days · Email + 1 SMS</span>
+          </div>
+
+          <!-- Warm Touch 1 -->
+          <div class="pb-touch" id="pb-warm-t1">
+            <div class="pb-touch-header" onclick="pbToggle('pb-warm-t1')">
+              <span class="pb-touch-day">Day 0</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">one thing I noticed about [Business Name]</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-warm-t1-subj">one thing I noticed about [Business Name]<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t1-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-warm-t1-body">Hey [First Name],
+
+My name is Cole — I run a digital marketing agency called More Than Momentum. I help local businesses like yours get more out of their online presence.
+
+I was doing research on [category] companies in [City] and came across [Business Name]'s website.
+
+[Use the score_reason field here — e.g.: "I noticed the site doesn't have a mobile-friendly layout, which means a big chunk of the people searching for you on their phones are probably bouncing before they ever call."]
+
+That's a fixable problem, and it doesn't have to cost a fortune.
+
+I'm not trying to sell you anything right now — just thought it was worth flagging since it's likely costing you leads every week.
+
+If you ever want a second set of eyes on your digital presence, I'm happy to take a look. No charge.
+
+Cole Blanco
+More Than Momentum
+morethanmomentum.com<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t1-body', this)">Copy</button></div>
+              <div class="pb-note">The score_reason field is your personalization engine. Drop it directly into the bracketed placeholder above.</div>
+            </div>
+          </div>
+
+          <!-- Warm Touch 2 -->
+          <div class="pb-touch" id="pb-warm-t2">
+            <div class="pb-touch-header" onclick="pbToggle('pb-warm-t2')">
+              <span class="pb-touch-day">Day 5</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">what your competitors in [City] are doing online</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-warm-t2-subj">what your competitors in [City] are doing online<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t2-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-warm-t2-body">Hey [First Name],
+
+Quick follow-up from last week. Wanted to share something I see a lot with local [category] businesses.
+
+Most of the ones that are crushing it online right now are not doing anything complicated. They've got three things going:
+
+1. A website that loads fast and looks right on a phone.
+2. A form or button that makes it easy to request a quote in under 30 seconds.
+3. An automated follow-up that texts a lead within 5 minutes of them reaching out.
+
+That third one is the biggest difference-maker. The data is clear: businesses that respond to a lead within 5 minutes are 9x more likely to win the job than those who respond later.
+
+Most local shops respond in hours — or not at all. That's where your competitors are beating you, and it has nothing to do with the quality of your work.
+
+If you want to see what this looks like in practice, I can put together a quick 15-minute demo. No commitment.
+
+Cole
+More Than Momentum<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t2-body', this)">Copy</button></div>
+              <div class="pb-note">The "9x more likely" stat is real and well-documented. Leads the credibility argument without you having to claim anything about yourself.</div>
+            </div>
+          </div>
+
+          <!-- Warm Touch 3 -->
+          <div class="pb-touch" id="pb-warm-t3">
+            <div class="pb-touch-header" onclick="pbToggle('pb-warm-t3')">
+              <span class="pb-touch-day">Day 12</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">a before and after from a business like yours</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-warm-t3-subj">a before and after from a business like yours<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t3-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-warm-t3-body">Hey [First Name],
+
+Third and final follow-up from me — I promise I'm not going to keep filling your inbox after this.
+
+I wanted to share one more thing before I close out: a real before-and-after from a [category] company we worked with.
+
+[INSERT BEFORE/AFTER: screenshot of old site vs. new site, or a brief description of the situation and result.]
+
+The business owner told me afterward that the first month with the new site was the busiest they'd had in three years. They were not doing paid ads — just showing up properly online.
+
+If the timing is ever right for [Business Name], I'd love to have the same conversation with you.
+
+Cole
+More Than Momentum<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t3-body', this)">Copy</button></div>
+              <div class="pb-note">As soon as you have a real case study with specific numbers, this slot is where it lives. Specific revenue or leads captured is dramatically more persuasive than general claims.</div>
+            </div>
+          </div>
+
+          <!-- Warm Touch 4 -->
+          <div class="pb-touch" id="pb-warm-t4">
+            <div class="pb-touch-header" onclick="pbToggle('pb-warm-t4')">
+              <span class="pb-touch-day">Day 21</span>
+              <span class="pb-touch-type pb-type-sms">SMS</span>
+              <span class="pb-touch-subject">Low pressure close — door left open</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Message</div>
+              <div class="pb-message-box" id="pb-warm-t4-body">[First Name] — Cole from More Than Momentum. Happy to still take a look at [Business Name]'s digital setup whenever the timing works. No pressure. — Cole<button class="pb-copy-btn" onclick="pbCopy('pb-warm-t4-body', this)">Copy</button></div>
+              <div class="pb-note">Not a hard sell. The goal is to be the person they think of when they finally decide it's time.</div>
+            </div>
+          </div>
+        </div><!-- end #pb-warm -->
+
+        <!-- COLD SEQUENCE -->
+        <div class="pb-section" id="pb-cold">
+          <div class="pb-section-header">
+            <span class="pb-section-dot" style="background:var(--green)"></span>
+            <span class="pb-section-label">❄️ Cold Sequence</span>
+            <span class="pb-section-meta">Score 0–39 · 2 touches · Email only · No SMS</span>
+          </div>
+
+          <!-- Cold Touch 1 -->
+          <div class="pb-touch" id="pb-cold-t1">
+            <div class="pb-touch-header" onclick="pbToggle('pb-cold-t1')">
+              <span class="pb-touch-day">Day 0</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">3 things most [category] companies miss even with a good website</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-cold-t1-subj">3 things most [category] companies miss even with a good website<button class="pb-copy-btn" onclick="pbCopy('pb-cold-t1-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-cold-t1-body">Hey [First Name],
+
+My name is Cole. I work with local [category] companies on their digital infrastructure — websites, automation, lead follow-up systems.
+
+I came across [Business Name] online. You've clearly put work into your presence and it shows.
+
+I send this to business owners whose online presence is already solid — because the next level of growth usually isn't about redesigning anything. It's about the infrastructure behind the site.
+
+Three things I see good businesses miss:
+
+1. Lead capture is on, but follow-up is manual. If a form submission sits in your inbox for 3 hours before someone calls, you've already lost the job.
+
+2. Reviews are solid but not being actively requested. Businesses that automate review requests after a job's done get 3-4x more reviews than those who rely on happy customers to volunteer.
+
+3. No way to re-engage cold leads. The people who contacted you 6 months ago and went quiet — most of them still need the service. They just need a reason to come back.
+
+Anyway — just something to think about. Happy to talk through any of it if you're ever curious.
+
+Cole Blanco
+More Than Momentum
+morethanmomentum.com<button class="pb-copy-btn" onclick="pbCopy('pb-cold-t1-body', this)">Copy</button></div>
+              <div class="pb-note">No pitch. No ask for a call. Pure value. The ask comes only after a reply.</div>
+            </div>
+          </div>
+
+          <!-- Cold Touch 2 -->
+          <div class="pb-touch" id="pb-cold-t2">
+            <div class="pb-touch-header" onclick="pbToggle('pb-cold-t2')">
+              <span class="pb-touch-day">Day 14</span>
+              <span class="pb-touch-type pb-type-email">Email</span>
+              <span class="pb-touch-subject">quick question for [Business Name]</span>
+              <span class="pb-touch-chevron">▼</span>
+            </div>
+            <div class="pb-touch-body">
+              <div class="pb-subject-line">Subject Line</div>
+              <div class="pb-message-box" id="pb-cold-t2-subj">quick question for [Business Name]<button class="pb-copy-btn" onclick="pbCopy('pb-cold-t2-subj', this)">Copy</button></div>
+              <div class="pb-subject-line">Body</div>
+              <div class="pb-message-box" id="pb-cold-t2-body">Hey [First Name],
+
+Following up from my email two weeks ago.
+
+One question — and you don't have to reply, just something worth sitting with:
+
+If a lead contacts your business at 9pm on a Tuesday and nobody's available, what happens?
+
+For most businesses the answer is: they wait until morning. And by morning, the lead has already called two more companies.
+
+Automation fixes that. The lead gets a text back in 60 seconds, a follow-up the next morning, and a call reminder for your team.
+
+If that's a problem worth solving for [Business Name], I'd love to show you how we've built it for other [category] companies.
+
+Cole
+More Than Momentum<button class="pb-copy-btn" onclick="pbCopy('pb-cold-t2-body', this)">Copy</button></div>
+              <div class="pb-note">The question format invites reflection without demanding a response. Every service business owner has lived through this scenario.</div>
+            </div>
+          </div>
+        </div><!-- end #pb-cold -->
+
+        <!-- CATEGORY CUSTOMIZATION -->
+        <div class="pb-section" id="pb-cats">
+          <div class="pb-section-header">
+            <span class="pb-section-dot" style="background:var(--accent)"></span>
+            <span class="pb-section-label">🏷 Category Customization</span>
+            <span class="pb-section-meta">Language swaps that make each sequence feel native</span>
+          </div>
+          <div class="pb-cat-grid">
+            <div class="pb-cat-card">
+              <div class="pb-cat-title">🌡 HVAC</div>
+              <div class="pb-cat-item"><strong>Pain point:</strong> Leads calling three companies and going with whoever calls back first.</div>
+              <div class="pb-cat-item"><strong>Seasonal hook:</strong> Summer AC season and winter heating — reference the season in Day 0.</div>
+              <div class="pb-cat-item"><strong>Stat:</strong> 78% of customers hire the first business that responds. Most HVAC companies respond in hours.</div>
+              <div class="pb-cat-item"><strong>Outcomes:</strong> bookings, installs, service calls, maintenance contracts.</div>
+            </div>
+            <div class="pb-cat-card">
+              <div class="pb-cat-title">🔧 Plumbing</div>
+              <div class="pb-cat-item"><strong>Pain point:</strong> Emergency calls going to whoever answers — no online presence at midnight with a burst pipe.</div>
+              <div class="pb-cat-item"><strong>Urgency angle:</strong> Plumbing is often emergency-driven — emphasize 24/7 lead capture and response speed over SEO.</div>
+              <div class="pb-cat-item"><strong>Stat:</strong> One missed lead a week is $15K–$40K a year walking out the door.</div>
+              <div class="pb-cat-item"><strong>Outcomes:</strong> service calls, emergency jobs, repeat customers, water heater installs.</div>
+            </div>
+            <div class="pb-cat-card">
+              <div class="pb-cat-title">🌿 Landscaping</div>
+              <div class="pb-cat-item"><strong>Pain point:</strong> No way to capture leads in the off-season and convert them in spring.</div>
+              <div class="pb-cat-item"><strong>Seasonal hook:</strong> Late winter and early spring are the buying window — time Day 0 accordingly.</div>
+              <div class="pb-cat-item"><strong>Stat:</strong> 60% of landscaping customers start with a Google search to verify the business exists.</div>
+              <div class="pb-cat-item"><strong>Outcomes:</strong> seasonal contracts, lawn care plans, snow removal upsell, hardscaping projects.</div>
+            </div>
+            <div class="pb-cat-card">
+              <div class="pb-cat-title">🏗 General Trades</div>
+              <div class="pb-cat-item"><strong>Pain point:</strong> Referrals are great, but they have a ceiling — digital infrastructure captures what word of mouth misses.</div>
+              <div class="pb-cat-item"><strong>Universal hook:</strong> "What happens when someone searches [your trade] + [city] and you don't show up?"</div>
+              <div class="pb-cat-item"><strong>Stat:</strong> 97% of consumers search online before hiring a local service business.</div>
+              <div class="pb-cat-item"><strong>Outcomes:</strong> project bookings, estimate requests, repeat work, referral amplification.</div>
+            </div>
+          </div>
+        </div><!-- end #pb-cats -->
+
+      </div><!-- end .pb-wrap -->
+    </div><!-- end ls-pane-playbook -->
 
   </div>
 </div>
@@ -5048,6 +5602,41 @@ function lsSrcError(msg) {
   el.textContent = '⚠ ' + msg;
   el.classList.add('show');
   el.style.display = 'block';
+}
+
+/* ───── Playbook tab helpers ───── */
+
+function pbToggle(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function pbCopy(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Clone and strip the copy button itself so its label doesn't end up in the clipboard text.
+  const clone = el.cloneNode(true);
+  const copyBtn = clone.querySelector('.pb-copy-btn');
+  if (copyBtn) copyBtn.remove();
+  const text = (clone.innerText || clone.textContent || '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Error';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function pbScrollTo(id) {
+  // Defer so the pane has a chance to render before we scroll.
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    const pane = document.getElementById('ls-pane-playbook');
+    if (el && pane) pane.scrollTop = el.offsetTop - 20;
+  }, 50);
+  return false;
 }
 </script>
 
